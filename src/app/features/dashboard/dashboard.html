@@ -1,1 +1,100 @@
-<p>dashboard works!</p>
+<div class="layout-wrapper">
+  <aside class="sidebar">
+    <div class="logo">
+      <span class="icon">🌱</span> EcoMonitor
+    </div>
+    
+    <nav class="menu">
+      <button class="menu-item" [class.active]="pantallaActual === 'dashboard'" (click)="navegarA('dashboard')">📊 Dashboard</button>
+      <button class="menu-item" [class.active]="pantallaActual === 'grupos'" (click)="navegarA('grupos')">📁 Mis Grupos</button>
+      <button class="menu-item" [class.active]="pantallaActual === 'alertas'" (click)="navegarA('alertas')">🔔 Alertas</button>
+      <button class="menu-item" [class.active]="pantallaActual === 'config'" (click)="navegarA('config')">⚙️ Configuración</button>
+    </nav>
+
+    <div class="user-profile">
+      <div class="avatar">U</div>
+      <span>Usuario Pro</span>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    
+    <div *ngIf="pantallaActual === 'dashboard'">
+      <section class="science-board-top">
+        <div class="board-header"><span class="board-tag">💡 SABÍAS QUE...</span></div>
+        <div class="board-content">
+          <div class="image-container"><img [src]="imagenActual" alt="Ciencia"></div>
+          <div class="text-container"><p class="fade-text">"{{ datoActual }}"</p></div>
+        </div>
+      </section>
+
+      <header class="top-header">
+        <h2>Monitor General</h2>
+        <button class="btn-add">+ Nuevo Grupo</button>
+      </header>
+
+      <div class="alert-banner" [class.warning]="recomendacionActual.includes('⚠️')">
+        <p>{{ recomendacionActual }}</p>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="glass-card" *ngFor="let s of lecturasSensores">
+          <div class="card-header">
+            <span class="status-dot" [attr.data-status]="s.estado"></span>
+            <span class="card-title">{{ s.tipo }}</span>
+          </div>
+          <div class="card-body">
+            <span class="main-value">{{ s.valor }}</span>
+            <span class="main-unit">{{ s.unidad }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="pantallaActual === 'grupos'">
+      <header class="top-header">
+        <h2>Gestión de Áreas</h2>
+        <button class="btn-add">+ Crear Nuevo Grupo</button>
+      </header>
+      <div class="groups-container">
+        <table class="dark-table">
+          <thead>
+            <tr><th>Área</th><th>Dispositivos</th><th>Estado</th><th>Acciones</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let g of misGrupos">
+              <td>{{ g.nombre }}</td>
+              <td>{{ g.dispositivos }} sensores</td>
+              <td><span class="status-dot"></span> {{ g.estado }}</td>
+              <td><button class="btn-sm">Configurar</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div *ngIf="pantallaActual === 'alertas'">
+      <header class="top-header"><h2>Historial de Auditoría</h2></header>
+      <div class="alerts-list">
+        <div class="alert-item" *ngFor="let a of historialAlertas" [attr.data-nivel]="a.nivel">
+          <div class="alert-info">
+            <strong>{{ a.evento }}</strong>
+            <p>{{ a.zona }} | {{ a.fecha }}</p>
+          </div>
+          <span class="badge">{{ a.nivel }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="pantallaActual === 'config'">
+      <header class="top-header"><h2>Ajustes de Cuenta</h2></header>
+      <div class="config-card">
+        <h3>Seguridad de la Sesión</h3>
+        <p>Estado: <span class="text-green">Protegido con JWT</span></p>
+        <div class="token-box"><code>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</code></div>
+        <button class="btn-danger">Cerrar Sesión</button>
+      </div>
+    </div>
+
+  </main>
+</div>
