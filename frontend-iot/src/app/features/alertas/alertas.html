@@ -1,0 +1,21 @@
+<div class="fade-in">
+  <header class="top-header">
+    <h2>Historial de Alertas Críticas</h2>
+    <div class="filter-group">
+      <input type="date" class="dark-input">
+    </div>
+  </header>
+
+  <div class="alerts-log-container">
+    <div class="alert-item" *ngFor="let a of historialAlertas" [attr.data-level]="a.nivel">
+      <div class="alert-time">{{ a.fecha }}</div>
+      <div class="alert-info">
+        <strong>{{ a.evento }}</strong>
+        <span>Ubicación: {{ a.zona }}</span>
+      </div>
+      <div class="alert-status">
+        <span class="badge">{{ a.nivel }}</span>
+      </div>
+    </div>
+  </div>
+</div>

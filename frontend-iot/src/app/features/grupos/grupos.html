@@ -1,0 +1,73 @@
+<div class="grupos-wrapper">
+  <div class="summary-row">
+    <div class="summary-card">
+      <span class="label">Total de Áreas</span>
+      <p class="value">{{ misGrupos.length }}</p>
+    </div>
+    <div class="summary-card">
+      <span class="label">Estado del Sistema</span>
+      <p class="value" style="color: #10b981;">En línea</p>
+    </div>
+  </div>
+
+ <div class="header-seccion">
+  <h2 style="color: #10b981; margin-bottom: 10px;">Gestión de Áreas</h2>
+  <button class="btn-nuevo-grupo" (click)="abrirModal()">
+    + Nuevo Grupo
+  </button>
+</div>
+
+  <div class="table-container">
+    <table class="grupos-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre del Área</th>
+          <th>Dispositivos</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let grupo of misGrupos">
+          <td>#0{{ grupo.id }}</td>
+          <td class="area-name">{{ grupo.nombre }}</td>
+          <td>{{ grupo.dispositivos }} sensores</td>
+          <td>
+            <span class="badge" [class.active-bg]="grupo.estado === 'Activo'">
+              {{ grupo.estado }}
+            </span>
+          </td>
+          <td>
+            <button class="action-btn">⚙️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="mostrarModal">
+  <div class="modal-box">
+    <h3>Registrar Nueva Área</h3>
+    <p>Asigna un nombre y selecciona los sensores a vincular.</p>
+    
+    <div class="input-group">
+      <label>Nombre del Área</label>
+      <input type="text" [(ngModel)]="nuevoGrupoNombre" placeholder="Ej: Laboratorio de Control">
+    </div>
+
+    <div class="dispositivos-selector">
+      <label>Seleccionar Dispositivos:</label>
+      <div class="dispositivo-item" *ngFor="let disp of dispositivosDisponibles">
+        <input type="checkbox" [(ngModel)]="disp.seleccionado" [id]="disp.id">
+        <label [for]="disp.id">{{ disp.nombre }}</label>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-sec" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn-pri" (click)="guardarGrupo()">Crear Grupo</button>
+    </div>
+  </div>
+</div>

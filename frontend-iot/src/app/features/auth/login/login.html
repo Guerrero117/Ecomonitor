@@ -1,0 +1,22 @@
+<div class="login-screen">
+  <div class="login-card">
+    <div class="header">
+      <h1>🌱 EcoMonitor</h1>
+      <p>Gestión inteligente de ecosistemas IoT</p>
+    </div>
+
+    <form (ngSubmit)="login()">
+      <div class="input-group">
+        <label>Correo Electrónico</label>
+        <input type="email" name="email" [(ngModel)]="email" placeholder="usuario@correo.com" required>
+      </div>
+
+      <div class="input-group">
+        <label>Contraseña</label>
+        <input type="password" name="password" [(ngModel)]="password" placeholder="••••••••" required>
+      </div>
+
+      <button type="submit" class="btn-enter">Entrar al Sistema</button>
+    </form>
+  </div>
+</div>
