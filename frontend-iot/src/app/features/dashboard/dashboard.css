@@ -1,18 +1,24 @@
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+/* RESET GENERAL */
+* { 
+  margin: 0; 
+  padding: 0; 
+  box-sizing: border-box; 
+  font-family: 'Inter', sans-serif; 
+}
 
-body { background-color: #0a0a0a !important; }
-
-.layout-wrapper {
+/* CONTENEDOR RAIZ */
+.dashboard-wrapper {
   display: flex;
   width: 100%;
   height: 100vh;
-  background-color: #0a0a0a;
+  background-color: #0a0a0a; /* Fondo ultra oscuro */
   color: #e2e8f0;
+  overflow: hidden;
 }
 
 /* SIDEBAR REFINADO */
 .sidebar {
-  width: 250px;
+  width: 260px;
   background-color: #0f0f0f;
   border-right: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
@@ -20,65 +26,110 @@ body { background-color: #0a0a0a !important; }
   padding: 30px 20px;
 }
 
-.logo { font-size: 1.4rem; font-weight: 800; color: #10b981; margin-bottom: 40px; }
+.logo { 
+  font-size: 1.5rem; 
+  font-weight: 800; 
+  color: #10b981; 
+  margin-bottom: 40px; 
+  letter-spacing: -1px;
+}
 
 .menu-item {
   width: 100%;
-  padding: 12px 15px;
-  margin-bottom: 8px;
+  padding: 14px 18px;
+  margin-bottom: 10px;
   border: none;
   background: transparent;
-  border-radius: 10px;
+  border-radius: 12px;
   color: #94a3b8;
   text-align: left;
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.menu-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: #fff;
 }
 
 .menu-item.active {
   background: rgba(16, 185, 129, 0.1);
   color: #10b981;
+  font-weight: 600;
   border-left: 4px solid #10b981;
 }
 
-/* CONTENIDO SIN RECUADRO BLANCO */
+/* CONTENIDO PRINCIPAL */
 .main-content {
   flex-grow: 1;
-  padding: 30px 40px; /* Menos espacio a la izquierda */
+  padding: 30px 50px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 20px;
 }
 
+/* PANEL CIENTÍFICO */
 .science-board-top {
   background: #141414;
   border-radius: 20px;
-  padding: 18px;
+  padding: 20px;
   border: 1px solid #222;
-  margin-bottom: 10px;
 }
 
-.board-content { display: flex; align-items: center; gap: 20px; }
+.board-tag {
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 4px 8px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  display: inline-block;
+}
 
-.image-container { width: 140px; height: 80px; border-radius: 12px; overflow: hidden; }
-.image-container img { width: 100%; height: 100%; object-fit: cover; }
+.board-content { 
+  display: flex; 
+  align-items: center; 
+  gap: 25px; 
+}
 
-/* ALERTA LLAMATIVA */
+.image-container { 
+  width: 160px; 
+  height: 90px; 
+  border-radius: 12px; 
+  overflow: hidden; 
+  flex-shrink: 0;
+}
+
+.image-container img { 
+  width: 100%; 
+  height: 100%; 
+  object-fit: cover; 
+}
+
+.fade-text {
+  font-size: 1.1rem;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+/* ALERTA */
 .alerta-container {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid #ef4444;
-  padding: 12px 20px;
-  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 15px 25px;
+  border-radius: 15px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
   color: #fca5a5;
   animation: pulse-red 2s infinite;
 }
 
 @keyframes pulse-red {
-  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2); }
   70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
   100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
@@ -86,29 +137,44 @@ body { background-color: #0a0a0a !important; }
 /* GRID DE CARDS */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
-  margin-top: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 25px;
 }
 
 .glass-card {
   background: #141414;
-  padding: 20px;
-  border-radius: 18px;
+  padding: 25px;
+  border-radius: 22px;
   border: 1px solid #222;
-  transition: 0.3s;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.glass-card:hover { border-color: #10b981; transform: translateY(-3px); }
+.glass-card:hover { 
+  border-color: #10b981; 
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
 
-.top-header { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+.sensor-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
 
-.btn-nuevo-grupo {
-  background: #10b981;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
+.sensor-status { font-size: 0.8rem; font-weight: 700; }
+
+.glass-card h3 {
+  font-size: 1.8rem;
+  margin-bottom: 5px;
+}
+
+.sensor-type {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+/* CONTENEDOR PARA RUTAS */
+.view-container {
+  margin-top: 10px;
+  flex-grow: 1;
 }

@@ -3,17 +3,30 @@ import { DashboardComponent } from './features/dashboard/dashboard';
 import { AlertasComponent } from './features/alertas/alertas';
 import { GruposComponent } from './features/grupos/grupos';
 
+// 1. IMPORTACIÓN CRÍTICA: 
+// El error dice que no lo encuentra porque en tu carpeta dice 'sensors' (plural) 
+// y el archivo se llama 'sensor-list' (con guion). 
+// La ruta debe incluir la carpeta 'sensors' que está antes de 'sensor-list'
+import { SensorListComponent } from './features/sensors/sensor-list/sensor-list';
 export const routes: Routes = [
   { 
     path: 'dashboard', 
     component: DashboardComponent,
     children: [
-      // 🟢 Estas son las rutas que se verán DENTRO del router-outlet del dashboard
+      /* --- RUTAS ANIDADAS --- */
+      // Estas se inyectan en el <router-outlet> del dashboard
       { path: 'alertas', component: AlertasComponent },
       { path: 'grupos', component: GruposComponent },
-      // Si quieres que al entrar a /dashboard se vea algo por defecto, puedes dejarlo así o crear un InicioComponent
+      
+      // 2. RUTA DE DISPOSITIVOS:
+      // Aquí es donde vinculamos la URL con el componente que jala datos de Mongo
+      { path: 'devices', component: SensorListComponent }
     ]
   },
+  
+  // Si la URL está vacía, te manda al dashboard por defecto
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-  { path: '**', redirectTo: 'dashboard' } // Por si escribes mal la URL
+  
+  // Si el usuario escribe cualquier otra cosa, lo redirigimos al inicio
+  { path: '**', redirectTo: 'dashboard' } 
 ];

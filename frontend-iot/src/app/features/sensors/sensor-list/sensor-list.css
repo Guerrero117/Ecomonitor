@@ -1,0 +1,49 @@
+.sensor-list-view { 
+    padding: 20px; 
+    color: #e0e0e0;
+}
+.header-row {
+     display: flex;
+     justify-content: space-between; 
+     align-items: center;
+      margin-bottom: 25px; 
+}
+.eco-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    background: #1e1e1e; border-radius: 12px; 
+    overflow: hidden; 
+}
+.eco-table th { 
+    background: #2d2d2d; 
+    padding: 15px;
+     text-align: left;
+      color: #4ec9b0; 
+}
+.eco-table td { 
+    padding: 15px; 
+    border-bottom:
+     1px solid #333; 
+}
+.type-tag { 
+     background: #007acc;
+     padding: 4px 10px; border-radius: 4px; 
+     font-size: 0.8rem;
+}
+.dot { 
+    height: 10px; width: 10px;
+     border-radius: 50%; 
+     display: inline-block; 
+     background: gray;
+      margin-right: 5px; 
+}
+.dot.online { background: #10b981; 
+    box-shadow: 0 0 8px #10b981; 
+}
+.btn-del { 
+    background: none; 
+    border: none; 
+    cursor: pointer;
+     transition: 0.3s; 
+}
+.btn-del:hover { transform: scale(1.2); }

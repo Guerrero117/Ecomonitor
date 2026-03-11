@@ -1,1 +1,55 @@
-<p>device-list works!</p>
+<div class="devices-container">
+  <section class="registration-form card">
+    <h2><i class="fas fa-plus-circle"></i> Registrar Nuevo Sensor</h2>
+    <form class="sensor-grid" (submit)="$event.preventDefault()">
+      <div class="field">
+        <label>Nombre del Dispositivo</label>
+        <input type="text" name="nombre" [(ngModel)]="nuevoSensor.nombre" placeholder="Ej. Sensor_Prototipo_A">
+      </div>
+      <div class="field">
+        <label>Tipo de Magnitud</label>
+        <select name="tipo" [(ngModel)]="nuevoSensor.tipo">
+          <option value="Temperatura">Temperatura</option>
+          <option value="Humedad">Humedad</option>
+          <option value="Presión Atmosférica">Presión Atmosférica</option>
+          <option value="Radiación UV">Radiación UV</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Frecuencia (seg)</label>
+        <input type="number" name="frecuencia" [(ngModel)]="nuevoSensor.frecuencia">
+      </div>
+      <button class="btn-add" (click)="guardarSensor()">Vincular al Sistema</button>
+    </form>
+  </section>
+
+  <section class="list-section card">
+    <div class="header-list">
+      <h2>Sensores en Red</h2>
+      <span class="badge">{{ devices.length }} Activos</span>
+    </div>
+    <table class="sensor-table">
+      <thead>
+        <tr>
+          <th>Estado</th>
+          <th>Nombre</th>
+          <th>Tipo</th>
+          <th>Frecuencia</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let device of devices">
+          <td><span class="dot online"></span> Online</td>
+          <td>{{ device.nombre }}</td>
+          <td>{{ device.tipo }}</td>
+          <td>{{ device.frecuencia }}s</td>
+          <td>
+            <button class="btn-icon"><i class="fas fa-edit"></i></button>
+            <button class="btn-icon delete"><i class="fas fa-trash"></i></button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</div>

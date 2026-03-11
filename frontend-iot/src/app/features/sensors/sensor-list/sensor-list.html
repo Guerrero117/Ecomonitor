@@ -1,1 +1,46 @@
-<p>sensor-list works!</p>
+<div class="sensor-list-view fade-in">
+  <div class="header-row">
+    <div>
+      <h2>📡 Panel de Dispositivos IoT</h2>
+      <p class="subtitle">Gestionando sensores en MongoDB Atlas</p>
+    </div>
+    <span class="status-badge">Nube: Conectada</span>
+  </div>
+
+  <div class="table-container">
+    <table class="eco-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Tipo</th>
+          <th>Frecuencia</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of dispositivos">
+          <td class="id-cell">{{ s.id.substring(0,8) }}...</td>
+          <td class="name-cell">{{ s.nombre }}</td>
+          <td><span class="type-tag">{{ s.tipo }}</span></td>
+          <td>{{ s.frecuencia }}s</td>
+          <td>
+            <div class="status-wrap">
+              <span class="dot" [class.online]="s.estado"></span>
+              {{ s.estado ? 'Activo' : 'Inactivo' }}
+            </div>
+          </td>
+          <td>
+            <button class="btn-del" (click)="eliminar(s.id)">
+              <i class="fas fa-trash"></i> 🗑️
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="dispositivos.length === 0">
+          <td colspan="6" class="empty-msg">No hay sensores vinculados. Usa Swagger para agregar uno.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

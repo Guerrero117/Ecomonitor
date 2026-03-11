@@ -1,48 +1,63 @@
-<div class="layout-wrapper">
+<div class="dashboard-wrapper">
+  
   <aside class="sidebar">
     <div class="logo">🌿 EcoMonitor</div>
+    
     <nav class="menu">
-      <button class="menu-item" [class.active]="pantallaActual === 'dashboard'" (click)="navegarA('dashboard')" routerLink="/dashboard">🏠 Inicio</button>
-      <button class="menu-item" [class.active]="pantallaActual === 'grupos'" (click)="navegarA('grupos')" routerLink="/dashboard/grupos">📂 Grupos</button>
-      <button class="menu-item" [class.active]="pantallaActual === 'alertas'" (click)="navegarA('alertas')" routerLink="/dashboard/alertas">⚠️ Alertas</button>
-      <button class="menu-item" [class.active]="pantallaActual === 'config'" (click)="navegarA('config')" routerLink="/dashboard/config">⚙️ Configuración</button>
+      <button class="menu-item" [class.active]="pantallaActual === 'dashboard'" (click)="navegarA('dashboard')" routerLink="/dashboard">
+        🏠 Inicio
+      </button>
+
+      <button class="menu-item" [class.active]="pantallaActual === 'grupos'" (click)="navegarA('grupos')" routerLink="/dashboard/grupos">
+        📂 Grupos
+      </button>
+
+      <button class="menu-item" [class.active]="pantallaActual === 'alertas'" (click)="navegarA('alertas')" routerLink="/dashboard/alertas">
+        ⚠️ Alertas
+      </button>
+
+      <button class="menu-item" [class.active]="pantallaActual === 'sensores'" (click)="navegarA('sensores')" routerLink="/devices">
+        🔌 Dispositivos
+      </button>
+
+      <button class="menu-item" [class.active]="pantallaActual === 'config'" (click)="navegarA('config')" routerLink="/dashboard/config">
+        ⚙️ Configuración
+      </button>
     </nav>
   </aside>
 
   <main class="main-content">
     
     <section class="science-board-top">
-      <span class="board-tag">¿SABÍAS QUE?</span>
+      <span class="board-tag">SABÍAS QUE...</span>
       <div class="board-content">
         <div class="image-container">
-          <img [src]="imagenActual" alt="Dato EcoMonitor">
+          <img [src]="imagenActual" alt="Dato EcoMonitor" class="fade-in">
         </div>
         <p class="fade-text">{{ datoActual }}</p>
       </div>
     </section>
 
     <div class="alerta-container" *ngIf="recomendacionActual.includes('⚠️')">
-      
+      <span class="alert-icon">🔥</span>
       <p>{{ recomendacionActual }}</p>
     </div>
 
-    
     <div class="dashboard-grid" *ngIf="pantallaActual === 'dashboard'">
       <div class="glass-card" *ngFor="let sensor of lecturasSensores">
         <div class="sensor-header">
           <span class="sensor-icon">📊</span>
-          <span class="sensor-status" [style.color]="sensor.estado === 'Normal' ? '#10b981' : '#f59e0b'">
+          <span class="sensor-status" [style.color]="sensor.estado === 'Normal' || sensor.estado === 'Óptimo' ? '#10b981' : '#f59e0b'">
             {{ sensor.estado }}
           </span>
         </div>
         <h3>{{ sensor.valor }}{{ sensor.unidad }}</h3>
-        <p>{{ sensor.tipo }}</p>
+        <p class="sensor-type">{{ sensor.tipo }}</p>
       </div>
     </div>
 
     <div class="view-container">
       <router-outlet></router-outlet>
     </div>
-
   </main>
 </div>
