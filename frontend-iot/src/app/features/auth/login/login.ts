@@ -17,6 +17,15 @@ export class LoginComponent {
 
   constructor(private router: Router) {}
 
+    goDashboard(){
+    this.router.navigate(['/dashboard']);
+  }
+
+  goRegister(){
+    this.router.navigate(['/register']);
+  }
+
+
   // El HTML busca una función llamada login()
   login() {
     console.log("Iniciando sesión con:", this.email);

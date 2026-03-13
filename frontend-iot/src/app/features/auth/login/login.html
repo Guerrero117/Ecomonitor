@@ -16,7 +16,13 @@
         <input type="password" name="password" [(ngModel)]="password" placeholder="••••••••" required>
       </div>
 
-      <button type="submit" class="btn-enter">Entrar al Sistema</button>
+      <button type="button" class="btn-enter" (click)="goDashboard()">
+        Iniciar sesión
+      </button>
+
+      <button type="button" class="btn-register" (click)="goRegister()">
+        Registrate
+      </button>
     </form>
   </div>
 </div>
