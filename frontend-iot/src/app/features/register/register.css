@@ -1,3 +1,16 @@
+.header h1 {
+  color: #10b981; /* Verde esmeralda para el toque Eco */
+  margin-bottom: 3px;
+  text-align: left;
+}
+
+.header p {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  text-align: left;
+  margin-bottom: 30px;
+}
+
 .register-container{
   height:100vh;
   display:flex;
@@ -33,19 +46,25 @@ label{
   font-size:13px;
 }
 
-input{
-  width:100%;
-  padding:12px;
-  margin-top:5px;
-  border-radius:8px;
-  border:none;
-  background:#0f172a;
-  color:white;
+.input-group {
+  margin-bottom: 20px;
 }
 
-input:focus{
-  outline:none;
-  border:1px solid #10b981;
+label {
+  display: block;
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+  color: #cbd5e1;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: white;
+  box-sizing: border-box; /* Evita que el input se salga del cuadro */
 }
 
 .btn-enter{
