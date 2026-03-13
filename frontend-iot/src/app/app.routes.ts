@@ -2,6 +2,9 @@ import { Routes } from '@angular/router';
 import { DashboardComponent } from './features/dashboard/dashboard'; 
 import { AlertasComponent } from './features/alertas/alertas';
 import { GruposComponent } from './features/grupos/grupos';
+import { FormsModule } from '@angular/forms';
+import { RegisterComponent } from './features/register/register';
+
 
 // 1. IMPORTACIÓN CRÍTICA: 
 // El error dice que no lo encuentra porque en tu carpeta dice 'sensors' (plural) 
@@ -9,6 +12,12 @@ import { GruposComponent } from './features/grupos/grupos';
 // La ruta debe incluir la carpeta 'sensors' que está antes de 'sensor-list'
 import { SensorListComponent } from './features/sensors/sensor-list/sensor-list';
 export const routes: Routes = [
+
+  {
+    path: 'register',
+    component: RegisterComponent
+  },
+
   { 
     path: 'dashboard', 
     component: DashboardComponent,
@@ -29,4 +38,6 @@ export const routes: Routes = [
   
   // Si el usuario escribe cualquier otra cosa, lo redirigimos al inicio
   { path: '**', redirectTo: 'dashboard' } 
+
 ];
+

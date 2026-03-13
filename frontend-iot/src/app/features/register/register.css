@@ -1,0 +1,78 @@
+.register-container{
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#081a33;
+}
+
+.register-card{
+  width:350px;
+  background:#1e293b;
+  padding:30px;
+  border-radius:12px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.5);
+  color:white;
+}
+
+.title{
+  text-align:center;
+  color:#10b981;
+  margin-bottom:5px;
+}
+
+.subtitle{
+  text-align:center;
+  font-size:14px;
+  margin-bottom:20px;
+}
+
+label{
+  display:block;
+  margin-top:12px;
+  font-size:13px;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  margin-top:5px;
+  border-radius:8px;
+  border:none;
+  background:#0f172a;
+  color:white;
+}
+
+input:focus{
+  outline:none;
+  border:1px solid #10b981;
+}
+
+.btn-enter{
+  width:100%;
+  padding:14px;
+  background-color:#10b981;
+  color:white;
+  border:none;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:20px;
+  transition:0.3s;
+}
+
+.btn-enter:hover{
+  background:#059669;
+}
+
+.btn-login{
+  width:100%;
+  padding:14px;
+  margin-top:10px;
+  border-radius:8px;
+  border:2px solid #10b981;
+  background:transparent;
+  color:#10b981;
+  font-weight:bold;
+  cursor:pointer;
+}
