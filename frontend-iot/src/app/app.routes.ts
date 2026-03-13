@@ -11,13 +11,17 @@ import { RegisterComponent } from './features/register/register';
 // y el archivo se llama 'sensor-list' (con guion). 
 // La ruta debe incluir la carpeta 'sensors' que está antes de 'sensor-list'
 import { SensorListComponent } from './features/sensors/sensor-list/sensor-list';
+import { LoginComponent } from './features/auth/login/login';
 export const routes: Routes = [
 
   {
     path: 'register',
     component: RegisterComponent
   },
-
+ {
+    path: 'login',
+    component: LoginComponent
+  },
   { 
     path: 'dashboard', 
     component: DashboardComponent,
@@ -34,10 +38,10 @@ export const routes: Routes = [
   },
   
   // Si la URL está vacía, te manda al dashboard por defecto
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
   
   // Si el usuario escribe cualquier otra cosa, lo redirigimos al inicio
-  { path: '**', redirectTo: 'dashboard' } 
+  { path: '**', redirectTo: 'login' } 
 
 ];
 
