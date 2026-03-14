@@ -1,6 +1,8 @@
 using backend_iot.Services;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
+// Agregamos esta línea para que reconozca el servicio si está en la raíz o en su carpeta
+using backend_iot; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +17,6 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // --- 2. CONFIGURACIÓN DE MONGODB ---
-// Asegúrate de que en appsettings.json existan "ConnectionString" y "DatabaseName"
 var mongoSettings = builder.Configuration.GetSection("MongoDbSettings");
 
 builder.Services.AddSingleton<IMongoClient>(sp => 
@@ -29,10 +30,14 @@ builder.Services.AddScoped(sp => {
 // --- 3. INYECCIÓN DE DEPENDENCIAS ---
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+// AGREGA ESTA LÍNEA AQUÍ:
+// Esto registra el servicio que creamos y quita los errores de los controladores
+builder.Services.AddScoped<MongoService>(); 
+
 // --- 4. CONFIGURACIÓN DE CORS (Para que Angular pueda entrar) ---
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAngular", policy => {
-        policy.WithOrigins("http://localhost:4200") // Puerto por defecto de Angular
+        policy.WithOrigins("http://localhost:4200") 
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -40,25 +45,17 @@ builder.Services.AddCors(options => {
 
 var app = builder.Build();
 
-// --- 5. CONFIGURACIÓN DEL PIPELINE (EL ORDEN IMPORTA MUCHO) ---
+// --- 5. CONFIGURACIÓN DEL PIPELINE ---
 
-// Swagger siempre al principio en desarrollo
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// 1. CORS debe ir ANTES de cualquier mapeo o autorización
 app.UseCors("AllowAngular");
-
-// 2. Redirección y archivos estáticos
 app.UseHttpsRedirection();
-
-// 3. Autorización (aunque aún no usemos JWT, debe estar aquí)
 app.UseAuthorization();
-
-// 4. Mapeo de Controladores
 app.MapControllers();
 
 app.Run();

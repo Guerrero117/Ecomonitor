@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import{ GruposService } from '../../core/services/grupos.service'; // <--- REVISA QUE EXISTA EL ARCHIVO .service.ts
+import { SensorsService } from '../../core/services/sensors';
 
 @Component({
   selector: 'app-grupos',
@@ -9,48 +11,67 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './grupos.html',
   styleUrl: './grupos.css'
 })
-
-
-
-
-export class GruposComponent {
-  misGrupos = [
-    { id: 1, nombre: 'Oficina Principal', dispositivos: 3, estado: 'Activo' },
-    { id: 2, nombre: 'Invernadero Beta', dispositivos: 5, estado: 'Mantenimiento' }
-  ];
-
-  // --- NUEVO: Lista de dispositivos para elegir ---
-  dispositivosDisponibles = [
-    { id: 'T01', nombre: 'Sensor Temperatura A1', seleccionado: false },
-    { id: 'H01', nombre: 'Sensor Humedad B2', seleccionado: false },
-    { id: 'C01', nombre: 'Monitor CO2 Central', seleccionado: false },
-    { id: 'L01', nombre: 'Sensor Luz Solar', seleccionado: false }
-  ];
-
+export class GruposComponent implements OnInit {
+  // Inicializamos con el formato correcto para que el HTML no marque error
+  misGrupos: any[] = [];
+  dispositivosDisponibles: any[] = []; 
+  
   mostrarModal: boolean = false;
   nuevoGrupoNombre: string = '';
+
+  constructor(
+    private gruposService: GruposService,
+    private sensorsService: SensorsService
+  ) {}
+
+  ngOnInit() {
+    this.cargarDatos();
+  }
+
+  cargarDatos() {
+    this.gruposService.getGrupos().subscribe({
+      next: (data: any[]) => this.misGrupos = data,
+      error: (err: any) => console.error("Error al cargar grupos", err)
+    });
+
+    this.sensorsService.getSensors().subscribe({
+      next: (data: any[]) => {
+        this.dispositivosDisponibles = data.map(s => ({
+          id: s.id,
+          nombre: s.nombre,
+          seleccionado: false
+        }));
+      }
+    });
+  }
 
   abrirModal() { this.mostrarModal = true; }
 
   cerrarModal() {
     this.mostrarModal = false;
     this.nuevoGrupoNombre = '';
-    // Limpiamos la selección al cerrar
     this.dispositivosDisponibles.forEach(d => d.seleccionado = false);
   }
 
   guardarGrupo() {
     if (this.nuevoGrupoNombre.trim() !== '') {
-      // Contamos cuántos dispositivos se seleccionaron
-      const seleccionados = this.dispositivosDisponibles.filter(d => d.seleccionado).length;
+      const seleccionados = this.dispositivosDisponibles
+        .filter(d => d.seleccionado)
+        .map(d => d.id);
 
-      this.misGrupos.push({
-        id: this.misGrupos.length + 1,
+      const nuevoGrupo = {
         nombre: this.nuevoGrupoNombre,
-        dispositivos: seleccionados, // 👈 Ahora sí guarda la cantidad real
+        sensoresIds: seleccionados, 
         estado: 'Activo'
+      };
+
+      this.gruposService.crearGrupo(nuevoGrupo).subscribe({
+        next: () => {
+          this.cargarDatos(); 
+          this.cerrarModal();
+        },
+        error: (err: any) => alert("Error al conectar con el backend .NET")
       });
-      this.cerrarModal();
     }
   }
 }

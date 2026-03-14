@@ -1,8 +1,21 @@
 <div class="main-content">
   <section class="science-board-top">
-    <span class="board-tag">ANÁLISIS TÉRMICO</span>
-    <div class="board-content">
-      <p>Comparativa en tiempo real: Sensor Local vs. Estación Meteorológica Exterior.</p>
+    <div class="d-flex justify-content-between align-items-center w-100 flex-wrap">
+      <div>
+        <span class="board-tag">ANÁLISIS TÉRMICO</span>
+        <div class="board-content">
+          <p>Comparativa: Ciudad Obregón vs. Áreas de EcoMonitor.</p>
+        </div>
+      </div>
+
+      <div class="group-selector-container">
+        <label class="small-label">Área de Monitoreo:</label>
+        <select class="custom-select-dark" 
+                [(ngModel)]="grupoSeleccionadoId" 
+                (change)="onGrupoChange()">
+          <option *ngFor="let g of listaGrupos" [value]="g.id">{{ g.nombre }}</option>
+        </select>
+      </div>
     </div>
   </section>
 
@@ -10,10 +23,10 @@
     <div class="glass-card">
       <div class="sensor-header">
         <span class="sensor-icon">🌍</span>
-        <span class="sensor-status">Exterior</span>
+        <span class="sensor-status">Obregón</span>
       </div>
       <h3>{{ tempExterior }}°C</h3>
-      <p class="sensor-type">OpenWeather API</p>
+      <p class="sensor-type">Humedad: {{ humedadExterior }}%</p>
     </div>
 
     <div class="glass-card">
@@ -21,8 +34,25 @@
         <span class="sensor-icon">🏠</span>
         <span class="sensor-status" style="color: #10b981">Interior</span>
       </div>
-      <h3>{{ tempInterior }}°C</h3>
-      <p class="sensor-type">Sensor EcoMonitor</p>
+      <h3>{{ tempInterior.toFixed(1) }}°C</h3>
+      <p class="sensor-type">Promedio del Grupo</p>
+    </div>
+
+    <div class="glass-card">
+      <div class="sensor-header">
+        <span class="sensor-icon">🌡️</span>
+        <span class="sensor-status">Pronóstico</span>
+      </div>
+      <div class="extremes-container">
+        <div class="extreme-item">
+          <span class="small-label">Mín</span>
+          <span class="val-min">{{ tempMin }}°</span>
+        </div>
+        <div class="extreme-item border-left">
+          <span class="small-label">Máx</span>
+          <span class="val-max">{{ tempMax }}°</span>
+        </div>
+      </div>
     </div>
 
     <div class="glass-card" [style.background]="diferencia > 5 ? 'rgba(245, 158, 11, 0.1)' : ''">
@@ -34,6 +64,25 @@
         {{ diferencia.toFixed(1) }}°C
       </h3>
       <p class="sensor-type">Brecha Térmica</p>
+    </div>
+  </div>
+
+  <div class="glass-card chart-container" style="margin-top: 2rem; min-height: 350px;">
+    <div class="sensor-header">
+      <span class="sensor-icon">📈</span>
+      <span class="sensor-status">Comparativa Visual</span>
+    </div>
+    
+    <div *ngIf="!cargando" style="display: block; width: 100%; height: 280px;">
+      <canvas baseChart
+        [data]="barChartData"
+        [options]="barChartOptions"
+        [type]="barChartType">
+      </canvas>
+    </div>
+
+    <div *ngIf="cargando" class="loading-state">
+      Sincronizando con estaciones meteorológicas...
     </div>
   </div>
 </div>

@@ -13,13 +13,16 @@ import { SensorsService } from '../../core/services/sensors';
 })
 export class EntradaManualComponent implements OnInit {
   listaSensores: any[] = [];
-  ultimasLecturas: any[] = []; // Almacena el historial del sensor seleccionado
+  ultimasLecturas: any[] = []; 
   
   lectura = {
     sensorId: '',
     valor: null as number | null,
     unidad: '°C'
   };
+
+  // Control para evitar errores de usuario
+  unidadBloqueada: boolean = false;
 
   constructor(
     private lecturasService: LecturasService,
@@ -40,7 +43,31 @@ export class EntradaManualComponent implements OnInit {
   // Se ejecuta al cambiar de sensor en el select
   onSensorChange() {
     if (this.lectura.sensorId) {
-      this.obtenerHistorial(this.lectura.sensorId);
+      const sensorSeleccionado = this.listaSensores.find(s => s.id === this.lectura.sensorId);
+      
+      if (sensorSeleccionado) {
+        this.validarTipoDeSensor(sensorSeleccionado.tipo);
+        this.obtenerHistorial(this.lectura.sensorId);
+      }
+    }
+  }
+
+  // Detecta el tipo y asigna la unidad correcta
+  private validarTipoDeSensor(tipo: string) {
+    const t = tipo.toLowerCase();
+    
+    if (t.includes('temp')) {
+      this.lectura.unidad = '°C';
+      this.unidadBloqueada = true;
+    } else if (t.includes('hum')) {
+      this.lectura.unidad = '%';
+      this.unidadBloqueada = true;
+    } else if (t.includes('co2')) {
+      this.lectura.unidad = 'ppm';
+      this.unidadBloqueada = true;
+    } else {
+      // Si el sensor no es reconocido, permitimos que el usuario elija
+      this.unidadBloqueada = false;
     }
   }
 
@@ -60,10 +87,8 @@ export class EntradaManualComponent implements OnInit {
     this.lecturasService.enviarLecturaManual(this.lectura).subscribe({
       next: (res: any) => {
         alert("✅ ¡Dato registrado en MongoDB Atlas!");
-        // Actualizamos la tabla automáticamente
         this.obtenerHistorial(this.lectura.sensorId);
-        // Limpiamos solo el valor para permitir otra entrada rápida
-        this.lectura.valor = null;
+        this.lectura.valor = null; // Limpiamos valor para nueva entrada
       },
       error: (err: any) => {
         console.error(err);

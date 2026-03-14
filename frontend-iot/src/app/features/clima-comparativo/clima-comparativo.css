@@ -1,11 +1,80 @@
-.temp-valor {
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin: 10px 0;
+/* Contenedor para el selector en el encabezado */
+.group-selector-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 200px;
 }
 
-/* Clase dinámica para alertar si la diferencia es alta */
-.alerta-termica {
-  background: rgba(239, 68, 68, 0.2) !important; /* Rojo traslúcido */
-  border: 1px solid #ef4444 !important;
+.label-selector {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.custom-select-dark {
+  background: rgba(0, 0, 0, 0.3);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 8px;
+  padding: 8px 12px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.custom-select-dark:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+}
+
+/* Estilo para la tarjeta de Extremos (Min/Max) */
+.extremes-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.extreme-item {
+  text-align: center;
+  flex: 1;
+}
+
+.border-left {
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.small-label {
+  display: block;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 4px;
+}
+
+.val-min {
+  color: #3b82f6; /* Azul para el frío */
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.val-max {
+  color: #ef4444; /* Rojo para el calor */
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+/* Ajuste para que los valores de temperatura resalten */
+.temp-value {
+  font-size: 2.2rem;
+  margin: 10px 0;
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+.text-emerald {
+  color: #10b981;
 }

@@ -17,4 +17,10 @@ export class LecturasService {
   getLecturasPorSensor(sensorId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/${sensorId}`);
   }
+
+
+  getLecturasPorGrupo(grupoId: string): Observable<any[]> {
+  // Asegúrate de que la ruta coincida con tu controlador de .NET
+  return this.http.get<any[]>(`http://localhost:5126/api/lecturas/grupo/${grupoId}`);
+}
 }

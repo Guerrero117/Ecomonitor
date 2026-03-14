@@ -2,7 +2,7 @@
   <section class="science-board-top">
     <span class="board-tag">SIMULACIÓN DE DATOS</span>
     <div class="board-content">
-      <p>Ingresa mediciones manualmente para probar la respuesta del sistema y las alertas de EcoMonitor.</p>
+      <p>Ingresa mediciones manualmente. El sistema detectará automáticamente la unidad según el sensor.</p>
     </div>
   </section>
 
@@ -31,12 +31,15 @@
 
         <div class="form-group">
           <label>Unidad de Medida</label>
-          <select [(ngModel)]="lectura.unidad" name="unidad">
+          <select [(ngModel)]="lectura.unidad" name="unidad" [disabled]="unidadBloqueada">
             <option value="°C">Grados Celsius (°C)</option>
             <option value="%">Humedad Relativa (%)</option>
             <option value="ppm">Partículas CO2 (ppm)</option>
             <option value="lx">Iluminancia (lx)</option>
           </select>
+          <small *ngIf="unidadBloqueada" style="color: #10b981; font-size: 0.7rem; margin-top: 5px; display: block;">
+            * Unidad bloqueada automáticamente para este sensor.
+          </small>
         </div>
 
         <button type="submit" class="menu-item active" style="width: 100%; margin-top: 15px; justify-content: center; border:none; cursor:pointer">
@@ -48,10 +51,6 @@
         <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;">
         <h4 style="color: #a1a1aa; font-size: 0.85rem; margin-bottom: 10px;">Últimos registros del sensor:</h4>
         
-        <div *ngIf="ultimasLecturas.length === 0" style="color: #71717a; font-size: 0.8rem; text-align: center; padding: 10px;">
-          No hay lecturas previas para este sensor.
-        </div>
-
         <table *ngIf="ultimasLecturas.length > 0" class="history-table">
           <thead>
             <tr>
