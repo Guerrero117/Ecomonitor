@@ -7,10 +7,10 @@
       <p>Crear una cuenta</p>
     </div>
 
-     <form formGroup="registerForm" (ngSubmit)="register()">
+     <form [formGroup]="registerForm" (ngSubmit)="register()">
 
       <label>Nombre</label>
-      <input type="text" formControlName="name" placeholder="Tu nombre">
+      <input type="text" formControlName="nombre" placeholder="Tu nombre">
 
       <label>Correo electrónico</label>
       <input type="email" formControlName="email" placeholder="usuario@correo.com">

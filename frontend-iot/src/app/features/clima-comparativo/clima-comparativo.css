@@ -1,0 +1,11 @@
+.temp-valor {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+/* Clase dinámica para alertar si la diferencia es alta */
+.alerta-termica {
+  background: rgba(239, 68, 68, 0.2) !important; /* Rojo traslúcido */
+  border: 1px solid #ef4444 !important;
+}

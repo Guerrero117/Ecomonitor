@@ -1,0 +1,72 @@
+<div class="main-content fade-in">
+  <section class="science-board-top">
+    <span class="board-tag">SIMULACIÓN DE DATOS</span>
+    <div class="board-content">
+      <p>Ingresa mediciones manualmente para probar la respuesta del sistema y las alertas de EcoMonitor.</p>
+    </div>
+  </section>
+
+  <div class="dashboard-grid">
+    <div class="glass-card">
+      <div class="sensor-header">
+        <span class="sensor-icon">📥</span>
+        <span class="sensor-status" style="color: #10b981">Live Input</span>
+      </div>
+      
+      <form (ngSubmit)="guardarDato()" class="manual-form">
+        <div class="form-group">
+          <label>Dispositivo Destino</label>
+          <select [(ngModel)]="lectura.sensorId" name="sensorId" (change)="onSensorChange()" required>
+            <option value="" disabled>Selecciona un sensor...</option>
+            <option *ngFor="let s of listaSensores" [value]="s.id">
+              {{ s.nombre }} ({{ s.tipo }})
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Valor de Medición</label>
+          <input type="number" [(ngModel)]="lectura.valor" name="valor" placeholder="0.00" step="0.1" required>
+        </div>
+
+        <div class="form-group">
+          <label>Unidad de Medida</label>
+          <select [(ngModel)]="lectura.unidad" name="unidad">
+            <option value="°C">Grados Celsius (°C)</option>
+            <option value="%">Humedad Relativa (%)</option>
+            <option value="ppm">Partículas CO2 (ppm)</option>
+            <option value="lx">Iluminancia (lx)</option>
+          </select>
+        </div>
+
+        <button type="submit" class="menu-item active" style="width: 100%; margin-top: 15px; justify-content: center; border:none; cursor:pointer">
+          🚀 Enviar a MongoDB
+        </button>
+      </form>
+
+      <div class="history-container" *ngIf="lectura.sensorId">
+        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;">
+        <h4 style="color: #a1a1aa; font-size: 0.85rem; margin-bottom: 10px;">Últimos registros del sensor:</h4>
+        
+        <div *ngIf="ultimasLecturas.length === 0" style="color: #71717a; font-size: 0.8rem; text-align: center; padding: 10px;">
+          No hay lecturas previas para este sensor.
+        </div>
+
+        <table *ngIf="ultimasLecturas.length > 0" class="history-table">
+          <thead>
+            <tr>
+              <th>Valor</th>
+              <th>Fecha y Hora</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of ultimasLecturas">
+              <td class="valor-col">{{ item.valor }} {{ item.unidad }}</td>
+              <td class="fecha-col">{{ item.fechaHora | date:'dd/MM HH:mm' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

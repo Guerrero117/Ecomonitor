@@ -1,23 +1,32 @@
 using backend_iot.Models;
-using BCrypt.Net;
+using MongoDB.Driver;
+using BC = BCrypt.Net.BCrypt;
 
 namespace backend_iot.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly User _testUser = new User 
-        { 
-            Email = "octavio@eco.com", 
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Eco123!") 
-        };
+        private readonly IMongoCollection<User> _users;
+
+        public AuthService(IMongoDatabase database)
+        {
+            _users = database.GetCollection<User>("Users");
+        }
 
         public string? Login(string email, string password)
         {
-            if (email != _testUser.Email) return null;
+            var user = _users.Find(u => u.Email == email).FirstOrDefault();
+            if (user != null && BC.Verify(password, user.Password))
+            {
+                return $"token-seguro-{user.Nombre}-{Guid.NewGuid()}";
+            }
+            return null;
+        }
 
-            bool isValid = BCrypt.Net.BCrypt.Verify(password, _testUser.PasswordHash);
-
-            return isValid ? "TOKEN_PRUEBA_EXITOSO_OK" : null;
+        public async Task Register(User newUser)
+        {
+            newUser.Password = BC.HashPassword(newUser.Password);
+            await _users.InsertOneAsync(newUser);
         }
     }
 }
