@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import{ GruposService } from '../../core/services/grupos.service'; // <--- REVISA QUE EXISTA EL ARCHIVO .service.ts
+import { GruposService } from '../../core/services/grupos.service';
 import { SensorsService } from '../../core/services/sensors';
 
 @Component({
@@ -12,10 +12,8 @@ import { SensorsService } from '../../core/services/sensors';
   styleUrl: './grupos.css'
 })
 export class GruposComponent implements OnInit {
-  // Inicializamos con el formato correcto para que el HTML no marque error
   misGrupos: any[] = [];
   dispositivosDisponibles: any[] = []; 
-  
   mostrarModal: boolean = false;
   nuevoGrupoNombre: string = '';
 
@@ -31,7 +29,7 @@ export class GruposComponent implements OnInit {
   cargarDatos() {
     this.gruposService.getGrupos().subscribe({
       next: (data: any[]) => this.misGrupos = data,
-      error: (err: any) => console.error("Error al cargar grupos", err)
+      error: (err) => console.error("Error al cargar grupos", err)
     });
 
     this.sensorsService.getSensors().subscribe({
@@ -45,12 +43,19 @@ export class GruposComponent implements OnInit {
     });
   }
 
-  abrirModal() { this.mostrarModal = true; }
+  abrirModal() { 
+    console.log("Botón presionado: abriendo modal");
+    this.mostrarModal = true; 
+  }
 
   cerrarModal() {
     this.mostrarModal = false;
     this.nuevoGrupoNombre = '';
     this.dispositivosDisponibles.forEach(d => d.seleccionado = false);
+  }
+
+  haySensoresSeleccionados(): boolean {
+    return this.dispositivosDisponibles.some(d => d.seleccionado);
   }
 
   guardarGrupo() {
@@ -70,7 +75,7 @@ export class GruposComponent implements OnInit {
           this.cargarDatos(); 
           this.cerrarModal();
         },
-        error: (err: any) => alert("Error al conectar con el backend .NET")
+        error: (err) => alert("Error al conectar con .NET")
       });
     }
   }

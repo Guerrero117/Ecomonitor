@@ -1,79 +1,86 @@
 <div class="main-content">
-  <section class="science-board-top">
-    <div class="d-flex justify-content-between align-items-center w-100 flex-wrap">
-      <div>
-        <span class="board-tag">ANÁLISIS TÉRMICO</span>
-        <div class="board-content">
-          <p>Comparativa: Ciudad Obregón vs. Áreas de EcoMonitor.</p>
-        </div>
+  <section class="science-board-top glass-card">
+    <div class="header-flex">
+      <div class="header-info">
+        <span class="board-tag">Dashboard de Comparación</span>
+        <h2 class="main-title">Análisis Térmico Diferencial</h2>
+        <p class="subtitle">Sincronización en tiempo real: Obregón vs Estaciones Locales</p>
       </div>
 
-      <div class="group-selector-container">
-        <label class="small-label">Área de Monitoreo:</label>
-        <select class="custom-select-dark" 
-                [(ngModel)]="grupoSeleccionadoId" 
-                (change)="onGrupoChange()">
-          <option *ngFor="let g of listaGrupos" [value]="g.id">{{ g.nombre }}</option>
-        </select>
+      <div class="group-selector-box">
+        <label class="label-selector">Zona de Monitoreo</label>
+        <div class="select-wrapper">
+          <i class="fas fa-map-marker-alt select-icon"></i>
+          <select class="custom-select-dark" [(ngModel)]="grupoSeleccionadoId" (change)="onGrupoChange()">
+            <option *ngFor="let g of listaGrupos" [value]="g.id">{{ g.nombre }}</option>
+          </select>
+        </div>
       </div>
     </div>
   </section>
 
   <div class="dashboard-grid">
-    <div class="glass-card">
+    <div class="glass-card sensor-card exterior">
       <div class="sensor-header">
-        <span class="sensor-icon">🌍</span>
-        <span class="sensor-status">Obregón</span>
+        <span class="icon-circle"><i class="fas fa-globe-americas"></i></span>
+        <span class="sensor-label">Obregón (Exterior)</span>
       </div>
-      <h3>{{ tempExterior }}°C</h3>
-      <p class="sensor-type">Humedad: {{ humedadExterior }}%</p>
+      <h3 class="temp-value">{{ tempExterior }}°<span class="unit">C</span></h3>
+      <div class="sensor-footer">
+        <i class="fas fa-tint"></i> Humedad: {{ humedadExterior }}%
+      </div>
     </div>
 
-    <div class="glass-card">
+    <div class="glass-card sensor-card interior">
       <div class="sensor-header">
-        <span class="sensor-icon">🏠</span>
-        <span class="sensor-status" style="color: #10b981">Interior</span>
+        <span class="icon-circle emerald"><i class="fas fa-home"></i></span>
+        <span class="sensor-label">Área Seleccionada</span>
       </div>
-      <h3>{{ tempInterior.toFixed(1) }}°C</h3>
-      <p class="sensor-type">Promedio del Grupo</p>
+      <h3 class="temp-value text-emerald">{{ tempInterior.toFixed(1) }}°<span class="unit">C</span></h3>
+      <div class="sensor-footer">Promedio del Grupo</div>
     </div>
 
-    <div class="glass-card">
+    <div class="glass-card sensor-card">
       <div class="sensor-header">
-        <span class="sensor-icon">🌡️</span>
-        <span class="sensor-status">Pronóstico</span>
+        <span class="icon-circle blue"><i class="fas fa-temperature-high"></i></span>
+        <span class="sensor-label">Rango Diario</span>
       </div>
       <div class="extremes-container">
         <div class="extreme-item">
-          <span class="small-label">Mín</span>
+          <span class="small-label">MÍNIMA</span>
           <span class="val-min">{{ tempMin }}°</span>
         </div>
-        <div class="extreme-item border-left">
-          <span class="small-label">Máx</span>
+        <div class="extreme-divider"></div>
+        <div class="extreme-item">
+          <span class="small-label">MÁXIMA</span>
           <span class="val-max">{{ tempMax }}°</span>
         </div>
       </div>
     </div>
 
-    <div class="glass-card" [style.background]="diferencia > 5 ? 'rgba(245, 158, 11, 0.1)' : ''">
+    <div class="glass-card sensor-card status-card" [class.warning]="diferencia > 5">
       <div class="sensor-header">
-        <span class="sensor-icon">📊</span>
-        <span class="sensor-status">Diferencia</span>
+        <span class="icon-circle yellow"><i class="fas fa-exchange-alt"></i></span>
+        <span class="sensor-label">Brecha Térmica</span>
       </div>
-      <h3 [style.color]="diferencia > 5 ? '#f59e0b' : '#10b981'">
-        {{ diferencia.toFixed(1) }}°C
+      <h3 class="temp-value" [style.color]="diferencia > 5 ? '#f59e0b' : '#10b981'">
+        {{ diferencia.toFixed(1) }}°<span class="unit">C</span>
       </h3>
-      <p class="sensor-type">Brecha Térmica</p>
+      <p class="status-msg">{{ diferencia > 5 ? 'Diferencia Elevada' : 'Nivel Estable' }}</p>
     </div>
   </div>
 
-  <div class="glass-card chart-container" style="margin-top: 2rem; min-height: 350px;">
-    <div class="sensor-header">
-      <span class="sensor-icon">📈</span>
-      <span class="sensor-status">Comparativa Visual</span>
+  <div class="glass-card chart-container-pro">
+    <div class="chart-header">
+      <div class="chart-title">
+        <i class="fas fa-chart-bar"></i> Visualización de Datos Sincronizados
+      </div>
+      <div class="live-indicator">
+        <span class="dot"></span> LIVE
+      </div>
     </div>
     
-    <div *ngIf="!cargando" style="display: block; width: 100%; height: 280px;">
+    <div *ngIf="!cargando" class="canvas-wrapper">
       <canvas baseChart
         [data]="barChartData"
         [options]="barChartOptions"
@@ -81,8 +88,9 @@
       </canvas>
     </div>
 
-    <div *ngIf="cargando" class="loading-state">
-      Sincronizando con estaciones meteorológicas...
+    <div *ngIf="cargando" class="loading-overlay">
+      <div class="spinner"></div>
+      <p>Consultando base de datos...</p>
     </div>
   </div>
 </div>

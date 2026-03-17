@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // <-- Importante para el selector
+import { FormsModule } from '@angular/forms'; 
 import { WeatherService } from '../../core/services/weather.service';
 import { LecturasService } from '../../core/services/lecturas.service';
 import { GruposService } from '../../core/services/grupos.service';
@@ -21,30 +21,35 @@ export class ClimaComparativoComponent implements OnInit {
   tempMax: number = 0;
   tempMin: number = 0;
 
-  // Datos Interior (Promedio del Grupo)
+  // Datos Interior
   tempInterior: number = 0;
   diferencia: number = 0;
   
-  // Gestión de Grupos
+  // Gestión de Grupos y Filtro (Avance de entrega)
   listaGrupos: any[] = [];
   grupoSeleccionadoId: string = '';
   cargando: boolean = true;
+  filtroBusqueda: string = ''; // <--- Para el buscador
 
+  // Configuración de Gráfica
   public barChartOptions: ChartConfiguration['options'] = {
     responsive: true,
+    maintainAspectRatio: false,
     scales: {
-      y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } },
-      x: { ticks: { color: '#fff' } }
+      y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+      x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
     },
-    plugins: { legend: { labels: { color: '#fff' } } }
+    plugins: { 
+      legend: { labels: { color: '#f1f5f9', font: { weight: 'bold' } } } 
+    }
   };
 
   public barChartType: ChartType = 'bar';
   public barChartData: ChartData<'bar'> = {
     labels: ['Temperatura (°C)'],
     datasets: [
-      { data: [0], label: 'Obregón (Exterior)', backgroundColor: '#3b82f6' },
-      { data: [0], label: 'Área Local (Interior)', backgroundColor: '#10b981' }
+      { data: [0], label: 'Obregón (Exterior)', backgroundColor: '#3b82f6', borderRadius: 8 },
+      { data: [0], label: 'Área Local (Interior)', backgroundColor: '#10b981', borderRadius: 8 }
     ]
   };
 
@@ -57,6 +62,13 @@ export class ClimaComparativoComponent implements OnInit {
   ngOnInit() {
     this.cargarClimaExterior();
     this.cargarGrupos();
+  }
+
+  // Lógica del Buscador/Filtro para la entrega
+  get gruposFiltrados() {
+    return this.listaGrupos.filter(g => 
+      g.nombre.toLowerCase().includes(this.filtroBusqueda.toLowerCase())
+    );
   }
 
   cargarClimaExterior() {
@@ -82,14 +94,11 @@ export class ClimaComparativoComponent implements OnInit {
     });
   }
 
-  // Se ejecuta cuando cambias el grupo en el selector
   onGrupoChange() {
     if (!this.grupoSeleccionadoId) return;
     
-    // Llamamos al nuevo endpoint del backend que hicimos antes
     this.lecturasService.getLecturasPorGrupo(this.grupoSeleccionadoId).subscribe((lecturas: any[]) => {
       if (lecturas.length > 0) {
-        // Calculamos el promedio de las últimas lecturas de los sensores del grupo
         const suma = lecturas.reduce((acc, curr) => acc + curr.valor, 0);
         this.tempInterior = suma / lecturas.length;
       } else {
@@ -106,3 +115,4 @@ export class ClimaComparativoComponent implements OnInit {
     this.barChartData = { ...this.barChartData };
   }
 }
+      

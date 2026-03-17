@@ -1,80 +1,138 @@
-/* Contenedor para el selector en el encabezado */
-.group-selector-container {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  min-width: 200px;
+/* Layout General */
+.main-content {
+  padding: 25px;
+  background: #0b0f1a;
+  min-height: 100vh;
 }
 
-.label-selector {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+/* Header Science Board */
+.science-board-top {
+  padding: 25px;
+  margin-bottom: 30px;
+  border-left: 4px solid #10b981;
+}
+
+.header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.main-title {
+  margin: 5px 0;
+  font-size: 1.8rem;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+/* Selector Estilizado */
+.group-selector-box {
+  background: rgba(15, 23, 42, 0.6);
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.select-icon {
+  position: absolute;
+  left: 10px;
+  color: #10b981;
 }
 
 .custom-select-dark {
-  background: rgba(0, 0, 0, 0.3);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  border-radius: 8px;
-  padding: 8px 12px;
-  outline: none;
+  background: transparent;
+  border: none;
+  color: #fff;
+  padding: 8px 10px 8px 35px;
+  width: 220px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  font-weight: 600;
 }
 
-.custom-select-dark:focus {
-  border-color: #10b981;
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+/* Sensor Cards */
+.sensor-card {
+  padding: 24px;
+  transition: transform 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Estilo para la tarjeta de Extremos (Min/Max) */
-.extremes-container {
+.sensor-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.icon-circle {
+  width: 40px;
+  height: 40px;
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border-radius: 50%;
   display: flex;
-  justify-content: space-around;
   align-items: center;
-  margin-top: 15px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  justify-content: center;
+  margin-right: 12px;
 }
 
-.extreme-item {
-  text-align: center;
-  flex: 1;
-}
+.icon-circle.emerald { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.icon-circle.yellow { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
 
-.border-left {
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.small-label {
-  display: block;
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.5);
-  margin-bottom: 4px;
-}
-
-.val-min {
-  color: #3b82f6; /* Azul para el frío */
-  font-weight: bold;
-  font-size: 1.2rem;
-}
-
-.val-max {
-  color: #ef4444; /* Rojo para el calor */
-  font-weight: bold;
-  font-size: 1.2rem;
-}
-
-/* Ajuste para que los valores de temperatura resalten */
 .temp-value {
-  font-size: 2.2rem;
-  margin: 10px 0;
-  font-weight: 700;
-  letter-spacing: -1px;
+  font-size: 2.8rem;
+  margin: 15px 0 5px;
+  font-weight: 800;
 }
 
-.text-emerald {
-  color: #10b981;
+.unit { font-size: 1.2rem; vertical-align: top; color: #64748b; }
+
+/* Gráfica Pro */
+.chart-container-pro {
+  padding: 25px;
+  margin-top: 30px;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 25px;
+}
+
+.live-indicator {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background: #ef4444;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+.canvas-wrapper {
+  height: 350px;
+  width: 100%;
 }

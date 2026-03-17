@@ -1,23 +1,33 @@
 <div class="grupos-wrapper">
   <div class="summary-row">
-    <div class="summary-card">
-      <span class="label">Total de Áreas</span>
-      <p class="value">{{ misGrupos.length }}</p>
+    <div class="glass-card summary-item">
+      <div class="card-icon"><i class="fas fa-layer-group"></i></div>
+      <div class="card-data">
+        <span class="small-label">Áreas Registradas</span>
+        <h3>{{ misGrupos.length }}</h3>
+      </div>
     </div>
-    <div class="summary-card">
-      <span class="label">Estado del Sistema</span>
-      <p class="value" style="color: #10b981;">En línea</p>
+
+    <div class="glass-card summary-item">
+      <div class="card-icon"><i class="fas fa-check-circle" style="color: #10b981;"></i></div>
+      <div class="card-data">
+        <span class="small-label">Estado del Sistema</span>
+        <h3 style="color: #10b981;">Cloud Sync Active</h3>
+      </div>
     </div>
   </div>
 
   <div class="header-seccion">
-    <h2 style="color: #10b981; margin-bottom: 10px;">Gestión de Áreas</h2>
-    <button class="btn-nuevo-grupo" (click)="abrirModal()">
-      + Nuevo Grupo
+    <div class="title-block">
+      <h2>Gestión de Áreas</h2>
+      <p class="subtitle">Configura las zonas de monitoreo para el análisis térmico.</p>
+    </div>
+    <button class="btn-nuevo-grupo" (click)="abrirModal()" type="button">
+      <i class="fas fa-plus"></i> Nuevo Grupo
     </button>
   </div>
 
-  <div class="table-container">
+  <div class="table-container glass-card">
     <table class="grupos-table">
       <thead>
         <tr>
@@ -29,17 +39,21 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let grupo of misGrupos; let i = index">
-          <td>#0{{ i + 1 }}</td>
+        <tr *ngFor="let grupo of misGrupos; let i = index" class="row-hover">
+          <td class="id-cell">#0{{ i + 1 }}</td>
           <td class="area-name">{{ grupo.nombre }}</td>
-          <td>{{ grupo.sensoresIds?.length || 0 }} sensores</td>
           <td>
-            <span class="badge" [class.active-bg]="grupo.estado === 'Activo'">
+            <span class="sensor-tag">
+              <i class="fas fa-microchip"></i> {{ grupo.sensoresIds?.length || 0 }} sensores
+            </span>
+          </td>
+          <td>
+            <span class="badge-status" [class.active]="grupo.estado === 'Activo'">
               {{ grupo.estado }}
             </span>
           </td>
           <td>
-            <button class="action-btn">⚙️</button>
+            <button class="action-btn-edit"><i class="fas fa-cog"></i></button>
           </td>
         </tr>
       </tbody>
@@ -47,27 +61,38 @@
   </div>
 </div>
 
-<div class="modal-overlay" *ngIf="mostrarModal">
-  <div class="modal-box">
-    <h3>Registrar Nueva Área</h3>
-    <p>Asigna un nombre y selecciona los sensores reales a vincular.</p>
-    
-    <div class="input-group">
-      <label>Nombre del Área</label>
-      <input type="text" [(ngModel)]="nuevoGrupoNombre" placeholder="Ej: Laboratorio Central">
+<div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
+  <div class="modal-box glass-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Registrar Nueva Área</h3>
+      <button class="close-btn" (click)="cerrarModal()">&times;</button>
     </div>
+    
+    <div class="modal-body">
+      <div class="input-group">
+        <label>Nombre del Área</label>
+        <input type="text" [(ngModel)]="nuevoGrupoNombre" placeholder="Ej: Laboratorio Central">
+      </div>
 
-    <div class="dispositivos-selector">
-      <label>Vincular Sensores de MongoDB:</label>
-      <div class="dispositivo-item" *ngFor="let disp of dispositivosDisponibles">
-        <input type="checkbox" [(ngModel)]="disp.seleccionado" [id]="'sensor-' + disp.id">
-        <label [for]="'sensor-' + disp.id">{{ disp.nombre }}</label>
+      <div class="dispositivos-selector">
+        <label>Seleccionar Sensores de MongoDB:</label>
+        <div class="sensor-grid">
+          <div *ngFor="let disp of dispositivosDisponibles" 
+               class="sensor-item-card" 
+               [class.selected]="disp.seleccionado"
+               (click)="disp.seleccionado = !disp.seleccionado">
+            <i class="fas fa-broadcast-tower"></i>
+            <span>{{ disp.nombre }}</span>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="modal-footer">
       <button class="btn-sec" (click)="cerrarModal()">Cancelar</button>
-      <button class="btn-pri" (click)="guardarGrupo()">Crear Área</button>
+      <button class="btn-pri" 
+              [disabled]="!nuevoGrupoNombre || !haySensoresSeleccionados()"
+              (click)="guardarGrupo()">Crear Área</button>
     </div>
   </div>
 </div>
