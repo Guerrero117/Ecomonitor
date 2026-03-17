@@ -11,11 +11,14 @@ export class GruposService {
 
   constructor(private http: HttpClient) { }
 
-  getGrupos(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
-  }
+  getGrupos(filter?: { name: string; status: string; sensors: string; }): Observable<any[]> {
+  return this.http.get<any[]>(this.apiUrl);
+
+  
+}
 
   crearGrupo(grupo: any): Observable<any> {
     return this.http.post<any>(this.apiUrl, grupo);
   }
+
 }
