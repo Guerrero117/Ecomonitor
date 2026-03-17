@@ -12,10 +12,22 @@ import { SensorsService } from '../../core/services/sensors';
   styleUrl: './grupos.css'
 })
 export class GruposComponent implements OnInit {
+  // Datos originales de la BD
   misGrupos: any[] = [];
   dispositivosDisponibles: any[] = []; 
+  
+  // Variables de control UI
   mostrarModal: boolean = false;
+  cargando: boolean = true;
+  
+  // Modelo para el formulario de nuevo grupo
   nuevoGrupoNombre: string = '';
+
+  // OBJETO DE FILTROS para el buscador reactivo
+  filters = {
+    name: '',
+    status: ''
+  };
 
   constructor(
     private gruposService: GruposService,
@@ -26,10 +38,27 @@ export class GruposComponent implements OnInit {
     this.cargarDatos();
   }
 
+  // GETTER PARA EL BUSCADOR
+  // Filtra la lista en memoria RAM instantáneamente
+  get misGruposFiltrados() {
+    return this.misGrupos.filter(grupo => {
+      const coincideNombre = grupo.nombre.toLowerCase().includes(this.filters.name.toLowerCase());
+      const coincideEstado = this.filters.status === '' || grupo.estado === this.filters.status;
+      return coincideNombre && coincideEstado;
+    });
+  }
+
   cargarDatos() {
+    this.cargando = true;
     this.gruposService.getGrupos().subscribe({
-      next: (data: any[]) => this.misGrupos = data,
-      error: (err) => console.error("Error al cargar grupos", err)
+      next: (data: any[]) => {
+        this.misGrupos = data;
+        this.cargando = false;
+      },
+      error: (err) => {
+        console.error("Error al cargar grupos", err);
+        this.cargando = false;
+      }
     });
 
     this.sensorsService.getSensors().subscribe({
@@ -43,8 +72,9 @@ export class GruposComponent implements OnInit {
     });
   }
 
+  // --- MÉTODOS DE LA INTERFAZ ---
+
   abrirModal() { 
-    console.log("Botón presionado: abriendo modal");
     this.mostrarModal = true; 
   }
 
@@ -75,7 +105,7 @@ export class GruposComponent implements OnInit {
           this.cargarDatos(); 
           this.cerrarModal();
         },
-        error: (err) => alert("Error al conectar con .NET")
+        error: (err) => alert("Error al conectar con .NET. Verifica que el Backend esté corriendo.")
       });
     }
   }

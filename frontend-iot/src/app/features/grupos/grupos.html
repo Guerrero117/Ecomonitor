@@ -4,7 +4,7 @@
       <div class="card-icon"><i class="fas fa-layer-group"></i></div>
       <div class="card-data">
         <span class="small-label">Áreas Registradas</span>
-        <h3>{{ misGrupos.length }}</h3>
+        <h3>{{ misGruposFiltrados.length }}</h3>
       </div>
     </div>
 
@@ -27,6 +27,22 @@
     </button>
   </div>
 
+  <div class="filters-container glass-card">
+    <div class="search-input-group">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" placeholder="Buscar área por nombre..." [(ngModel)]="filters.name" class="custom-input">
+    </div>
+
+    <div class="select-group">
+      <i class="fas fa-filter icon-filter"></i>
+      <select [(ngModel)]="filters.status" class="custom-select">
+        <option value="">Todos los estados</option>
+        <option value="Activo">Activo</option>
+        <option value="Inactivo">Inactivo</option>
+      </select>
+    </div>
+  </div>
+
   <div class="table-container glass-card">
     <table class="grupos-table">
       <thead>
@@ -39,7 +55,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let grupo of misGrupos; let i = index" class="row-hover">
+        <tr *ngFor="let grupo of misGruposFiltrados; let i = index" class="row-hover">
           <td class="id-cell">#0{{ i + 1 }}</td>
           <td class="area-name">{{ grupo.nombre }}</td>
           <td>
