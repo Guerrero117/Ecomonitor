@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using backend_iot.Models; // Para encontrar 'Grupo'
-using backend_iot;        // Para encontrar 'MongoService' que está en la raíz
+using backend_iot.Models;
+using backend_iot;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -15,15 +15,22 @@ public class GruposController : ControllerBase
         _mongoService = mongoService;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<List<Grupo>>> Get() 
+    // GET: api/grupos/{userId}
+    [HttpGet("{userId}")]
+    public async Task<ActionResult<List<Grupo>>> Get(string userId) 
     {
-        return await _mongoService.GetGruposAsync();
+        return await _mongoService.GetGruposPorUsuarioAsync(userId);
     }
 
+    // POST: api/grupos
     [HttpPost]
     public async Task<IActionResult> Post(Grupo nuevoGrupo)
     {
+        if (string.IsNullOrEmpty(nuevoGrupo.UsuarioId))
+        {
+            return BadRequest(new { mensaje = "El ID de usuario es requerido para crear un grupo." });
+        }
+
         await _mongoService.CreateGrupoAsync(nuevoGrupo);
         return Ok(new { mensaje = "Grupo creado con éxito", id = nuevoGrupo.Id });
     }

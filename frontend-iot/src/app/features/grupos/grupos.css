@@ -35,7 +35,7 @@
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: 700;
-  cursor: pointer !important; /* Forzamos el cursor */
+  cursor: pointer !important;
   transition: 0.3s all;
   position: relative;
   z-index: 5;
@@ -101,7 +101,6 @@
   background: #1e293b;
   border-radius: 8px;
   cursor: pointer;
-<<<<<<< HEAD
   text-align: center;
   border: 1px solid transparent;
 }
@@ -109,7 +108,6 @@
 .sensor-item-card.selected {
   border-color: #10b981;
   background: rgba(16, 185, 129, 0.1);
-=======
 }
 
 .filters-container {
@@ -170,5 +168,65 @@
 .custom-select option {
   background: #1e293b;
   color: white;
->>>>>>> 2341f35e3577463e87c92352f6ac0148991ecb03
+}
+
+/* ... mantén tu código anterior y añade/reemplaza esto ... */
+
+.sensor-item-card {
+  padding: 12px;
+  background: rgba(30, 41, 59, 0.6);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  border: 2px solid transparent;
+  transition: 0.3s all;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #94a3b8;
+}
+
+.sensor-item-card i { font-size: 1.2rem; }
+
+.sensor-item-card.selected {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  transform: scale(1.02);
+}
+
+.badge-status {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  background: rgba(239, 44, 44, 0.1);
+  color: #ef4444;
+}
+
+.badge-status.active {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn-pri {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-pri:disabled {
+  background: #334155;
+  cursor: not-allowed;
+  opacity: 0.5;
 }

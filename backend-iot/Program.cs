@@ -1,13 +1,19 @@
 using backend_iot.Services;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
-// Agregamos esta línea para que reconozca el servicio si está en la raíz o en su carpeta
 using backend_iot; 
+using System.Text.Json; // Importante para la configuración de JSON
 
 var builder = WebApplication.CreateBuilder(args);
 
 // --- 1. CONFIGURACIÓN DE SERVICIOS ---
-builder.Services.AddControllers();
+// CORRECCIÓN: Agregamos AddJsonOptions para que Angular entienda las propiedades (nombre, tipo, etc.)
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    });
+
 builder.Services.AddEndpointsApiExplorer();
 
 // Configuración de Swagger
@@ -29,9 +35,6 @@ builder.Services.AddScoped(sp => {
 
 // --- 3. INYECCIÓN DE DEPENDENCIAS ---
 builder.Services.AddScoped<IAuthService, AuthService>();
-
-// AGREGA ESTA LÍNEA AQUÍ:
-// Esto registra el servicio que creamos y quita los errores de los controladores
 builder.Services.AddScoped<MongoService>(); 
 
 // --- 4. CONFIGURACIÓN DE CORS (Para que Angular pueda entrar) ---

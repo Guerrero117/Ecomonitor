@@ -10,27 +10,34 @@ namespace backend_iot.Controllers
     {
         private readonly IAuthService _authService;
 
-        // Constructor: Conectamos con el servicio que usa MongoDB y BCrypt
         public AuthController(IAuthService authService)
         {
             _authService = authService;
         }
 
-        // ENDPOINT PARA LOGIN
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginDto request)
         {
-            var token = _authService.Login(request.Email, request.Password);
+            // Obtenemos el usuario completo
+            var user = _authService.Login(request.Email, request.Password);
             
-            if (token == null)
+            if (user == null)
             {
                 return Unauthorized(new { message = "Email o contraseña incorrectos" });
             }
 
-            return Ok(new { token });
+            // Generamos un token ficticio (puedes usar JWT aquí luego)
+            var tokenGenerado = $"token-seguro-{user.Nombre}-{Guid.NewGuid()}";
+
+            // RESPUESTA PARA ANGULAR: Enviamos el ID, el nombre y el token
+            return Ok(new { 
+                id = user.Id, 
+                nombre = user.Nombre,
+                email = user.Email,
+                token = tokenGenerado 
+            });
         }
 
-        // ENDPOINT PARA REGISTRO
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] User user)
         {
@@ -46,23 +53,9 @@ namespace backend_iot.Controllers
         }
     }
 
-    // Esta pequeña clase sirve para recibir los datos del Login desde Angular
     public class LoginDto
     {
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
-    
     }
-
-
-
-
-
-
-
-
-
-
-
-
- }
+}

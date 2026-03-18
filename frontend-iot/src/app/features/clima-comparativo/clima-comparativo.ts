@@ -25,11 +25,11 @@ export class ClimaComparativoComponent implements OnInit {
   tempInterior: number = 0;
   diferencia: number = 0;
   
-  // Gestión de Grupos y Filtro (Avance de entrega)
+  // Gestión de Grupos y Filtro
   listaGrupos: any[] = [];
   grupoSeleccionadoId: string = '';
   cargando: boolean = true;
-  filtroBusqueda: string = ''; // <--- Para el buscador
+  filtroBusqueda: string = ''; 
 
   // Configuración de Gráfica
   public barChartOptions: ChartConfiguration['options'] = {
@@ -64,7 +64,17 @@ export class ClimaComparativoComponent implements OnInit {
     this.cargarGrupos();
   }
 
-  // Lógica del Buscador/Filtro para la entrega
+  // Helper para obtener el ID de la sesión (Igual que en Grupos)
+  private getLoggedUserId(): string {
+    const userSession = localStorage.getItem('usuario');
+    if (userSession) {
+      const user = JSON.parse(userSession);
+      return user.id || user._id; 
+    }
+    return '';
+  }
+
+  // Lógica del Buscador/Filtro
   get gruposFiltrados() {
     return this.listaGrupos.filter(g => 
       g.nombre.toLowerCase().includes(this.filtroBusqueda.toLowerCase())
@@ -84,7 +94,14 @@ export class ClimaComparativoComponent implements OnInit {
   }
 
   cargarGrupos() {
-    this.gruposService.getGrupos().subscribe(grupos => {
+    const userId = this.getLoggedUserId();
+    if (!userId) {
+      this.cargando = false;
+      return;
+    }
+
+    // Corregido: Ahora pasamos el userId al servicio
+    this.gruposService.getGrupos(userId).subscribe(grupos => {
       this.listaGrupos = grupos;
       if (grupos.length > 0) {
         this.grupoSeleccionadoId = grupos[0].id;
@@ -115,4 +132,3 @@ export class ClimaComparativoComponent implements OnInit {
     this.barChartData = { ...this.barChartData };
   }
 }
-      

@@ -1,5 +1,6 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System;
 
 namespace backend_iot.Models
 {
@@ -23,5 +24,9 @@ namespace backend_iot.Models
 
         [BsonElement("FechaRegistro")]
         public DateTime FechaRegistro { get; set; } = DateTime.Now;
+
+        // --- CLAVE PARA LA SEGURIDAD POR PERFIL ---
+        [BsonElement("UsuarioId")]
+        public string UsuarioId { get; set; } = string.Empty; 
     }
 }

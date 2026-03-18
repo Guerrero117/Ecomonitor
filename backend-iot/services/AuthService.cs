@@ -13,12 +13,16 @@ namespace backend_iot.Services
             _users = database.GetCollection<User>("Users");
         }
 
-        public string? Login(string email, string password)
+        public User? Login(string email, string password)
         {
+            // Buscamos al usuario por email
             var user = _users.Find(u => u.Email == email).FirstOrDefault();
+            
+            // Verificamos si existe y si la contraseña es correcta
             if (user != null && BC.Verify(password, user.Password))
             {
-                return $"token-seguro-{user.Nombre}-{Guid.NewGuid()}";
+                // Devolvemos el objeto usuario (que ya trae su Id de MongoDB)
+                return user;
             }
             return null;
         }

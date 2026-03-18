@@ -77,10 +77,10 @@
   </div>
 </div>
 
-<div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
-  <div class="modal-box glass-card" (click)="$event.stopPropagation()">
+<div class="modal-overlay" *ngIf="mostrarModal">
+  <div class="modal-box glass-card">
     <div class="modal-header">
-      <h3>Registrar Nueva Área</h3>
+      <h3><i class="fas fa-folder-plus"></i> Registrar Nueva Área</h3>
       <button class="close-btn" (click)="cerrarModal()">&times;</button>
     </div>
     
@@ -97,7 +97,7 @@
                class="sensor-item-card" 
                [class.selected]="disp.seleccionado"
                (click)="disp.seleccionado = !disp.seleccionado">
-            <i class="fas fa-broadcast-tower"></i>
+            <i class="fas" [ngClass]="disp.seleccionado ? 'fa-check-circle' : 'fa-broadcast-tower'"></i>
             <span>{{ disp.nombre }}</span>
           </div>
         </div>
@@ -108,7 +108,9 @@
       <button class="btn-sec" (click)="cerrarModal()">Cancelar</button>
       <button class="btn-pri" 
               [disabled]="!nuevoGrupoNombre || !haySensoresSeleccionados()"
-              (click)="guardarGrupo()">Crear Área</button>
+              (click)="guardarGrupo()">
+        <i class="fas fa-save"></i> Crear Área
+      </button>
     </div>
   </div>
 </div>

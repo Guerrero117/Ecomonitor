@@ -1,87 +1,72 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 import { GruposService } from '../../core/services/grupos.service';
 import { SensorsService } from '../../core/services/sensors';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-grupos',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './grupos.html',
   styleUrl: './grupos.css'
 })
 export class GruposComponent implements OnInit {
-  // Datos originales de la BD
   misGrupos: any[] = [];
   dispositivosDisponibles: any[] = []; 
-  
-  // Variables de control UI
-  mostrarModal: boolean = false;
-  cargando: boolean = true;
-  
-  // Modelo para el formulario de nuevo grupo
-  nuevoGrupoNombre: string = '';
-
-  // OBJETO DE FILTROS para el buscador reactivo
-  filters = {
-    name: '',
-    status: ''
-  };
+  mostrarModal = false;
+  nuevoGrupoNombre = '';
+  filters = { name: '', status: '' };
 
   constructor(
-    private gruposService: GruposService,
-    private sensorsService: SensorsService
+    private gruposService: GruposService, 
+    private sensorsService: SensorsService,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
-  ngOnInit() {
-    this.cargarDatos();
+  // Getter para que el HTML no de error al buscar 'misGruposFiltrados'
+  get misGruposFiltrados() {
+    return this.misGrupos.filter(g => 
+      g.nombre.toLowerCase().includes(this.filters.name.toLowerCase())
+    );
   }
 
-  // GETTER PARA EL BUSCADOR
-  // Filtra la lista en memoria RAM instantáneamente
-  get misGruposFiltrados() {
-    return this.misGrupos.filter(grupo => {
-      const coincideNombre = grupo.nombre.toLowerCase().includes(this.filters.name.toLowerCase());
-      const coincideEstado = this.filters.status === '' || grupo.estado === this.filters.status;
-      return coincideNombre && coincideEstado;
-    });
+  ngOnInit() { 
+    if (isPlatformBrowser(this.platformId)) {
+      this.cargarDatos(); 
+    }
+  }
+
+  private getUserId(): string {
+    if (isPlatformBrowser(this.platformId)) {
+      const sesion = localStorage.getItem('usuario');
+      if (!sesion) return '';
+      try {
+        const user = JSON.parse(sesion);
+        return user.id || user._id || '';
+      } catch (e) { return ''; }
+    }
+    return '';
   }
 
   cargarDatos() {
-    this.cargando = true;
-    this.gruposService.getGrupos().subscribe({
-      next: (data: any[]) => {
-        this.misGrupos = data;
-        this.cargando = false;
-      },
-      error: (err) => {
-        console.error("Error al cargar grupos", err);
-        this.cargando = false;
-      }
+    const userId = this.getUserId();
+    if (!userId) return;
+
+    this.gruposService.getGrupos(userId).subscribe({
+      next: (data: any[]) => this.misGrupos = data
     });
 
-    this.sensorsService.getSensors().subscribe({
+    this.sensorsService.getSensorsByUser(userId).subscribe({
       next: (data: any[]) => {
-        this.dispositivosDisponibles = data.map(s => ({
-          id: s.id,
-          nombre: s.nombre,
+        this.dispositivosDisponibles = data.map((s: any) => ({
+          ...s,
           seleccionado: false
         }));
       }
     });
-  }
-
-  // --- MÉTODOS DE LA INTERFAZ ---
-
-  abrirModal() { 
-    this.mostrarModal = true; 
-  }
-
-  cerrarModal() {
-    this.mostrarModal = false;
-    this.nuevoGrupoNombre = '';
-    this.dispositivosDisponibles.forEach(d => d.seleccionado = false);
   }
 
   haySensoresSeleccionados(): boolean {
@@ -89,24 +74,27 @@ export class GruposComponent implements OnInit {
   }
 
   guardarGrupo() {
-    if (this.nuevoGrupoNombre.trim() !== '') {
-      const seleccionados = this.dispositivosDisponibles
-        .filter(d => d.seleccionado)
-        .map(d => d.id);
+    const userId = this.getUserId();
+    const seleccionados = this.dispositivosDisponibles
+      .filter(d => d.seleccionado)
+      .map(d => d.id || d._id);
 
-      const nuevoGrupo = {
-        nombre: this.nuevoGrupoNombre,
-        sensoresIds: seleccionados, 
-        estado: 'Activo'
-      };
+    const nuevoGrupo = {
+      nombre: this.nuevoGrupoNombre,
+      sensoresIds: seleccionados, 
+      estado: 'Activo',
+      usuarioId: userId
+    };
 
-      this.gruposService.crearGrupo(nuevoGrupo).subscribe({
-        next: () => {
-          this.cargarDatos(); 
-          this.cerrarModal();
-        },
-        error: (err) => alert("Error al conectar con .NET. Verifica que el Backend esté corriendo.")
-      });
-    }
+    this.gruposService.crearGrupo(nuevoGrupo).subscribe({
+      next: () => {
+        this.cargarDatos(); 
+        this.cerrarModal();
+        Swal.fire('Éxito', 'Grupo creado', 'success');
+      }
+    });
   }
+
+  abrirModal() { this.mostrarModal = true; }
+  cerrarModal() { this.mostrarModal = false; this.nuevoGrupoNombre = ''; }
 }

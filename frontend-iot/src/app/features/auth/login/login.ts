@@ -21,36 +21,29 @@ export class LoginComponent {
   ) {}
 
   login() {
-    if (!this.email || !this.password) {
-      alert("Por favor, llena todos los campos");
-      return;
-    }
-
-    const credentials = {
-      email: this.email,
-      password: this.password
-    };
-
-    // Llamamos al backend
-    this.authService.login(credentials).subscribe({
-      next: (res: any) => {
-        console.log("Login exitoso", res);
-        
-        // Guardamos el nombre o el token para usarlo en el dashboard
-        localStorage.setItem('usuario', res.nombre || 'Usuario');
-        
-        // Si tu backend regresa un token (JWT), guárdalo así:
-        // localStorage.setItem('token', res.token);
-
-        this.router.navigate(['/dashboard']);
-      },
-      error: (err: any) => {
-        console.error(err);
-        // El error puede ser porque el correo no existe o la contraseña está mal
-        alert(err.error?.message || "Correo o contraseña incorrectos");
-      }
-    });
+  if (!this.email || !this.password) {
+    alert("Por favor, llena todos los campos");
+    return;
   }
+
+  const credentials = { email: this.email, password: this.password };
+
+  this.authService.login(credentials).subscribe({
+    next: (res: any) => {
+      console.log("Login exitoso. Datos recibidos:", res);
+      
+      // CAMBIO CLAVE: Guardamos el objeto completo convertido a texto (JSON)
+      // Esto guarda ID, nombre, correo, etc.
+      localStorage.setItem('usuario', JSON.stringify(res)); 
+      
+      this.router.navigate(['/dashboard']);
+    },
+    error: (err: any) => {
+      console.error(err);
+      alert(err.error?.message || "Correo o contraseña incorrectos");
+    }
+  });
+}
 
   goDashboard() {
     this.router.navigate(['/dashboard']);
