@@ -1,10 +1,11 @@
 {
   "ExpandedNodes": [
     "",
+    "\\backend-iot",
     "\\src",
     "\\src\\app",
     "\\src\\app\\BasedeDatos"
   ],
-  "SelectedNode": "\\src\\app\\BasedeDatos\\Clase.log.ts",
+  "SelectedNode": "\\backend-iot\\backend-iot.sln",
   "PreviewInSolutionExplorer": false
 }
