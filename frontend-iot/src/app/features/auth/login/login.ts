@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../core/services/auth'; // Importamos el servicio
+import { AuthService } from '../../../core/services/auth'; 
 
 @Component({
   selector: 'app-login',
@@ -15,40 +15,31 @@ export class LoginComponent {
   email: string = '';
   password: string = '';
 
-  constructor(
-    private router: Router,
-    private authService: AuthService // Inyectamos el servicio
-  ) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   login() {
-  if (!this.email || !this.password) {
-    alert("Por favor, llena todos los campos");
-    return;
-  }
-
-  const credentials = { email: this.email, password: this.password };
-
-  this.authService.login(credentials).subscribe({
-    next: (res: any) => {
-      console.log("Login exitoso. Datos recibidos:", res);
-      
-      // CAMBIO CLAVE: Guardamos el objeto completo convertido a texto (JSON)
-      // Esto guarda ID, nombre, correo, etc.
-      localStorage.setItem('usuario', JSON.stringify(res)); 
-      
-      this.router.navigate(['/dashboard']);
-    },
-    error: (err: any) => {
-      console.error(err);
-      alert(err.error?.message || "Correo o contraseña incorrectos");
+    if (!this.email || !this.password) {
+      alert("Por favor, llena todos los campos");
+      return;
     }
-  });
-}
 
-  goDashboard() {
-    this.router.navigate(['/dashboard']);
+    const credentials = { email: this.email, password: this.password };
+
+    this.authService.login(credentials).subscribe({
+      next: (res: any) => {
+        // 1. Guardamos el objeto usuario para la UI
+        localStorage.setItem('usuario', JSON.stringify(res)); 
+        
+        // 2. Guardamos el TOKEN CRÍTICO para el Interceptor
+        localStorage.setItem('token', res.token); 
+        
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err: any) => {
+        alert(err.error?.message || "Credenciales incorrectas");
+      }
+    });
   }
-
   goRegister() {
     this.router.navigate(['/register']);
   }

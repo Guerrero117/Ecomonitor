@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { SensorsService } from '../../../core/services/sensors';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -16,10 +16,9 @@ export class SensorListComponent implements OnInit {
   mostrarModal = false;
   cargando = false;
   nuevoSensor = { nombre: '', tipo: 'Temperatura', frecuencia: 10 };
-  private API_URL = 'http://localhost:5126/api/sensors';
 
   constructor(
-    private http: HttpClient,
+    private sensorsService: SensorsService,
     @Inject(PLATFORM_ID) private platformId: Object 
   ) {}
 
@@ -29,88 +28,42 @@ export class SensorListComponent implements OnInit {
     }
   }
 
-  private getUserId(): string {
-    if (isPlatformBrowser(this.platformId)) {
-      const sesion = localStorage.getItem('usuario');
-      if (!sesion) return '';
-      try {
-        const user = JSON.parse(sesion);
-        return user.id || user._id || '';
-      } catch (e) { return ''; }
-    }
-    return '';
-  }
-
   cargarSensores() {
-    const userId = this.getUserId();
-    
-    // Si tienes un ID de usuario, buscamos los tuyos
-    if (userId) {
-      this.http.get<any[]>(`${this.API_URL}/user/${userId}`).subscribe({
-        next: (res) => {
-          this.sensors = res;
-          // Si tu usuario no tiene sensores aún, cargamos TODOS para que veas los anteriores
-          if (this.sensors.length === 0) {
-            this.cargarTodosLosSensores();
-          }
-        },
-        error: (err) => {
-          console.error('Error al cargar sensores del usuario, cargando generales...', err);
-          this.cargarTodosLosSensores();
-        }
-      });
-    } else {
-      this.cargarTodosLosSensores();
-    }
-  }
-
-  // Nueva función para cargar absolutamente todo lo que hay en la DB
-  private cargarTodosLosSensores() {
-    this.http.get<any[]>(this.API_URL).subscribe({
+    this.sensorsService.getSensors().subscribe({
       next: (res) => this.sensors = res,
-      error: (err) => console.error('Error al cargar todos los sensores:', err)
+      error: (err) => console.error('Error de seguridad o conexión:', err)
     });
   }
 
   guardarSensor() {
-    const userId = this.getUserId();
-    if (!userId) {
-        Swal.fire('Error', 'No se detectó sesión de usuario', 'error');
-        return;
-    }
-
     this.cargando = true;
-    const payload = { ...this.nuevoSensor, usuarioId: userId, estado: true };
-
-    this.http.post(this.API_URL, payload).subscribe({
+    this.sensorsService.createSensor(this.nuevoSensor).subscribe({
       next: () => {
         this.cargarSensores();
         this.cerrarModal();
         this.cargando = false;
-        Swal.fire('Éxito', 'Sensor guardado correctamente', 'success');
+        Swal.fire('Éxito', 'Sensor guardado y protegido', 'success');
       },
       error: () => {
         this.cargando = false;
-        Swal.fire('Error', 'No se pudo guardar', 'error');
+        Swal.fire('Error', 'No tienes permiso o hubo un fallo', 'error');
       }
     });
   }
 
   borrarSensor(id: string) {
     Swal.fire({
-      title: '¿Estás seguro?',
-      text: "No podrás revertir esto",
+      title: '¿Eliminar dispositivo?',
+      text: "Se borrará permanentemente de tu cuenta",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
       confirmButtonText: 'Sí, borrar'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.http.delete(`${this.API_URL}/${id}`).subscribe({
+        this.sensorsService.deleteSensor(id).subscribe({
           next: () => {
             this.cargarSensores();
-            Swal.fire('Eliminado', 'El sensor ha sido borrado', 'success');
+            Swal.fire('Eliminado', 'Dispositivo removido', 'success');
           }
         });
       }

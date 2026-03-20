@@ -12,8 +12,8 @@ namespace backend_iot.Models
 
         public string Nombre { get; set; } = null!;
         
-        // Identificador del dueño del grupo
-        public string UsuarioId { get; set; } = null!; 
+        // Cambio clave: '?' permite que Angular no lo envíe y el servidor lo asigne después
+        public string? UsuarioId { get; set; } 
 
         public List<string> SensoresIds { get; set; } = new List<string>();
         

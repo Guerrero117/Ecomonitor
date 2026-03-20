@@ -48,8 +48,8 @@ export class ClimaComparativoComponent implements OnInit {
   public barChartData: ChartData<'bar'> = {
     labels: ['Temperatura (°C)'],
     datasets: [
-      { data: [0], label: 'Obregón (Exterior)', backgroundColor: '#3b82f6', borderRadius: 8 },
-      { data: [0], label: 'Área Local (Interior)', backgroundColor: '#10b981', borderRadius: 8 }
+      { data: [0], label: 'Exterior (WeatherAPI)', backgroundColor: '#3b82f6', borderRadius: 8 },
+      { data: [0], label: 'Interior (Tus Sensores)', backgroundColor: '#10b981', borderRadius: 8 }
     ]
   };
 
@@ -62,16 +62,6 @@ export class ClimaComparativoComponent implements OnInit {
   ngOnInit() {
     this.cargarClimaExterior();
     this.cargarGrupos();
-  }
-
-  // Helper para obtener el ID de la sesión (Igual que en Grupos)
-  private getLoggedUserId(): string {
-    const userSession = localStorage.getItem('usuario');
-    if (userSession) {
-      const user = JSON.parse(userSession);
-      return user.id || user._id; 
-    }
-    return '';
   }
 
   // Lógica del Buscador/Filtro
@@ -94,20 +84,20 @@ export class ClimaComparativoComponent implements OnInit {
   }
 
   cargarGrupos() {
-    const userId = this.getLoggedUserId();
-    if (!userId) {
-      this.cargando = false;
-      return;
-    }
-
-    // Corregido: Ahora pasamos el userId al servicio
-    this.gruposService.getGrupos(userId).subscribe(grupos => {
-      this.listaGrupos = grupos;
-      if (grupos.length > 0) {
-        this.grupoSeleccionadoId = grupos[0].id;
-        this.onGrupoChange();
+    // Ya no enviamos userId, el Interceptor pone el Token automáticamente
+    this.gruposService.getGrupos().subscribe({
+      next: (grupos) => {
+        this.listaGrupos = grupos;
+        if (grupos.length > 0) {
+          this.grupoSeleccionadoId = grupos[0].id || grupos[0]._id;
+          this.onGrupoChange();
+        }
+        this.cargando = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar grupos:', err);
+        this.cargando = false;
       }
-      this.cargando = false;
     });
   }
 
@@ -115,7 +105,7 @@ export class ClimaComparativoComponent implements OnInit {
     if (!this.grupoSeleccionadoId) return;
     
     this.lecturasService.getLecturasPorGrupo(this.grupoSeleccionadoId).subscribe((lecturas: any[]) => {
-      if (lecturas.length > 0) {
+      if (lecturas && lecturas.length > 0) {
         const suma = lecturas.reduce((acc, curr) => acc + curr.valor, 0);
         this.tempInterior = suma / lecturas.length;
       } else {
@@ -129,6 +119,7 @@ export class ClimaComparativoComponent implements OnInit {
     this.diferencia = Math.abs(this.tempExterior - this.tempInterior);
     this.barChartData.datasets[0].data = [this.tempExterior];
     this.barChartData.datasets[1].data = [this.tempInterior];
+    // Notificamos a la gráfica el cambio de datos
     this.barChartData = { ...this.barChartData };
   }
 }

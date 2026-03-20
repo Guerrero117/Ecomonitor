@@ -10,15 +10,20 @@ export class SensorsService {
 
   constructor(private http: HttpClient) { }
 
+  // El backend filtrará automáticamente por el dueño del Token
   getSensors(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
   }
 
-  getSensorsByUser(userId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/user/${userId}`);
-  }
-
   getSensorById(id: string): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}`);
+  }
+
+  createSensor(sensor: any): Observable<any> {
+    return this.http.post(this.apiUrl, sensor);
+  }
+
+  deleteSensor(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }

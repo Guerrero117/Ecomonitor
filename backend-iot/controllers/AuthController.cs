@@ -1,6 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using backend_iot.Services;
 using backend_iot.Models;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace backend_iot.Controllers
 {
@@ -18,7 +22,6 @@ namespace backend_iot.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginDto request)
         {
-            // Obtenemos el usuario completo
             var user = _authService.Login(request.Email, request.Password);
             
             if (user == null)
@@ -26,15 +29,30 @@ namespace backend_iot.Controllers
                 return Unauthorized(new { message = "Email o contraseña incorrectos" });
             }
 
-            // Generamos un token ficticio (puedes usar JWT aquí luego)
-            var tokenGenerado = $"token-seguro-{user.Nombre}-{Guid.NewGuid()}";
+            // --- GENERACIÓN DE JWT REAL ---
+            var tokenHandler = new JwtSecurityTokenHandler();
+            // IMPORTANTE: Esta clave DEBE ser la misma que en Program.cs
+            var key = Encoding.ASCII.GetBytes("EstaEsUnaLlaveSuperSecretaDe32Caracteres!"); 
+            
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[] { 
+                    new Claim(ClaimTypes.NameIdentifier, user.Id ?? ""), 
+                    new Claim(ClaimTypes.Name, user.Nombre),
+                    new Claim(ClaimTypes.Email, user.Email)
+                }),
+                Expires = DateTime.UtcNow.AddHours(4),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
 
-            // RESPUESTA PARA ANGULAR: Enviamos el ID, el nombre y el token
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(token);
+
             return Ok(new { 
                 id = user.Id, 
                 nombre = user.Nombre,
                 email = user.Email,
-                token = tokenGenerado 
+                token = tokenString 
             });
         }
 
@@ -44,11 +62,11 @@ namespace backend_iot.Controllers
             try 
             {
                 await _authService.Register(user);
-                return Ok(new { message = "Usuario registrado exitosamente en EcoMonitor" });
+                return Ok(new { message = "Usuario registrado exitosamente" });
             }
             catch (System.Exception ex)
             {
-                return BadRequest(new { message = "Error al registrar usuario", error = ex.Message });
+                return BadRequest(new { message = "Error al registrar", error = ex.Message });
             }
         }
     }

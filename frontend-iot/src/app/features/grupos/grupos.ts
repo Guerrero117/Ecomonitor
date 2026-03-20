@@ -26,7 +26,6 @@ export class GruposComponent implements OnInit {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
-  // Getter para que el HTML no de error al buscar 'misGruposFiltrados'
   get misGruposFiltrados() {
     return this.misGrupos.filter(g => 
       g.nombre.toLowerCase().includes(this.filters.name.toLowerCase())
@@ -34,32 +33,16 @@ export class GruposComponent implements OnInit {
   }
 
   ngOnInit() { 
-    if (isPlatformBrowser(this.platformId)) {
-      this.cargarDatos(); 
-    }
-  }
-
-  private getUserId(): string {
-    if (isPlatformBrowser(this.platformId)) {
-      const sesion = localStorage.getItem('usuario');
-      if (!sesion) return '';
-      try {
-        const user = JSON.parse(sesion);
-        return user.id || user._id || '';
-      } catch (e) { return ''; }
-    }
-    return '';
+    if (isPlatformBrowser(this.platformId)) { this.cargarDatos(); }
   }
 
   cargarDatos() {
-    const userId = this.getUserId();
-    if (!userId) return;
-
-    this.gruposService.getGrupos(userId).subscribe({
-      next: (data: any[]) => this.misGrupos = data
+    this.gruposService.getGrupos().subscribe({
+      next: (data: any[]) => this.misGrupos = data,
+      error: (err) => console.error("Error al cargar grupos", err)
     });
 
-    this.sensorsService.getSensorsByUser(userId).subscribe({
+    this.sensorsService.getSensors().subscribe({
       next: (data: any[]) => {
         this.dispositivosDisponibles = data.map((s: any) => ({
           ...s,
@@ -69,12 +52,12 @@ export class GruposComponent implements OnInit {
     });
   }
 
-  haySensoresSeleccionados(): boolean {
-    return this.dispositivosDisponibles.some(d => d.seleccionado);
-  }
-
   guardarGrupo() {
-    const userId = this.getUserId();
+    if (!this.nuevoGrupoNombre.trim()) {
+      Swal.fire('Error', 'El nombre del grupo es obligatorio', 'error');
+      return;
+    }
+
     const seleccionados = this.dispositivosDisponibles
       .filter(d => d.seleccionado)
       .map(d => d.id || d._id);
@@ -82,19 +65,31 @@ export class GruposComponent implements OnInit {
     const nuevoGrupo = {
       nombre: this.nuevoGrupoNombre,
       sensoresIds: seleccionados, 
-      estado: 'Activo',
-      usuarioId: userId
+      estado: 'Activo'
     };
 
     this.gruposService.crearGrupo(nuevoGrupo).subscribe({
-      next: () => {
-        this.cargarDatos(); 
+      next: (res) => {
+        Swal.fire('¡Éxito!', 'Grupo creado correctamente', 'success');
+        this.cargarDatos();
         this.cerrarModal();
-        Swal.fire('Éxito', 'Grupo creado', 'success');
+      },
+      error: (err) => {
+        console.error('Error al guardar:', err);
+        Swal.fire('Error', 'El servidor rechazó la creación del grupo', 'error');
       }
     });
   }
 
   abrirModal() { this.mostrarModal = true; }
-  cerrarModal() { this.mostrarModal = false; this.nuevoGrupoNombre = ''; }
+  
+  cerrarModal() { 
+    this.mostrarModal = false; 
+    this.nuevoGrupoNombre = ''; 
+    this.dispositivosDisponibles.forEach(d => d.seleccionado = false);
+  }
+
+  haySensoresSeleccionados(): boolean {
+    return this.dispositivosDisponibles.some(d => d.seleccionado);
+  }
 }

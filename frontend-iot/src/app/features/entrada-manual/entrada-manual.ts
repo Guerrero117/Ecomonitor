@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LecturasService } from '../../core/services/lecturas.service';
 import { SensorsService } from '../../core/services/sensors';
+import Swal from 'sweetalert2'; // Opcional: para alertas más pro
 
 @Component({
   selector: 'app-entrada-manual',
@@ -15,14 +16,24 @@ export class EntradaManualComponent implements OnInit {
   listaSensores: any[] = [];
   ultimasLecturas: any[] = []; 
   
+  // Configuraciones de magnitudes para sensores multivariables
+  opcionesMultivariable = [
+    { nombre: 'Dióxido de Carbono', clave: 'CO2', unidad: 'ppm' },
+    { nombre: 'Dióxido de Nitrógeno', clave: 'NO2', unidad: 'µg/m³' },
+    { nombre: 'Ozono', clave: 'O3', unidad: 'ppb' },
+    { nombre: 'Partículas PM2.5', clave: 'PM2.5', unidad: 'µg/m³' }
+  ];
+
+  esMultivariable: boolean = false;
+
   lectura = {
     sensorId: '',
+    tipoDato: '', // Ejemplo: 'CO2' o 'Temperatura'
     valor: null as number | null,
-    unidad: '°C'
+    unidad: '',
+    esManual: true, // Marcador de seguridad OWASP para auditoría
+    fecha: ''
   };
-
-  // Control para evitar errores de usuario
-  unidadBloqueada: boolean = false;
 
   constructor(
     private lecturasService: LecturasService,
@@ -40,59 +51,69 @@ export class EntradaManualComponent implements OnInit {
     });
   }
 
-  // Se ejecuta al cambiar de sensor en el select
   onSensorChange() {
-    if (this.lectura.sensorId) {
-      const sensorSeleccionado = this.listaSensores.find(s => s.id === this.lectura.sensorId);
+    this.ultimasLecturas = [];
+    if (!this.lectura.sensorId) return;
+
+    const sensor = this.listaSensores.find(s => (s.id || s._id) === this.lectura.sensorId);
+    
+    if (sensor) {
+      this.obtenerHistorial(this.lectura.sensorId);
       
-      if (sensorSeleccionado) {
-        this.validarTipoDeSensor(sensorSeleccionado.tipo);
-        this.obtenerHistorial(this.lectura.sensorId);
+      // LÓGICA DINÁMICA: ¿Es un sensor que mide varias cosas?
+      const tipo = sensor.tipo.toLowerCase();
+      if (tipo.includes('multi') || tipo.includes('aire') || tipo.includes('gas')) {
+        this.esMultivariable = true;
+        this.lectura.tipoDato = ''; // Reset para que el usuario elija
+        this.lectura.unidad = '';
+      } else {
+        this.esMultivariable = false;
+        this.lectura.tipoDato = sensor.tipo;
+        this.asignarUnidadAutomatica(sensor.tipo);
       }
     }
   }
 
-  // Detecta el tipo y asigna la unidad correcta
-  private validarTipoDeSensor(tipo: string) {
-    const t = tipo.toLowerCase();
-    
-    if (t.includes('temp')) {
-      this.lectura.unidad = '°C';
-      this.unidadBloqueada = true;
-    } else if (t.includes('hum')) {
-      this.lectura.unidad = '%';
-      this.unidadBloqueada = true;
-    } else if (t.includes('co2')) {
-      this.lectura.unidad = 'ppm';
-      this.unidadBloqueada = true;
-    } else {
-      // Si el sensor no es reconocido, permitimos que el usuario elija
-      this.unidadBloqueada = false;
+  // Se ejecuta si el sensor es multivariable y el usuario elige qué medir
+  onMagnitudChange(event: any) {
+    const seleccion = this.opcionesMultivariable.find(o => o.clave === event.target.value);
+    if (seleccion) {
+      this.lectura.tipoDato = seleccion.clave;
+      this.lectura.unidad = seleccion.unidad;
     }
+  }
+
+  private asignarUnidadAutomatica(tipo: string) {
+    const t = tipo.toLowerCase();
+    if (t.includes('temp')) this.lectura.unidad = '°C';
+    else if (t.includes('hum')) this.lectura.unidad = '%';
+    else if (t.includes('co2')) this.lectura.unidad = 'ppm';
+    else this.lectura.unidad = 'N/A';
   }
 
   obtenerHistorial(id: string) {
     this.lecturasService.getLecturasPorSensor(id).subscribe({
-      next: (data: any) => this.ultimasLecturas = data,
-      error: (err) => console.error("Error al obtener historial", err)
+      next: (data: any) => this.ultimasLecturas = data.slice(0, 5), // Solo las últimas 5
+      error: (err) => console.error("Error historial", err)
     });
   }
 
   guardarDato() {
-    if (!this.lectura.sensorId || this.lectura.valor === null) {
-      alert("⚠️ Por favor, selecciona un sensor y escribe un valor.");
+    if (!this.lectura.sensorId || this.lectura.valor === null || !this.lectura.tipoDato) {
+      Swal.fire('Atención', 'Faltan datos por completar', 'warning');
       return;
     }
 
+    this.lectura.fecha = new Date().toISOString();
+
     this.lecturasService.enviarLecturaManual(this.lectura).subscribe({
       next: (res: any) => {
-        alert("✅ ¡Dato registrado en MongoDB Atlas!");
+        Swal.fire('¡Éxito!', 'Dato registrado manualmente', 'success');
         this.obtenerHistorial(this.lectura.sensorId);
-        this.lectura.valor = null; // Limpiamos valor para nueva entrada
+        this.lectura.valor = null;
       },
       error: (err: any) => {
-        console.error(err);
-        alert("❌ Error al guardar. Revisa la conexión con el Backend.");
+        Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
       }
     });
   }

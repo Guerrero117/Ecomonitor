@@ -2,57 +2,61 @@ using Microsoft.AspNetCore.Mvc;
 using backend_iot.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace backend_iot.Controllers
 {
+    [Authorize] // <--- Nadie entra sin Token
     [Route("api/[controller]")]
     [ApiController]
     public class SensorsController : ControllerBase
     {
         private readonly MongoService _mongoService;
 
-        // Inyectamos el MongoService que ya configuramos en Program.cs
         public SensorsController(MongoService mongoService)
         {
             _mongoService = mongoService;
         }
 
-        // 1. GET: api/sensors (Trae todos los sensores del sistema)
+        // GET: api/sensors 
+        // Ahora solo devuelve los sensores del usuario logueado
         [HttpGet]
         public async Task<ActionResult<List<Sensor>>> Get()
         {
-            var sensores = await _mongoService.GetSensorsAsync();
-            return Ok(sensores);
-        }
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
-        // 2. GET: api/sensors/user/{userId} (EL QUE NECESITA ANGULAR)
-        // Este es el que llena tu tabla filtrando por el dueño
-        [HttpGet("user/{userId}")]
-        public async Task<ActionResult<List<Sensor>>> GetByUser(string userId)
-        {
             var sensores = await _mongoService.GetSensorsPorUsuarioAsync(userId);
             return Ok(sensores);
         }
 
-        // 3. POST: api/sensors (Para guardar nuevos sensores)
+        // POST: api/sensors
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Sensor nuevoSensor)
         {
-            if (string.IsNullOrEmpty(nuevoSensor.UsuarioId))
-            {
-                return BadRequest(new { mensaje = "El ID de usuario es obligatorio" });
-            }
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            nuevoSensor.UsuarioId = userId; // Forzamos que el dueño sea el del Token
 
             await _mongoService.CreateSensorAsync(nuevoSensor);
-            return Ok(new { mensaje = "Sensor vinculado con éxito" });
+            return Ok(new { mensaje = "Sensor guardado y vinculado a tu cuenta" });
         }
 
-        // 4. DELETE: api/sensors/{id} (Para borrar sensores)
+        // DELETE: api/sensors/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            // Verificamos propiedad antes de borrar (Protección OWASP)
+            var sensor = await _mongoService.GetSensorByIdAsync(id);
+            if (sensor == null) return NotFound();
+            if (sensor.UsuarioId != userId) return Forbid(); // Intentó borrar algo ajeno
+
             await _mongoService.DeleteSensorAsync(id);
-            return Ok(new { mensaje = "Sensor eliminado" });
+            return Ok(new { mensaje = "Sensor eliminado correctamente" });
         }
     }
 }
