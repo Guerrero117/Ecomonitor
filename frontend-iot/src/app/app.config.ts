@@ -4,6 +4,8 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+// Importamos nuestro interceptor modular
+import { authInterceptor } from './core/Interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -13,20 +15,8 @@ export const appConfig: ApplicationConfig = {
     provideCharts(withDefaultRegisterables()),
     provideHttpClient(
       withFetch(),
-      withInterceptors([
-        (req, next) => {
-          // Buscamos el token en el almacenamiento local
-          const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-          if (token) {
-            // Clonamos la petición para añadir el Header de Authorization
-            const cloned = req.clone({
-              setHeaders: { Authorization: `Bearer ${token}` }
-            });
-            return next(cloned);
-          }
-          return next(req);
-        }
-      ])
+      // Registro limpio del interceptor
+      withInterceptors([authInterceptor])
     ),
   ]
 };

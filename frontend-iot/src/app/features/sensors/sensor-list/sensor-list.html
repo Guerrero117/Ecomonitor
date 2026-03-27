@@ -9,15 +9,13 @@
     </button>
   </header>
 
-  
-
   <div class="grid-table card-glass">
     <table class="sensor-table">
       <thead>
         <tr>
           <th>Estado</th>
-          <th>Nombre</th>
-          <th>Tipo</th>
+          <th>Nombre del Nodo</th>
+          <th>Modelo / Tipo</th>
           <th>Frecuencia</th>
           <th>Acciones</th>
         </tr>
@@ -31,7 +29,12 @@
             </div>
           </td>
           <td><strong>{{ sensor.nombre }}</strong></td>
-          <td><span class="badge-tipo"><i [class]="getIcon(sensor.tipo)"></i> {{ sensor.tipo }}</span></td>
+          <td>
+            <span class="badge-tipo">
+              <i [class]="getIcon(sensor.tipo)"></i> 
+              {{ sensor.modelo }} <small>({{ sensor.tipo }})</small>
+            </span>
+          </td>
           <td>{{ sensor.frecuencia }}s</td>
           <td>
             <button class="btn-icon delete" (click)="borrarSensor(sensor.id || sensor._id)">
@@ -46,30 +49,44 @@
   <div class="modal-overlay" *ngIf="mostrarModal">
     <div class="modal-card card-glass">
       <div class="modal-header">
-        <h3><i class="fas fa-plus"></i> Registrar Sensor</h3>
+        <h3><i class="fas fa-plus"></i> Registrar Nuevo Dispositivo</h3>
         <button class="close-x" (click)="cerrarModal()">&times;</button>
       </div>
+      
       <div class="modal-body">
         <div class="input-group">
-          <label>Nombre del Nodo</label>
-          <input type="text" [(ngModel)]="nuevoSensor.nombre" placeholder="Ej. ESP32-Invernadero" class="custom-input">
-        </div>
-        <div class="input-group">
-          <label>Magnitud</label>
-          <select [(ngModel)]="nuevoSensor.tipo" class="custom-select-box">
-            <option value="Temperatura">Temperatura</option>
-            <option value="Humedad">Humedad</option>
-            <option value="Radiación UV">Radiación UV</option>
-            <option value="CO2">CO2</option>
+          <label><i class="fas fa-list"></i> 1. Selecciona el Modelo de Hardware</label>
+          <select [(ngModel)]="nuevoSensor.modelo" 
+                  (change)="actualizarDatosDesdeCatalogo()" 
+                  class="custom-select-box">
+            <option value="" disabled selected>-- Elige el sensor físico --</option>
+            <option *ngFor="let disp of dispositivosSoportados" [value]="disp.modelo">
+              {{ disp.modelo }}
+            </option>
           </select>
         </div>
+
+        <div class="sensor-info-preview fade-in" *ngIf="nuevoSensor.tipo">
+          <p>
+            <i [class]="getIcon(nuevoSensor.tipo)"></i> 
+            Este sensor mide: <strong>{{ nuevoSensor.tipo }}</strong> ({{ nuevoSensor.unidad }})
+          </p>
+        </div>
+
         <div class="input-group">
-          <label>Frecuencia (segundos)</label>
+          <label><i class="fas fa-tag"></i> 2. Nombre del Nodo (Ubicación)</label>
+          <input type="text" [(ngModel)]="nuevoSensor.nombre" 
+                 placeholder="Ej. Sensor Gas Cocina" class="custom-input">
+        </div>
+
+        <div class="input-group">
+          <label><i class="fas fa-clock"></i> Frecuencia de envío (segundos)</label>
           <input type="number" [(ngModel)]="nuevoSensor.frecuencia" class="custom-input">
         </div>
-        <button class="btn-save" (click)="guardarSensor()" [disabled]="cargando">
+
+        <button class="btn-save" (click)="guardarSensor()" [disabled]="cargando || !nuevoSensor.modelo">
           <i class="fas" [ngClass]="cargando ? 'fa-circle-notch fa-spin' : 'fa-save'"></i>
-          {{ cargando ? ' Procesando...' : ' Guardar Sensor' }}
+          {{ cargando ? ' Procesando...' : ' Vincular Dispositivo' }}
         </button>
       </div>
     </div>

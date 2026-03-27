@@ -3,22 +3,26 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace backend_iot.Models
 {
+    [BsonIgnoreExtraElements]
     public class User
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
 
-        [BsonElement("nombre")]
-        public string Nombre { get; set; } = string.Empty;
+        [BsonElement("nombre")] // <--- ESTO ES LA CLAVE: debe ser igual que en Atlas
+        public string? Nombre { get; set; }
 
         [BsonElement("email")]
-        public string Email { get; set; } = string.Empty;
-
-        [BsonElement("password")]
-        public string Password { get; set; } = string.Empty;
+        public string? Email { get; set; }
 
         [BsonElement("rol")]
-        public string Rol { get; set; } = "user";
+        public string? Rol { get; set; } = "user";
+
+        [BsonElement("password")]
+        public string? Password { get; set; }
+
+        [BsonElement("fechaRegistro")]
+        public DateTime FechaRegistro { get; set; } = DateTime.Now;
     }
 }

@@ -93,3 +93,5 @@ export class GruposComponent implements OnInit {
     return this.dispositivosDisponibles.some(d => d.seleccionado);
   }
 }
+
+

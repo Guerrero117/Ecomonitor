@@ -1,16 +1,17 @@
 using backend_iot.Services;
+using backend_iot.Models;
+using backend_iot; 
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
-using backend_iot; 
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // --- 1. CONFIGURACIÓN DE SEGURIDAD (JWT) ---
-// Esta es la llave maestra. En producción, cámbiala por algo más largo.
 var key = Encoding.ASCII.GetBytes("EstaEsUnaLlaveSuperSecretaDe32Caracteres!"); 
 
 builder.Services.AddAuthentication(x =>
@@ -20,7 +21,7 @@ builder.Services.AddAuthentication(x =>
 })
 .AddJwtBearer(x =>
 {
-    x.RequireHttpsMetadata = false; // Solo para desarrollo
+    x.RequireHttpsMetadata = false; 
     x.SaveToken = true;
     x.TokenValidationParameters = new TokenValidationParameters
     {
@@ -31,7 +32,7 @@ builder.Services.AddAuthentication(x =>
     };
 });
 
-// --- 2. CONFIGURACIÓN DE SERVICIOS ---
+// --- 2. CONFIGURACIÓN DE CONTROLADORES ---
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -42,7 +43,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "EcoMonitor API", Version = "v1" });
-    // Esto es para que Swagger te deje poner el Token en las pruebas
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
         In = ParameterLocation.Header,
         Description = "Por favor inserta el JWT con 'Bearer ' adelante",
@@ -54,23 +54,31 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// --- 3. MONGODB ---
+// --- 3. CONFIGURACIÓN DE MONGODB (AJUSTE FINAL) ---
+// Vinculamos el JSON con el modelo de configuración
+builder.Services.Configure<MongoDbSettings>(
+    builder.Configuration.GetSection("MongoDbSettings"));
+
 var mongoSettings = builder.Configuration.GetSection("MongoDbSettings");
-builder.Services.AddSingleton<IMongoClient>(sp => new MongoClient(mongoSettings["ConnectionString"]));
-builder.Services.AddScoped(sp => {
+
+// Registramos el cliente (IMongoClient)
+builder.Services.AddSingleton<IMongoClient>(sp => 
+    new MongoClient(mongoSettings["ConnectionString"]));
+
+// Registramos la base de datos (IMongoDatabase) para el AuthService
+builder.Services.AddScoped<IMongoDatabase>(sp => {
     var client = sp.GetRequiredService<IMongoClient>();
     return client.GetDatabase(mongoSettings["DatabaseName"]);
 });
 
-// --- 4. INYECCIÓN ---
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<MongoService>(); 
+// --- 4. REGISTRO DE SERVICIOS ---
+builder.Services.AddSingleton<MongoService>(); // Para el Admin y sensores
+builder.Services.AddScoped<IAuthService, AuthService>(); // Para login
 
+// --- 5. CORS ---
 builder.Services.AddCors(options => {
-    options.AddPolicy("AllowAngular", policy => {
-        policy.WithOrigins("http://localhost:4200") 
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+    options.AddPolicy("AllowAll", policy => {
+        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
     });
 });
 
@@ -82,12 +90,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowAngular");
-app.UseHttpsRedirection();
-
-// ORDEN CRÍTICO: Autenticación SIEMPRE antes de Autorización
+app.UseCors("AllowAll");
 app.UseAuthentication(); 
 app.UseAuthorization();
-
 app.MapControllers();
 app.Run();

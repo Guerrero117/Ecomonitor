@@ -15,13 +15,10 @@ namespace backend_iot.Services
 
         public User? Login(string email, string password)
         {
-            // Buscamos al usuario por email
             var user = _users.Find(u => u.Email == email).FirstOrDefault();
             
-            // Verificamos si existe y si la contraseña es correcta
             if (user != null && BC.Verify(password, user.Password))
             {
-                // Devolvemos el objeto usuario (que ya trae su Id de MongoDB)
                 return user;
             }
             return null;
@@ -29,6 +26,16 @@ namespace backend_iot.Services
 
         public async Task Register(User newUser)
         {
+            // Validar duplicados
+            var existingUser = await _users.Find(u => u.Email == newUser.Email).FirstOrDefaultAsync();
+            if (existingUser != null)
+            {
+                throw new Exception("Este correo ya está en uso.");
+            }
+
+            // Seguridad: Por defecto siempre es 'user'
+            newUser.Rol = "user"; 
+            
             newUser.Password = BC.HashPassword(newUser.Password);
             await _users.InsertOneAsync(newUser);
         }

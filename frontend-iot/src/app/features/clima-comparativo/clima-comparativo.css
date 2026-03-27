@@ -1,138 +1,25 @@
-/* Layout General */
-.main-content {
-  padding: 25px;
-  background: #0b0f1a;
-  min-height: 100vh;
-}
+.clima-wrapper { padding: 20px; }
 
-/* Header Science Board */
-.science-board-top {
-  padding: 25px;
-  margin-bottom: 30px;
-  border-left: 4px solid #10b981;
-}
-
-.header-flex {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-
-.main-title {
-  margin: 5px 0;
-  font-size: 1.8rem;
-  letter-spacing: -0.5px;
-}
-
-.subtitle {
-  color: #94a3b8;
-  font-size: 0.9rem;
-}
-
-/* Selector Estilizado */
-.group-selector-box {
-  background: rgba(15, 23, 42, 0.6);
-  padding: 12px 20px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.05);
-}
-
-.select-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.select-icon {
-  position: absolute;
-  left: 10px;
-  color: #10b981;
-}
-
-.custom-select-dark {
-  background: transparent;
-  border: none;
-  color: #fff;
-  padding: 8px 10px 8px 35px;
-  width: 220px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-/* Sensor Cards */
 .sensor-card {
-  padding: 24px;
-  transition: transform 0.3s ease;
-  position: relative;
-  overflow: hidden;
+  border-bottom: 4px solid transparent;
 }
 
-.sensor-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(16, 185, 129, 0.4);
-}
-
-.icon-circle {
-  width: 40px;
-  height: 40px;
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 12px;
-}
-
-.icon-circle.emerald { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-.icon-circle.yellow { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.sensor-card.exterior { border-bottom-color: #3b82f6; }
+.sensor-card.interior { border-bottom-color: #10b981; }
 
 .temp-value {
-  font-size: 2.8rem;
-  margin: 15px 0 5px;
-  font-weight: 800;
+  letter-spacing: -2px;
+  background: linear-gradient(to bottom, #fff, #94a3b8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.unit { font-size: 1.2rem; vertical-align: top; color: #64748b; }
+.text-emerald {
+  background: linear-gradient(to bottom, #10b981, #059669);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 
-/* Gráfica Pro */
 .chart-container-pro {
-  padding: 25px;
-  margin-top: 30px;
-}
-
-.chart-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 25px;
-}
-
-.live-indicator {
-  font-size: 0.75rem;
-  font-weight: bold;
-  color: #ef4444;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  background: #ef4444;
-  border-radius: 50%;
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.3; }
-  100% { opacity: 1; }
-}
-
-.canvas-wrapper {
-  height: 350px;
-  width: 100%;
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%);
 }

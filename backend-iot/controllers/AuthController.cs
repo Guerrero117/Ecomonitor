@@ -13,10 +13,12 @@ namespace backend_iot.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IConfiguration _config; // Agregamos IConfiguration
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IConfiguration config)
         {
             _authService = authService;
+            _config = config;
         }
 
         [HttpPost("login")]
@@ -29,17 +31,19 @@ namespace backend_iot.Controllers
                 return Unauthorized(new { message = "Email o contraseña incorrectos" });
             }
 
-            // --- GENERACIÓN DE JWT REAL ---
             var tokenHandler = new JwtSecurityTokenHandler();
-            // IMPORTANTE: Esta clave DEBE ser la misma que en Program.cs
-            var key = Encoding.ASCII.GetBytes("EstaEsUnaLlaveSuperSecretaDe32Caracteres!"); 
+            
+            // SEGURIDAD: Obtenemos la llave desde el appsettings.json
+            var jwtKey = _config["Jwt:Key"] ?? "EstaEsUnaLlavePorDefectoDe32Caracteres!";
+            var key = Encoding.ASCII.GetBytes(jwtKey); 
             
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[] { 
                     new Claim(ClaimTypes.NameIdentifier, user.Id ?? ""), 
-                    new Claim(ClaimTypes.Name, user.Nombre),
-                    new Claim(ClaimTypes.Email, user.Email)
+                    new Claim(ClaimTypes.Name, user.Nombre ?? "N/A"),
+                    new Claim(ClaimTypes.Email, user.Email ?? "N/A"),
+                    new Claim(ClaimTypes.Role, user.Rol ?? "user") 
                 }),
                 Expires = DateTime.UtcNow.AddHours(4),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -52,6 +56,7 @@ namespace backend_iot.Controllers
                 id = user.Id, 
                 nombre = user.Nombre,
                 email = user.Email,
+                rol = user.Rol,
                 token = tokenString 
             });
         }
@@ -61,12 +66,15 @@ namespace backend_iot.Controllers
         {
             try 
             {
+                // El servicio lanza una excepción si el correo ya existe
                 await _authService.Register(user);
                 return Ok(new { message = "Usuario registrado exitosamente" });
             }
             catch (System.Exception ex)
             {
-                return BadRequest(new { message = "Error al registrar", error = ex.Message });
+                // MODIFICACIÓN: Enviamos ex.Message directamente para que Angular 
+                // muestre "El correo electrónico ya está registrado"
+                return BadRequest(new { message = ex.Message });
             }
         }
     }

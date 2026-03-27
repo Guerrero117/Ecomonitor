@@ -1,0 +1,47 @@
+<div class="admin-panel fade-in">
+  <div class="panel-header">
+    <h2 class="neon-title">🛡️ Gestión de Usuarios</h2>
+    <button class="refresh-btn" (click)="cargarUsuarios()">
+      <span [class.spinning]="loading">🔄</span> Actualizar Datos
+    </button>
+  </div>
+
+  <div class="stats-summary" *ngIf="!loading">
+    <div class="stat-item">Total Usuarios: <strong>{{usuarios.length}}</strong></div>
+  </div>
+
+  <div class="table-container glass">
+    <div *ngIf="loading" class="loader">Consultando base de datos...</div>
+    
+    <div *ngIf="error" class="error-msg">{{error}}</div>
+
+    <table *ngIf="!loading && !error">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Registro</th>
+          <th>Grupos</th>
+          <th>Dispositivos</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of usuarios">
+          <td class="user-name">{{user.nombre}}</td>
+          <td>{{user.email}}</td>
+          <td>
+            <span class="role-badge" [ngClass]="user.rol">{{user.rol}}</span>
+          </td>
+          <td>{{user.registro | date:'dd/MM/yyyy'}}</td>
+          
+          <td class="center">{{user.totalGrupos}}</td>
+          
+          <td class="center">
+            <span class="device-pill">{{user.totalSensores}}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace backend_iot.Controllers
 {
-    [Authorize] // <--- Nadie entra sin Token
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class SensorsController : ControllerBase
@@ -19,44 +19,40 @@ namespace backend_iot.Controllers
             _mongoService = mongoService;
         }
 
-        // GET: api/sensors 
-        // Ahora solo devuelve los sensores del usuario logueado
         [HttpGet]
         public async Task<ActionResult<List<Sensor>>> Get()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId)) return Unauthorized();
-
-            var sensores = await _mongoService.GetSensorsPorUsuarioAsync(userId);
-            return Ok(sensores);
+            if (userId == null) return Unauthorized();
+            return await _mongoService.GetSensorsPorUsuarioAsync(userId);
         }
 
-        // POST: api/sensors
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Sensor nuevoSensor)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
-            nuevoSensor.UsuarioId = userId; // Forzamos que el dueño sea el del Token
+            // Validación estricta de hardware
+            var tiposValidos = new List<string> { "Temperatura", "Humedad", "Calidad Aire", "Luminosidad" };
+            if (!tiposValidos.Contains(nuevoSensor.Tipo))
+                return BadRequest(new { mensaje = "Tipo de sensor no soportado por el firmware." });
 
+            nuevoSensor.UsuarioId = userId;
             await _mongoService.CreateSensorAsync(nuevoSensor);
-            return Ok(new { mensaje = "Sensor guardado y vinculado a tu cuenta" });
+            return Ok(new { mensaje = "Sensor IoT registrado con éxito" });
         }
 
-        // DELETE: api/sensors/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            // Verificamos propiedad antes de borrar (Protección OWASP)
             var sensor = await _mongoService.GetSensorByIdAsync(id);
             if (sensor == null) return NotFound();
-            if (sensor.UsuarioId != userId) return Forbid(); // Intentó borrar algo ajeno
+            if (sensor.UsuarioId != userId) return Forbid();
 
             await _mongoService.DeleteSensorAsync(id);
-            return Ok(new { mensaje = "Sensor eliminado correctamente" });
+            return Ok(new { mensaje = "Dispositivo eliminado" });
         }
     }
 }

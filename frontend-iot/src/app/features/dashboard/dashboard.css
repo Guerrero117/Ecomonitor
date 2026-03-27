@@ -178,3 +178,269 @@
   margin-top: 10px;
   flex-grow: 1;
 }
+
+/* ... Tus estilos anteriores se mantienen, solo añade/ajusta estos: ... */
+
+.device-tag {
+  font-size: 0.65rem;
+  color: #444;
+  margin-bottom: 30px;
+  letter-spacing: 2px;
+  padding-left: 18px;
+}
+
+.board-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.clock {
+  font-family: 'Courier New', monospace;
+  color: #10b981;
+  font-size: 0.8rem;
+}
+
+.glass-card h3 .unit {
+  font-size: 1rem;
+  color: #10b981;
+  margin-left: 5px;
+  font-weight: 300;
+}
+
+.sensor-name-sub {
+  font-size: 0.7rem;
+  color: #444;
+  margin-top: 10px;
+  text-transform: uppercase;
+}
+
+.spacer { flex-grow: 1; }
+
+.logout-btn {
+  color: #ef4444;
+  border-top: 1px solid #222;
+  border-radius: 0;
+  margin-top: 20px;
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+}
+
+/* Animación suave para las imágenes del panel */
+.fade-in {
+  animation: fadeIn 1.5s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.menu-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.05);
+  margin: 15px 10px;
+}
+
+.admin-btn {
+  color: #10b981 !important;
+  font-weight: 700;
+  margin-top: 10px;
+  border: 1px dashed rgba(16, 185, 129, 0.3);
+}
+
+.admin-btn:hover {
+  background: rgba(16, 185, 129, 0.1) !important;
+  border-color: #10b981;
+}
+
+.admin-btn.active {
+  background: rgba(16, 185, 129, 0.2) !important;
+  border: 1px solid #10b981;
+}
+
+/* Espaciador para empujar el logout al fondo */
+.spacer {
+  flex-grow: 1;
+}
+
+* { 
+  margin: 0; 
+  padding: 0; 
+  box-sizing: border-box; 
+  font-family: 'Inter', sans-serif; 
+}
+
+/* CONTENEDOR RAIZ */
+.dashboard-wrapper {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  background-color: #0a0a0a;
+  color: #e2e8f0;
+  overflow: hidden;
+}
+
+/* SIDEBAR REFINADO */
+.sidebar {
+  width: 260px;
+  background-color: #0f0f0f;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  padding: 30px 20px;
+  height: 100%;
+}
+
+.logo { 
+  font-size: 1.5rem; 
+  font-weight: 800; 
+  color: #10b981; 
+  margin-bottom: 5px; 
+  letter-spacing: -1px;
+}
+
+.device-tag {
+  font-size: 0.65rem;
+  color: #444;
+  margin-bottom: 30px;
+  letter-spacing: 2px;
+}
+
+/* MENU NAVIGATION */
+.menu {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* Permite que el nav use el espacio disponible */
+  overflow-y: auto; /* Scroll si el menú es muy largo */
+  gap: 5px;
+}
+
+.menu-item {
+  width: 100%;
+  padding: 12px 15px;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  color: #94a3b8;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.menu-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: #fff;
+}
+
+.menu-item.active {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  font-weight: 600;
+  border-left: 3px solid #10b981;
+}
+
+.menu-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.05);
+  margin: 15px 0;
+}
+
+.menu-spacer {
+  flex-grow: 1; /* Empuja el botón de logout al final */
+  min-height: 20px;
+}
+
+/* BOTONES ESPECIALES */
+.admin-btn {
+  color: #10b981 !important;
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px dashed rgba(16, 185, 129, 0.2);
+  margin-top: 10px;
+}
+
+.logout-btn {
+  color: #ef4444 !important;
+  margin-top: auto;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 0;
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.1) !important;
+}
+
+/* CONTENIDO PRINCIPAL */
+.main-content {
+  flex-grow: 1;
+  padding: 30px 40px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* PANEL CIENTÍFICO */
+.science-board-top {
+  background: #141414;
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid #222;
+}
+
+.board-tag {
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 4px 8px;
+  border-radius: 5px;
+}
+
+.board-content { display: flex; align-items: center; gap: 25px; margin-top: 15px; }
+.image-container { width: 140px; height: 80px; border-radius: 10px; overflow: hidden; flex-shrink: 0; }
+.image-container img { width: 100%; height: 100%; object-fit: cover; }
+.fade-text { font-size: 1rem; color: #cbd5e1; line-height: 1.4; }
+
+/* GRID DE SENSORES */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.glass-card {
+  background: #141414;
+  padding: 20px;
+  border-radius: 18px;
+  border: 1px solid #222;
+  transition: transform 0.3s ease;
+}
+
+.glass-card:hover { transform: translateY(-5px); border-color: #10b981; }
+.sensor-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.glass-card h3 { font-size: 1.6rem; margin-bottom: 5px; }
+.unit { font-size: 0.9rem; color: #10b981; margin-left: 4px; }
+.sensor-type { color: #64748b; font-size: 0.8rem; }
+
+/* ALERTA CONTAINER */
+.alerta-container {
+  background: rgba(16, 185, 129, 0.05);
+  border-left: 4px solid #10b981;
+  padding: 12px 20px;
+  border-radius: 8px;
+  display: flex;
+  gap: 15px;
+  font-size: 0.9rem;
+}
+
+.view-container { margin-top: 10px; }

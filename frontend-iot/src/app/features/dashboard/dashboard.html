@@ -2,44 +2,39 @@
   
   <aside class="sidebar">
     <div class="logo">🌿 EcoMonitor</div>
+    <div class="device-tag">PI3_STATION: ONLINE</div>
     
     <nav class="menu">
-      <button class="menu-item" [class.active]="pantallaActual === 'dashboard'" (click)="navegarA('dashboard')">
-        🏠 Inicio
+      <button class="menu-item" [class.active]="pantallaActual === 'dashboard'" (click)="navegarA('dashboard')">🏠 Inicio</button>
+      <button class="menu-item" [class.active]="pantallaActual === 'entrada-manual'" (click)="navegarA('entrada-manual')">📥 Entrada Manual</button>
+      <button class="menu-item" [class.active]="pantallaActual === 'clima'" (click)="navegarA('clima')">🌍 Clima Exterior</button>
+      
+      <div class="menu-divider"></div>
+      
+      <button class="menu-item" [class.active]="pantallaActual === 'grupos'" (click)="navegarA('grupos')">📂 Grupos</button>
+      <button class="menu-item" [class.active]="pantallaActual === 'alertas'" (click)="navegarA('alertas')">⚠️ Alertas</button>
+      <button class="menu-item" [class.active]="pantallaActual === 'sensores'" (click)="navegarA('sensores')">🔌 Dispositivos</button>
+      
+      <button *ngIf="auth.getRol() === 'admin'" 
+              class="menu-item admin-btn" 
+              [class.active]="pantallaActual === 'admin-users'" 
+              (click)="navegarA('admin-users')">
+        👤 Gestión Usuarios
       </button>
 
-      <button class="menu-item" [class.active]="pantallaActual === 'entrada-manual'" (click)="navegarA('entrada-manual')">
-        📥 Entrada Manual
-      </button>
+      <div class="menu-spacer"></div>
 
-      <button class="menu-item" [class.active]="pantallaActual === 'clima'" (click)="navegarA('clima')">
-        🌍 Clima Exterior
-      </button>
-
-      <div class="menu-divider" style="height: 1px; background: rgba(255,255,255,0.1); margin: 10px 0;"></div>
-
-      <button class="menu-item" [class.active]="pantallaActual === 'grupos'" (click)="navegarA('grupos')">
-        📂 Grupos
-      </button>
-
-      <button class="menu-item" [class.active]="pantallaActual === 'alertas'" (click)="navegarA('alertas')">
-        ⚠️ Alertas
-      </button>
-
-      <button class="menu-item" [class.active]="pantallaActual === 'sensores'" (click)="navegarA('sensores')">
-        🔌 Dispositivos
-      </button>
-
-      <button class="menu-item" [class.active]="pantallaActual === 'config'" (click)="navegarA('config')">
-        ⚙️ Configuración
-      </button>
+      <button class="menu-item logout-btn" (click)="logout()">🚪 Cerrar Sesión</button>
     </nav>
   </aside>
 
   <main class="main-content">
     
-    <section class="science-board-top">
-      <span class="board-tag">SABÍAS QUE...</span>
+    <section class="science-board-top" *ngIf="pantallaActual === 'dashboard'">
+      <div class="board-header">
+        <span class="board-tag">DATOS CIENTÍFICOS</span>
+        <span class="clock">{{ timestamp | date:'HH:mm:ss' }}</span>
+      </div>
       <div class="board-content">
         <div class="image-container">
           <img [src]="imagenActual" alt="Dato EcoMonitor" class="fade-in">
@@ -48,26 +43,28 @@
       </div>
     </section>
 
-    <div class="alerta-container" *ngIf="recomendacionActual.includes('⚠️')">
-      <span class="alert-icon">🔥</span>
+    <div class="alerta-container" *ngIf="recomendacionActual && pantallaActual === 'dashboard'">
+      <span class="alert-icon">ℹ️</span>
       <p>{{ recomendacionActual }}</p>
     </div>
 
     <div class="dashboard-grid" *ngIf="pantallaActual === 'dashboard'">
       <div class="glass-card" *ngFor="let sensor of lecturasSensores">
         <div class="sensor-header">
-          <span class="sensor-icon">📊</span>
+          <span class="sensor-icon">{{ sensor.icon }}</span>
           <span class="sensor-status" [style.color]="sensor.estado === 'Normal' || sensor.estado === 'Óptimo' ? '#10b981' : '#f59e0b'">
             {{ sensor.estado }}
           </span>
         </div>
-        <h3>{{ sensor.valor }}{{ sensor.unidad }}</h3>
+        <h3>{{ sensor.valor }}<span class="unit">{{ sensor.unidad }}</span></h3>
         <p class="sensor-type">{{ sensor.tipo }}</p>
+        <p class="sensor-name-sub">{{ sensor.nombre }}</p>
       </div>
     </div>
 
     <div class="view-container">
       <router-outlet></router-outlet>
     </div>
+    
   </main>
 </div>
