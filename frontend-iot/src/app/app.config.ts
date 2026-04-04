@@ -4,7 +4,8 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-// Importamos nuestro interceptor modular
+
+// CORRECCIÓN: Import con "I" Mayúscula para que coincida con tu carpeta física
 import { authInterceptor } from './core/Interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
@@ -15,8 +16,7 @@ export const appConfig: ApplicationConfig = {
     provideCharts(withDefaultRegisterables()),
     provideHttpClient(
       withFetch(),
-      // Registro limpio del interceptor
-      withInterceptors([authInterceptor])
+      withInterceptors([authInterceptor]) // Esto activa el envío del token
     ),
   ]
 };

@@ -1,41 +1,52 @@
 <div class="admin-panel fade-in">
   <div class="panel-header">
-    <h2 class="neon-title">🛡️ Gestión de Usuarios</h2>
+    <div>
+      <h2 class="neon-title">🛡️ Gestión de Usuarios</h2>
+      <p class="subtitle">Administración de acceso y recursos del sistema</p>
+    </div>
     <button class="refresh-btn" (click)="cargarUsuarios()">
       <span [class.spinning]="loading">🔄</span> Actualizar Datos
     </button>
   </div>
 
-  <div class="stats-summary" *ngIf="!loading">
-    <div class="stat-item">Total Usuarios: <strong>{{usuarios.length}}</strong></div>
+  <div class="stats-summary-glass" *ngIf="!loading">
+    <div class="stat-badge">
+      <span class="label">Total Usuarios:</span>
+      <span class="value">{{usuarios.length}}</span>
+    </div>
   </div>
 
   <div class="table-container glass">
-    <div *ngIf="loading" class="loader">Consultando base de datos...</div>
+    <div *ngIf="loading" class="loader-container">
+      <div class="spinner"></div>
+      <p>Consultando base de datos...</p>
+    </div>
     
-    <div *ngIf="error" class="error-msg">{{error}}</div>
+    <div *ngIf="error" class="error-msg-glass">{{error}}</div>
 
-    <table *ngIf="!loading && !error">
+    <table *ngIf="!loading && !error" class="logs-table">
       <thead>
         <tr>
-          <th>Nombre</th>
-          <th>Email</th>
+          <th>Nombre del Usuario</th>
+          <th>Correo Electrónico</th>
           <th>Rol</th>
-          <th>Registro</th>
-          <th>Grupos</th>
-          <th>Dispositivos</th>
+          <th>Fecha Registro</th>
+          <th class="center">Grupos</th>
+          <th class="center">Dispositivos</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let user of usuarios">
-          <td class="user-name">{{user.nombre}}</td>
-          <td>{{user.email}}</td>
+          <td class="user-name-cell">{{user.nombre}}</td>
+          <td class="email-cell">{{user.email}}</td>
           <td>
             <span class="role-badge" [ngClass]="user.rol">{{user.rol}}</span>
           </td>
-          <td>{{user.registro | date:'dd/MM/yyyy'}}</td>
+          <td class="date-cell">{{user.registro}}</td>
           
-          <td class="center">{{user.totalGrupos}}</td>
+          <td class="center">
+            <span class="count-circle">{{user.totalGrupos}}</span>
+          </td>
           
           <td class="center">
             <span class="device-pill">{{user.totalSensores}}</span>

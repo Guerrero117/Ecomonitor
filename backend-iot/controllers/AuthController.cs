@@ -13,74 +13,75 @@ namespace backend_iot.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
-        private readonly IConfiguration _config; // Agregamos IConfiguration
+        private readonly IConfiguration _config;
+        private readonly MongoService _mongoService; // Inyectamos MongoService para los logs
 
-        public AuthController(IAuthService authService, IConfiguration config)
+        public AuthController(IAuthService authService, IConfiguration config, MongoService mongoService)
         {
             _authService = authService;
             _config = config;
+            _mongoService = mongoService;
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginDto request)
+        public async Task<IActionResult> Login([FromBody] LoginDto request)
         {
             var user = _authService.Login(request.Email, request.Password);
             
-            if (user == null)
-            {
-                return Unauthorized(new { message = "Email o contraseña incorrectos" });
+            if (user == null) {
+                // OWASP A09:2021 - Registro de intento fallido
+                await _mongoService.RegistrarLogAsync(null, "LOGIN_FAILED", $"Intento de acceso fallido para: {request.Email}");
+                return Unauthorized(new { message = "Credenciales inválidas" });
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            
-            // SEGURIDAD: Obtenemos la llave desde el appsettings.json
-            var jwtKey = _config["Jwt:Key"] ?? "EstaEsUnaLlavePorDefectoDe32Caracteres!";
+            var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? _config["Jwt:Key"];
             var key = Encoding.ASCII.GetBytes(jwtKey); 
             
+            string userRole = user.Rol?.Equals("admin", StringComparison.OrdinalIgnoreCase) == true 
+                              ? "Admin" 
+                              : (user.Rol ?? "user");
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[] { 
                     new Claim(ClaimTypes.NameIdentifier, user.Id ?? ""), 
-                    new Claim(ClaimTypes.Name, user.Nombre ?? "N/A"),
-                    new Claim(ClaimTypes.Email, user.Email ?? "N/A"),
-                    new Claim(ClaimTypes.Role, user.Rol ?? "user") 
+                    new Claim(ClaimTypes.Name, user.Nombre ?? ""),
+                    new Claim(ClaimTypes.Email, user.Email ?? ""),
+                    new Claim(ClaimTypes.Role, userRole) 
                 }),
-                Expires = DateTime.UtcNow.AddHours(4),
+                Expires = DateTime.UtcNow.AddHours(2),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
+            
+            // Registro de éxito
+            await _mongoService.RegistrarLogAsync(user.Id, "LOGIN_SUCCESS", $"Sesión iniciada por el usuario: {user.Email}");
 
             return Ok(new { 
                 id = user.Id, 
                 nombre = user.Nombre,
-                email = user.Email,
                 rol = user.Rol,
-                token = tokenString 
+                token = tokenHandler.WriteToken(token) 
             });
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] User user)
         {
-            try 
-            {
-                // El servicio lanza una excepción si el correo ya existe
+            try {
                 await _authService.Register(user);
-                return Ok(new { message = "Usuario registrado exitosamente" });
+                await _mongoService.RegistrarLogAsync(null, "USER_REGISTER", $"Nuevo usuario registrado: {user.Email}");
+                return Ok(new { message = "Registro exitoso" });
             }
-            catch (System.Exception ex)
-            {
-                // MODIFICACIÓN: Enviamos ex.Message directamente para que Angular 
-                // muestre "El correo electrónico ya está registrado"
+            catch (System.Exception ex) {
                 return BadRequest(new { message = ex.Message });
             }
         }
     }
 
-    public class LoginDto
-    {
+    public class LoginDto {
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
     }

@@ -4,13 +4,17 @@
       <div class="header-info">
         <span class="board-tag">ANÁLISIS DIFERENCIAL</span>
         <h2 class="main-title">Diferencial Térmico: Obregón vs Local</h2>
+        <p class="board-subtitle">Comparativa en tiempo real entre API OpenWeather y Nodos IoT</p>
       </div>
 
       <div class="group-selector-box">
-        <label><i class="fas fa-satellite"></i> Seleccionar Zona</label>
-        <select class="custom-select-dark" [(ngModel)]="grupoSeleccionadoId" (change)="onGrupoChange()">
-          <option *ngFor="let g of listaGrupos" [value]="g.id">{{ g.nombre }}</option>
-        </select>
+        <label class="selector-label"><i class="fas fa-satellite"></i> Seleccionar Zona</label>
+        <div class="select-wrapper">
+          <select class="custom-select-dark" [(ngModel)]="grupoSeleccionadoId" (change)="onGrupoChange()">
+            <option *ngFor="let g of listaGrupos" [value]="g.id">{{ g.nombre }}</option>
+          </select>
+          <i class="fas fa-chevron-down select-arrow"></i>
+        </div>
       </div>
     </div>
   </section>
@@ -19,10 +23,14 @@
     <div class="glass-card sensor-card exterior stagger-item" style="animation-delay: 0.1s">
       <div class="sensor-header">
         <span class="icon-circle blue"><i class="fas fa-cloud-sun"></i></span>
-        <span class="sensor-label">API Exterior</span>
+        <span class="sensor-label">API Exterior (Obregón)</span>
       </div>
-      <h3 class="temp-value">{{ tempExterior }}°<span class="unit">C</span></h3>
-      <div class="sensor-footer">Humedad: {{ humedadExterior }}%</div>
+      <div class="temp-display">
+        <h3 class="temp-value blue-gradient">{{ tempExterior }}°<span class="unit">C</span></h3>
+      </div>
+      <div class="sensor-footer">
+        <i class="fas fa-tint"></i> Humedad: {{ humedadExterior }}%
+      </div>
     </div>
 
     <div class="glass-card sensor-card interior stagger-item" style="animation-delay: 0.2s">
@@ -30,37 +38,58 @@
         <span class="icon-circle emerald"><i class="fas fa-home"></i></span>
         <span class="sensor-label">Promedio Nodos</span>
       </div>
-      <h3 class="temp-value text-emerald">{{ tempInterior.toFixed(1) }}°<span class="unit">C</span></h3>
-      <div class="sensor-footer">Sincronizado hace 1s</div>
+      <div class="temp-display">
+        <h3 class="temp-value emerald-gradient">{{ tempInterior.toFixed(1) }}°<span class="unit">C</span></h3>
+      </div>
+      <div class="sensor-footer">
+        <i class="fas fa-sync-alt fa-spin-hover"></i> Sincronizado hace 1s
+      </div>
     </div>
 
-    <div class="glass-card sensor-card stagger-item" style="animation-delay: 0.3s">
+    <div class="glass-card sensor-card extremes stagger-item" style="animation-delay: 0.3s">
       <div class="sensor-header">
         <span class="icon-circle gray"><i class="fas fa-chart-area"></i></span>
         <span class="sensor-label">Límites Hoy</span>
       </div>
       <div class="extremes-container">
-        <div class="ext-item"><span>Min</span><strong>{{ tempMin }}°</strong></div>
-        <div class="ext-item"><span>Max</span><strong>{{ tempMax }}°</strong></div>
+        <div class="ext-item min">
+          <span class="label">Mínima</span>
+          <strong class="val">{{ tempMin }}°</strong>
+        </div>
+        <div class="divider-v"></div>
+        <div class="ext-item max">
+          <span class="label">Máxima</span>
+          <strong class="val">{{ tempMax }}°</strong>
+        </div>
       </div>
+      <div class="sensor-footer">Rango operativo histórico</div>
     </div>
 
     <div class="glass-card sensor-card status-card stagger-item" 
          [class.warning]="diferencia > 5" style="animation-delay: 0.4s">
       <div class="sensor-header">
-        <span class="icon-circle yellow"><i class="fas fa-exclamation-triangle"></i></span>
-        <span class="sensor-label">Brecha</span>
+        <span class="icon-circle" [ngClass]="diferencia > 5 ? 'yellow' : 'emerald'">
+          <i class="fas" [ngClass]="diferencia > 5 ? 'fa-exclamation-triangle' : 'fa-check-circle'"></i>
+        </span>
+        <span class="sensor-label">Brecha Térmica</span>
       </div>
-      <h3 class="temp-value" [style.color]="diferencia > 5 ? '#f59e0b' : '#10b981'">
-        {{ diferencia.toFixed(1) }}°
-      </h3>
-      <p class="status-msg">{{ diferencia > 5 ? 'Alerta Térmica' : 'Sistema Estable' }}</p>
+      <div class="temp-display">
+        <h3 class="temp-value" [style.color]="diferencia > 5 ? '#f59e0b' : '#10b981'">
+          {{ diferencia.toFixed(1) }}°
+        </h3>
+      </div>
+      <p class="status-msg" [class.text-warning]="diferencia > 5">
+        {{ diferencia > 5 ? 'Alerta: Disparidad Alta' : 'Sistema Estable' }}
+      </p>
     </div>
   </div>
 
   <div class="glass-card chart-container-pro stagger-item" style="animation-delay: 0.5s">
     <div class="chart-header">
-      <div class="chart-title"><i class="fas fa-chart-bar"></i> Histograma de Nodos</div>
+      <div class="chart-info">
+        <div class="chart-title"><i class="fas fa-chart-bar"></i> Distribución de Carga por Nodo</div>
+        <p class="chart-subtitle">Análisis comparativo de voltajes y temperatura</p>
+      </div>
       <div class="live-tag"><span class="dot"></span> LIVE DATA</div>
     </div>
     <div class="canvas-wrapper">

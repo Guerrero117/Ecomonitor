@@ -8,6 +8,7 @@ import { LoginComponent } from './features/auth/login/login';
 import { EntradaManualComponent } from './features/entrada-manual/entrada-manual'; 
 import { ClimaComparativoComponent } from './features/clima-comparativo/clima-comparativo';
 import { AdminUsersComponent } from './features/admin/admin-users/admin-users';
+import { AdminLogsComponent } from './features/admin/admin-logs/admin-logs'; // <-- IMPORTANTE
 
 // --- GUARDS ---
 import { authGuard } from './core/guards/auth-guard';
@@ -15,7 +16,6 @@ import { inject } from '@angular/core';
 import { AuthService } from './core/services/auth';
 import { Router } from '@angular/router';
 
-// Guard para proteger la zona de Admin
 const adminGuard = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
@@ -25,6 +25,7 @@ const adminGuard = () => {
 export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: LoginComponent },
+  
   { 
     path: 'dashboard', 
     component: DashboardComponent,
@@ -35,8 +36,11 @@ export const routes: Routes = [
       { path: 'devices', component: SensorListComponent },
       { path: 'entrada-manual', component: EntradaManualComponent },
       { path: 'clima-comparativo', component: ClimaComparativoComponent },
-      // RUTA DE ADMIN
+      
+      // RUTAS DE ADMIN
       { path: 'admin-users', component: AdminUsersComponent, canActivate: [adminGuard] },
+      { path: 'admin-logs', component: AdminLogsComponent, canActivate: [adminGuard] }, // <-- CORREGIDO
+      
       { path: '', redirectTo: 'devices', pathMatch: 'full' }
     ]
   },

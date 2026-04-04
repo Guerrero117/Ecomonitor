@@ -18,6 +18,7 @@ export class GruposComponent implements OnInit {
   dispositivosDisponibles: any[] = []; 
   mostrarModal = false;
   nuevoGrupoNombre = '';
+  // Filtros inicializados
   filters = { name: '', status: '' };
 
   constructor(
@@ -26,10 +27,22 @@ export class GruposComponent implements OnInit {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
+  // Lógica de filtrado combinada (Tu original + Filtros extra)
   get misGruposFiltrados() {
-    return this.misGrupos.filter(g => 
-      g.nombre.toLowerCase().includes(this.filters.name.toLowerCase())
-    );
+    return this.misGrupos.filter(g => {
+      const matchName = g.nombre.toLowerCase().includes(this.filters.name.toLowerCase());
+      const sensorCount = g.sensoresIds?.length || 0;
+
+      // Aplicar filtros del Select
+      switch (this.filters.status) {
+        case 'active': return matchName && g.estado === 'Activo';
+        case 'inactive': return matchName && g.estado !== 'Activo';
+        case 'large': return matchName && sensorCount >= 3;
+        case 'small': return matchName && sensorCount > 0 && sensorCount < 3;
+        case 'empty': return matchName && sensorCount === 0;
+        default: return matchName;
+      }
+    });
   }
 
   ngOnInit() { 
@@ -93,5 +106,3 @@ export class GruposComponent implements OnInit {
     return this.dispositivosDisponibles.some(d => d.seleccionado);
   }
 }
-
-

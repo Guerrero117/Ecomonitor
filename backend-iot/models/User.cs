@@ -1,5 +1,6 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System;
 
 namespace backend_iot.Models
 {
@@ -10,7 +11,7 @@ namespace backend_iot.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
 
-        [BsonElement("nombre")] // <--- ESTO ES LA CLAVE: debe ser igual que en Atlas
+        [BsonElement("nombre")] 
         public string? Nombre { get; set; }
 
         [BsonElement("email")]
@@ -23,6 +24,7 @@ namespace backend_iot.Models
         public string? Password { get; set; }
 
         [BsonElement("fechaRegistro")]
-        public DateTime FechaRegistro { get; set; } = DateTime.Now;
+        [BsonDateTimeOptions(Kind = DateTimeKind.Utc)] // Crucial para que Mongo y C# se entiendan
+        public DateTime FechaRegistro { get; set; } = DateTime.UtcNow;
     }
 }

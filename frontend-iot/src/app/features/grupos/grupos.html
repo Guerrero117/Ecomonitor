@@ -1,47 +1,64 @@
-<div class="grupos-wrapper">
+<div class="grupos-wrapper fade-in">
   <div class="summary-row">
-    <div class="glass-card summary-item">
-      <div class="card-icon"><i class="fas fa-layer-group"></i></div>
-      <div class="card-data">
-        <span class="small-label">Áreas Registradas</span>
-        <h3>{{ misGruposFiltrados.length }}</h3>
+    <div class="summary-item glass-card">
+      <div class="card-icon-circle"><i class="fas fa-layer-group"></i></div>
+      <div class="card-info">
+        <p class="small-label">Total Áreas</p>
+        <h3 class="neon-value">{{ misGrupos.length }}</h3>
       </div>
     </div>
-
-    <div class="glass-card summary-item">
-      <div class="card-icon"><i class="fas fa-check-circle" style="color: #10b981;"></i></div>
-      <div class="card-data">
-        <span class="small-label">Estado del Sistema</span>
-        <h3 style="color: #10b981;">Cloud Sync Active</h3>
+    <div class="summary-item glass-card">
+      <div class="card-icon-circle sync"><i class="fas fa-check-circle"></i></div>
+      <div class="card-info">
+        <p class="small-label">Estado Sistema</p>
+        <p class="sync-text">OPERATIVO</p>
       </div>
     </div>
-  </div>
-
-  <div class="header-seccion">
-    <div class="title-block">
-      <h2>Gestión de Áreas</h2>
-      <p class="subtitle">Configura las zonas de monitoreo para el análisis térmico.</p>
-    </div>
-    <button class="btn-nuevo-grupo" (click)="abrirModal()" type="button">
-      <i class="fas fa-plus"></i> Nuevo Grupo
-    </button>
   </div>
 
   <div class="filters-container glass-card">
     <div class="search-input-group">
       <i class="fas fa-search search-icon"></i>
-      <input type="text" placeholder="Buscar área por nombre..." [(ngModel)]="filters.name" class="custom-input">
+      <input 
+        type="text" 
+        placeholder="Buscar área por nombre..." 
+        [(ngModel)]="filters.name" 
+        class="glass-input">
     </div>
 
     <div class="select-group">
       <i class="fas fa-filter icon-filter"></i>
       <select [(ngModel)]="filters.status" class="custom-select">
-        <option value="">Todos los estados</option>
-        <option value="Activo">Activo</option>
-        <option value="Inactivo">Inactivo</option>
+        <option value="">🌐 Todos los Grupos</option>
+        
+        <optgroup label="── Estado Operativo ──">
+          <option value="active">✅ Solo Activos</option>
+          <option value="inactive">⚠️ En Mantenimiento</option>
+        </optgroup>
+
+        <optgroup label="── Densidad de Nodos ──">
+          <option value="large">🏗️ Alta Densidad (3+ nodos)</option>
+          <option value="small">📦 Baja Densidad (1-2 nodos)</option>
+          <option value="empty">🚫 Sin Dispositivos</option>
+        </optgroup>
+
+        <optgroup label="── Prioridad de Monitoreo ──">
+          <option value="critical">🚨 Alerta Crítica</option>
+          <option value="stable">🟢 Operación Estable</option>
+        </optgroup>
       </select>
     </div>
   </div>
+
+  <header class="header-seccion">
+    <div class="header-info">
+      <h1 class="neon-title">📂 Gestión de Áreas</h1>
+      <p class="subtitle">Organización lógica y agrupamiento de telemetría EcoMonitor</p>
+    </div>
+    <button class="btn-nuevo-grupo" (click)="abrirModal()">
+      <i class="fas fa-plus-square"></i> Nueva Área
+    </button>
+  </header>
 
   <div class="table-container glass-card">
     <table class="grupos-table">
@@ -49,68 +66,57 @@
         <tr>
           <th>ID</th>
           <th>Nombre del Área</th>
-          <th>Dispositivos</th>
+          <th>Nodos Vinculados</th>
           <th>Estado</th>
-          <th>Acciones</th>
+          <th class="center">Acciones</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let grupo of misGruposFiltrados; let i = index" class="row-hover">
-          <td class="id-cell">#0{{ i + 1 }}</td>
-          <td class="area-name">{{ grupo.nombre }}</td>
+        <tr *ngFor="let grupo of misGruposFiltrados">
+          <td class="id-cell">#{{ grupo.id?.slice(-6) || grupo._id?.slice(-6) }}</td>
+          <td><span class="area-name">{{ grupo.nombre }}</span></td>
           <td>
-            <span class="sensor-tag">
-              <i class="fas fa-microchip"></i> {{ grupo.sensoresIds?.length || 0 }} sensores
-            </span>
+            <div class="sensor-tags-container">
+              <span class="sensor-tag" *ngFor="let sId of grupo.sensoresIds">
+                <i class="fas fa-microchip"></i> {{ sId.slice(-4) }}
+              </span>
+              <span *ngIf="grupo.sensoresIds?.length === 0" class="no-sensors">Sin nodos</span>
+            </div>
           </td>
           <td>
             <span class="badge-status" [class.active]="grupo.estado === 'Activo'">
-              {{ grupo.estado }}
+              <span class="status-dot"></span> {{ grupo.estado || 'Inactivo' }}
             </span>
           </td>
-          <td>
-            <button class="action-btn-edit"><i class="fas fa-cog"></i></button>
+          <td class="center">
+            <button class="action-btn-edit">
+              <i class="fas fa-pen"></i>
+            </button>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
-</div>
 
-<div class="modal-overlay" *ngIf="mostrarModal">
-  <div class="modal-box glass-card">
-    <div class="modal-header">
-      <h3><i class="fas fa-folder-plus"></i> Registrar Nueva Área</h3>
-      <button class="close-btn" (click)="cerrarModal()">&times;</button>
-    </div>
-    
-    <div class="modal-body">
-      <div class="input-group">
-        <label>Nombre del Área</label>
-        <input type="text" [(ngModel)]="nuevoGrupoNombre" placeholder="Ej: Laboratorio Central">
-      </div>
-
-      <div class="dispositivos-selector">
-        <label>Seleccionar Sensores de MongoDB:</label>
-        <div class="sensor-grid">
-          <div *ngFor="let disp of dispositivosDisponibles" 
-               class="sensor-item-card" 
-               [class.selected]="disp.seleccionado"
-               (click)="disp.seleccionado = !disp.seleccionado">
-            <i class="fas" [ngClass]="disp.seleccionado ? 'fa-check-circle' : 'fa-broadcast-tower'"></i>
-            <span>{{ disp.nombre }}</span>
+  <div class="modal-overlay" *ngIf="mostrarModal">
+    <div class="glass-modal">
+      <h2 class="neon-title">Nuevo Grupo</h2>
+      <div class="modal-body">
+        <input type="text" [(ngModel)]="nuevoGrupoNombre" placeholder="Nombre del grupo..." class="glass-input mb-3">
+        
+        <p class="small-label">Seleccionar Dispositivos:</p>
+        <div class="device-selector">
+          <div *ngFor="let dispositivo of dispositivosDisponibles" class="device-option">
+            <input type="checkbox" [(ngModel)]="dispositivo.seleccionado">
+            <span>{{ dispositivo.nombre }}</span>
           </div>
         </div>
-      </div>
-    </div>
 
-    <div class="modal-footer">
-      <button class="btn-sec" (click)="cerrarModal()">Cancelar</button>
-      <button class="btn-pri" 
-              [disabled]="!nuevoGrupoNombre || !haySensoresSeleccionados()"
-              (click)="guardarGrupo()">
-        <i class="fas fa-save"></i> Crear Área
-      </button>
+        <div class="modal-actions">
+          <button class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
+          <button class="btn-nuevo-grupo" (click)="guardarGrupo()">Guardar Grupo</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

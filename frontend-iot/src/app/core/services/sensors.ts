@@ -10,7 +10,7 @@ export class SensorsService {
 
   constructor(private http: HttpClient) { }
 
-  // El backend filtrará automáticamente por el dueño del Token
+  // Obtiene solo los sensores que pertenecen al usuario del Token
   getSensors(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
   }
@@ -19,6 +19,7 @@ export class SensorsService {
     return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
 
+  // El objeto 'sensor' ya viene validado desde el componente
   createSensor(sensor: any): Observable<any> {
     return this.http.post(this.apiUrl, sensor);
   }

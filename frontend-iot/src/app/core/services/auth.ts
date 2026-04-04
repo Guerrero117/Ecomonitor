@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { environment } from '../../../environments/environment'; // Importamos el environment
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  // Usamos la URL del environment para que cambie según el entorno
   private apiUrl = `${environment.apiUrl}/auth`; 
 
   constructor(private http: HttpClient) { }
@@ -15,11 +14,12 @@ export class AuthService {
   login(credentials: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
       tap((res: any) => {
-        // Almacenamiento seguro de datos de sesión
         if (res.token) {
+          // Limpiamos antes de guardar para evitar basura de sesiones anteriores
+          localStorage.clear();
           localStorage.setItem('token', res.token);
-          localStorage.setItem('rol', res.rol);
-          localStorage.setItem('user_id', res.id);
+          localStorage.setItem('rol', res.rol || 'user');
+          localStorage.setItem('user_id', res.id.toString());
         }
       })
     );
@@ -30,16 +30,21 @@ export class AuthService {
   }
 
   getRol(): string {
-    return typeof window !== 'undefined' ? localStorage.getItem('rol') || 'user' : 'user';
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('rol') || 'user';
+    }
+    return 'user';
   }
 
   isLoggedIn(): boolean {
-    return typeof window !== 'undefined' ? !!localStorage.getItem('token') : false;
+    if (typeof window !== 'undefined') {
+      return !!localStorage.getItem('token');
+    }
+    return false;
   }
 
   logout() {
     localStorage.clear();
-    // Navegación limpia al logout
     window.location.href = '/login';
   }
 }

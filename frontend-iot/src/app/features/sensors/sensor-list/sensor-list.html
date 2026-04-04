@@ -1,43 +1,93 @@
 <div class="sensors-container fade-in">
-  <header class="page-header card-glass">
+  <div class="summary-row">
+    <div class="summary-item glass-card">
+      <div class="card-icon-circle"><i class="fas fa-microchip"></i></div>
+      <div class="card-info">
+        <p class="small-label">Total Nodos</p>
+        <h3 class="neon-value">{{ sensors.length }}</h3>
+      </div>
+    </div>
+
+    <div class="summary-item glass-card">
+      <div class="card-icon-circle"><i class="fas fa-signal"></i></div>
+      <div class="card-info">
+        <p class="small-label">En Línea</p>
+        <h3 class="neon-value">{{ getOnlineCount() }}</h3>
+      </div>
+    </div>
+
+    <div class="summary-item glass-card">
+      <div class="card-icon-circle sync-glow"><i class="fas fa-sync-alt fa-spin"></i></div>
+      <div class="card-info">
+        <p class="small-label">Estado Red</p>
+        <p class="sync-text">ESTABLE</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="search-filter-container">
+    <div class="search-box-wrapper">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" placeholder="Buscar nodo por nombre..." [(ngModel)]="filterName" class="search-input-area">
+    </div>
+
+    <div class="filter-select-wrapper">
+      <select [(ngModel)]="filterOption" class="area-select">
+        <option value="todos">🌐 Todos los dispositivos</option>
+        <optgroup label="Estado de Red">
+          <option value="online">🟢 Conectados</option>
+          <option value="offline">🔴 Desconectados</option>
+        </optgroup>
+        <optgroup label="Categoría">
+          <option value="temp">🌡️ Temperatura</option>
+          <option value="hum">💧 Humedad</option>
+          <option value="aire">🍃 Aire</option>
+        </optgroup>
+        <optgroup label="Rendimiento">
+          <option value="fast">⚡ Alta Frecuencia (≤ 5s)</option>
+        </optgroup>
+      </select>
+    </div>
+  </div>
+
+  <header class="page-header">
     <div class="header-info">
-      <h1><i class="fas fa-microchip"></i> Gestión de Sensores</h1>
-      <p>Configura tus nodos de telemetría en tiempo real.</p>
+      <h1 class="neon-title">🔌 Gestión de Dispositivos</h1>
+      <p class="subtitle">Configuración y telemetría de nodos IoT en tiempo real</p>
     </div>
     <button class="btn-add-sensor" (click)="abrirModal()">
       <i class="fas fa-plus-circle"></i> Nuevo Sensor
     </button>
   </header>
 
-  <div class="grid-table card-glass">
-    <table class="sensor-table">
+  <div class="table-container-glass">
+    <table class="logs-table">
       <thead>
         <tr>
           <th>Estado</th>
           <th>Nombre del Nodo</th>
           <th>Modelo / Tipo</th>
           <th>Frecuencia</th>
-          <th>Acciones</th>
+          <th class="center">Acciones</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let sensor of sensors" class="row-hover">
+        <tr *ngFor="let sensor of sensorsFiltrados" class="row-hover">
           <td>
             <div class="status-indicator">
-              <span [class]="sensor.estado ? 'dot online' : 'dot offline'"></span>
-              {{ sensor.estado ? 'En línea' : 'Desconectado' }}
+              <span [class]="sensor.estado ? 'dot-online' : 'dot-offline'"></span>
+              <span class="status-label">{{ sensor.estado ? 'EN LÍNEA' : 'OFFLINE' }}</span>
             </div>
           </td>
-          <td><strong>{{ sensor.nombre }}</strong></td>
+          <td><strong class="node-name">{{ sensor.nombre }}</strong></td>
           <td>
-            <span class="badge-tipo">
-              <i [class]="getIcon(sensor.tipo)"></i> 
-              {{ sensor.modelo }} <small>({{ sensor.tipo }})</small>
+            <span class="badge-tech">
+              <i [class]="getIcon(sensor.tipo)"></i> {{ sensor.tipo }}
             </span>
           </td>
-          <td>{{ sensor.frecuencia }}s</td>
-          <td>
-            <button class="btn-icon delete" (click)="borrarSensor(sensor.id || sensor._id)">
+          <td class="freq-cell">{{ sensor.frecuencia }}s</td>
+          <td class="center">
+            <button class="btn-delete-action" (click)="borrarSensor(sensor.id || sensor._id)">
               <i class="fas fa-trash"></i>
             </button>
           </td>
@@ -47,47 +97,46 @@
   </div>
 
   <div class="modal-overlay" *ngIf="mostrarModal">
-    <div class="modal-card card-glass">
+    <div class="glass-modal">
       <div class="modal-header">
-        <h3><i class="fas fa-plus"></i> Registrar Nuevo Dispositivo</h3>
-        <button class="close-x" (click)="cerrarModal()">&times;</button>
+        <h2 class="neon-title"><i class="fas fa-microchip"></i> Registrar Hardware</h2>
+        <button class="btn-close" (click)="cerrarModal()">&times;</button>
       </div>
       
       <div class="modal-body">
-        <div class="input-group">
-          <label><i class="fas fa-list"></i> 1. Selecciona el Modelo de Hardware</label>
-          <select [(ngModel)]="nuevoSensor.modelo" 
-                  (change)="actualizarDatosDesdeCatalogo()" 
-                  class="custom-select-box">
-            <option value="" disabled selected>-- Elige el sensor físico --</option>
-            <option *ngFor="let disp of dispositivosSoportados" [value]="disp.modelo">
-              {{ disp.modelo }}
+        <div class="input-group-modal">
+          <label class="small-label">Identificador del Nodo</label>
+          <input type="text" [(ngModel)]="nuevoSensor.Nombre" placeholder="Ej: Sensor Patio Trasero" class="glass-input-modal">
+        </div>
+
+        <div class="input-group-modal">
+          <label class="small-label">Modelo de Hardware</label>
+          <select [(ngModel)]="nuevoSensor.Modelo" (change)="actualizarDatosDesdeCatalogo()" class="glass-input-modal">
+            <option value="" disabled selected>Selecciona un modelo...</option>
+            <option *ngFor="let d of dispositivosSoportados" [value]="d.modelo">
+              {{ d.modelo }} ({{ d.tipo }})
             </option>
           </select>
         </div>
 
-        <div class="sensor-info-preview fade-in" *ngIf="nuevoSensor.tipo">
-          <p>
-            <i [class]="getIcon(nuevoSensor.tipo)"></i> 
-            Este sensor mide: <strong>{{ nuevoSensor.tipo }}</strong> ({{ nuevoSensor.unidad }})
-          </p>
+        <div class="row-modal">
+          <div class="input-group-modal">
+            <label class="small-label">Frecuencia (seg)</label>
+            <input type="number" [(ngModel)]="nuevoSensor.Frecuencia" class="glass-input-modal">
+          </div>
+          <div class="input-group-modal">
+            <label class="small-label">Unidad</label>
+            <input type="text" [value]="nuevoSensor.Unidad" disabled class="glass-input-modal readonly">
+          </div>
         </div>
 
-        <div class="input-group">
-          <label><i class="fas fa-tag"></i> 2. Nombre del Nodo (Ubicación)</label>
-          <input type="text" [(ngModel)]="nuevoSensor.nombre" 
-                 placeholder="Ej. Sensor Gas Cocina" class="custom-input">
+        <div class="modal-actions">
+          <button class="btn-cancel" (click)="cerrarModal()">Cancelar</button>
+          <button class="btn-save" (click)="guardarSensor()" [disabled]="cargando">
+            <i class="fas" [class.fa-save]="!cargando" [class.fa-spinner]="cargando" [class.fa-spin]="cargando"></i>
+            {{ cargando ? 'Guardando...' : 'Confirmar Registro' }}
+          </button>
         </div>
-
-        <div class="input-group">
-          <label><i class="fas fa-clock"></i> Frecuencia de envío (segundos)</label>
-          <input type="number" [(ngModel)]="nuevoSensor.frecuencia" class="custom-input">
-        </div>
-
-        <button class="btn-save" (click)="guardarSensor()" [disabled]="cargando || !nuevoSensor.modelo">
-          <i class="fas" [ngClass]="cargando ? 'fa-circle-notch fa-spin' : 'fa-save'"></i>
-          {{ cargando ? ' Procesando...' : ' Vincular Dispositivo' }}
-        </button>
       </div>
     </div>
   </div>

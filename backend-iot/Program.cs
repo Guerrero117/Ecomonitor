@@ -12,7 +12,12 @@ using Microsoft.Extensions.Options;
 var builder = WebApplication.CreateBuilder(args);
 
 // --- 1. CONFIGURACIÓN DE SEGURIDAD (JWT) ---
-var key = Encoding.ASCII.GetBytes("EstaEsUnaLlaveSuperSecretaDe32Caracteres!"); 
+// OWASP A02:2021 - Priorizamos la Variable de Entorno sobre el appsettings.json
+var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? builder.Configuration["Jwt:Key"];
+if (string.IsNullOrEmpty(jwtKey) || jwtKey.Length < 32) {
+    throw new Exception("Seguridad Crítica: La JWT_KEY no está configurada o es muy corta.");
+}
+var key = Encoding.ASCII.GetBytes(jwtKey); 
 
 builder.Services.AddAuthentication(x =>
 {
@@ -27,25 +32,23 @@ builder.Services.AddAuthentication(x =>
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,
-        ValidateAudience = false
+        ValidateIssuer = false, 
+        ValidateAudience = false,
+        ClockSkew = TimeSpan.Zero // OWASP: Evita que tokens expirados sigan funcionando
     };
 });
 
-// --- 2. CONFIGURACIÓN DE CONTROLADORES ---
 builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
+    .AddJsonOptions(options => {
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
+builder.Services.AddSwaggerGen(c => {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "EcoMonitor API", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
         In = ParameterLocation.Header,
-        Description = "Por favor inserta el JWT con 'Bearer ' adelante",
+        Description = "Insertar JWT: Bearer {token}",
         Name = "Authorization",
         Type = SecuritySchemeType.ApiKey 
     });
@@ -54,44 +57,39 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// --- 3. CONFIGURACIÓN DE MONGODB (AJUSTE FINAL) ---
-// Vinculamos el JSON con el modelo de configuración
-builder.Services.Configure<MongoDbSettings>(
-    builder.Configuration.GetSection("MongoDbSettings"));
-
+// --- 2. MONGODB ---
+builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDbSettings"));
 var mongoSettings = builder.Configuration.GetSection("MongoDbSettings");
-
-// Registramos el cliente (IMongoClient)
-builder.Services.AddSingleton<IMongoClient>(sp => 
-    new MongoClient(mongoSettings["ConnectionString"]));
-
-// Registramos la base de datos (IMongoDatabase) para el AuthService
+builder.Services.AddSingleton<IMongoClient>(sp => new MongoClient(mongoSettings["ConnectionString"]));
 builder.Services.AddScoped<IMongoDatabase>(sp => {
     var client = sp.GetRequiredService<IMongoClient>();
     return client.GetDatabase(mongoSettings["DatabaseName"]);
 });
 
-// --- 4. REGISTRO DE SERVICIOS ---
-builder.Services.AddSingleton<MongoService>(); // Para el Admin y sensores
-builder.Services.AddScoped<IAuthService, AuthService>(); // Para login
+builder.Services.AddSingleton<MongoService>(); 
+builder.Services.AddScoped<IAuthService, AuthService>(); 
 
-// --- 5. CORS ---
+// --- 3. CORS (OWASP A01:2021) ---
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAll", policy => {
-        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+        policy.WithOrigins("http://localhost:4200") // Solo tu aplicación Angular
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
+if (app.Environment.IsDevelopment()) {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
 app.UseCors("AllowAll");
+
+// El orden es vital: 1. Autenticar, 2. Autorizar
 app.UseAuthentication(); 
 app.UseAuthorization();
+
 app.MapControllers();
 app.Run();

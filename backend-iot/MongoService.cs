@@ -12,17 +12,35 @@ namespace backend_iot
         private readonly IMongoCollection<User> _usersCollection;
         private readonly IMongoCollection<Sensor> _sensorsCollection;
         private readonly IMongoCollection<Grupo> _gruposCollection;
+        private readonly IMongoCollection<Log> _logsCollection; // Nueva colección
 
         public MongoService(IOptions<MongoDbSettings> mongoDbSettings)
         {
             var mongoClient = new MongoClient(mongoDbSettings.Value.ConnectionString);
             var mongoDatabase = mongoClient.GetDatabase(mongoDbSettings.Value.DatabaseName);
 
-            // CAMBIO AQUÍ: Debe coincidir exactamente con Atlas (image_ca3b40.png)
             _usersCollection = mongoDatabase.GetCollection<User>("Users"); 
             _sensorsCollection = mongoDatabase.GetCollection<Sensor>("Sensores");
             _gruposCollection = mongoDatabase.GetCollection<Grupo>("Grupos");
+            _logsCollection = mongoDatabase.GetCollection<Log>("Logs"); // Inicialización
         }
+
+        // --- MÉTODOS DE LOGS ---
+        public async Task RegistrarLogAsync(string? userId, string accion, string detalle, string? ip = null)
+        {
+            var nuevoLog = new Log
+            {
+                UsuarioId = userId ?? "ANONIMO",
+                Accion = accion,
+                Detalle = detalle,
+                Ip = ip,
+                Fecha = DateTime.UtcNow
+            };
+            await _logsCollection.InsertOneAsync(nuevoLog);
+        }
+
+        public async Task<List<Log>> GetLogsRecientesAsync() =>
+            await _logsCollection.Find(_ => true).SortByDescending(x => x.Fecha).Limit(100).ToListAsync();
 
         // --- MÉTODOS DE USUARIOS ---
         public async Task<List<User>> GetAllUsersAsync() =>
@@ -54,7 +72,7 @@ namespace backend_iot
         public async Task CreateGrupoAsync(Grupo nuevoGrupo) =>
             await _gruposCollection.InsertOneAsync(nuevoGrupo);
 
-        // --- MÉTODOS DE CONTEO PARA ADMIN ---
+        // --- MÉTODOS DE CONTEO ---
         public async Task<long> CountGruposByUsuarioAsync(string userId) =>
             await _gruposCollection.CountDocumentsAsync(Builders<Grupo>.Filter.Eq("UsuarioId", userId));
 

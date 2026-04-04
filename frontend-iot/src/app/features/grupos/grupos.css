@@ -1,232 +1,265 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono&display=swap');
+
 .grupos-wrapper {
   padding: 30px;
-  background: #0f172a;
   min-height: 100vh;
-  color: #fff;
+  animation: fadeIn 0.5s ease;
+  color: #f8fafc;
 }
 
-/* Glass Cards */
+/* --- TUS GLASS CARDS REFINADOS --- */
 .glass-card {
-  background: rgba(30, 41, 59, 0.4);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, border-color 0.3s ease;
 }
 
-.summary-row {
-  display: flex;
-  gap: 20px;
+.summary-row { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+  gap: 25px; 
+  margin-bottom: 40px; 
+}
+
+.summary-item { 
+  padding: 25px; 
+  display: flex; 
+  align-items: center; 
+  gap: 20px; 
+  position: relative; 
+  overflow: hidden; 
+}
+
+.summary-item::after { 
+  content: ''; 
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  width: 4px; 
+  height: 100%; 
+  background: #10b981; 
+  opacity: 0.5; 
+}
+
+/* --- ICONOS Y VALORES --- */
+.card-icon-circle { 
+  width: 55px; 
+  height: 55px; 
+  background: rgba(16, 185, 129, 0.1); 
+  border: 1px solid rgba(16, 185, 129, 0.2); 
+  border-radius: 16px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  font-size: 1.5rem; 
+  color: #10b981; 
+}
+
+.card-icon-circle.sync { 
+  background: rgba(59, 130, 246, 0.1); 
+  border-color: rgba(59, 130, 246, 0.2); 
+  color: #3b82f6; 
+}
+
+.neon-value { 
+  color: #fff; 
+  font-size: 2rem; 
+  font-weight: 800; 
+  font-family: 'JetBrains Mono', monospace; 
+  margin: 0; 
+}
+
+.sync-text { 
+  color: #3b82f6; 
+  font-size: 1.1rem; 
+  font-weight: 700; 
+  text-shadow: 0 0 12px rgba(59, 130, 246, 0.4); 
+}
+
+/* --- BARRA DE FILTROS --- */
+.filters-container {
+  display: flex; 
+  align-items: center; 
+  gap: 20px; 
+  padding: 15px 25px; 
   margin-bottom: 30px;
 }
 
-.summary-item {
-  flex: 1;
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
+.search-input-group { 
+  position: relative; 
+  flex: 1; 
+  display: flex; 
+  align-items: center; 
 }
 
-/* Botón Nuevo Grupo */
-.btn-nuevo-grupo {
-  background: #10b981;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 700;
-  cursor: pointer !important;
-  transition: 0.3s all;
-  position: relative;
-  z-index: 5;
+.search-icon { 
+  position: absolute; 
+  left: 18px; 
+  color: #10b981; 
+  z-index: 2; 
 }
 
-.btn-nuevo-grupo:hover {
-  background: #059669;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+.glass-input {
+  width: 100%; 
+  background: rgba(10, 15, 25, 0.6) !important; 
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px; 
+  padding: 14px 20px 14px 50px; 
+  color: white; 
+  outline: none; 
+  transition: 0.3s ease;
 }
 
-/* Tabla */
-.table-container {
-  margin-top: 20px;
-  overflow: hidden;
+.glass-input:focus { 
+  border-color: #10b981; 
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); 
+  transform: scale(1.01); 
 }
 
-.grupos-table {
-  width: 100%;
-  border-collapse: collapse;
+.select-group { 
+  display: flex; 
+  align-items: center; 
+  background: rgba(10, 15, 25, 0.6); 
+  border: 1px solid rgba(255, 255, 255, 0.1); 
+  border-radius: 14px; 
+  padding: 0 15px; 
+  min-width: 220px; 
+  transition: 0.3s;
 }
 
-.grupos-table th {
-  padding: 15px;
-  background: rgba(15, 23, 42, 0.6);
-  color: #94a3b8;
-  text-align: left;
+.select-group:hover { 
+  transform: scale(1.03); 
+  border-color: #3b82f6; 
 }
 
-.grupos-table td {
-  padding: 15px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+.icon-filter { 
+  color: #3b82f6; 
+  margin-right: 10px; 
 }
 
-.area-name { color: #10b981; font-weight: bold; }
-
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+/* ESTILO REFINADO PARA EL SELECT (ESTILO REFERENCIA) */
+.custom-select { 
+  background: transparent; 
+  border: none; 
+  color: #fff; 
+  padding: 14px 5px; 
+  width: 100%; 
+  outline: none; 
+  cursor: pointer; 
+  font-weight: 600; 
+  appearance: none;
 }
 
-.modal-box {
-  width: 450px;
-  padding: 25px;
-}
-
-.sensor-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.sensor-item-card {
+.custom-select option { 
+  background: #1a2233; /* Fondo oscuro para las opciones */
+  color: #fff; 
   padding: 10px;
-  background: #1e293b;
-  border-radius: 8px;
-  cursor: pointer;
-  text-align: center;
-  border: 1px solid transparent;
 }
 
-.sensor-item-card.selected {
-  border-color: #10b981;
-  background: rgba(16, 185, 129, 0.1);
+.custom-select optgroup {
+  background: #333c4d; /* Banda grisácea para encabezados de grupo */
+  color: #fff; 
+  font-weight: 800;
+  font-style: normal;
 }
 
-.filters-container {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 20px;
-  padding: 15px 20px;
-  align-items: center;
+/* --- TABLA Y BOTONES --- */
+.neon-title { 
+  color: #10b981; 
+  font-size: 2rem; 
+  font-weight: 800; 
+  text-shadow: 0 0 20px rgba(16, 185, 129, 0.2); 
 }
 
-.search-input-group {
-  flex: 1;
-  position: relative;
-  display: flex;
-  align-items: center;
+.btn-nuevo-grupo { 
+  background: linear-gradient(135deg, #10b981, #059669); 
+  color: #000; 
+  border: none; 
+  padding: 14px 28px; 
+  border-radius: 14px; 
+  font-weight: 800; 
+  cursor: pointer; 
+  transition: 0.3s;
 }
 
-.search-icon {
-  position: absolute;
-  left: 15px;
-  color: #10b981;
+.grupos-table { 
+  width: 100%; 
+  border-collapse: separate; 
+  border-spacing: 0; 
 }
 
-.custom-input {
-  width: 100%;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
-  padding: 10px 10px 10px 40px;
-  border-radius: 8px;
-  outline: none;
+th { 
+  background: rgba(15, 23, 42, 0.8); 
+  padding: 18px; 
+  text-align: left; 
+  color: #10b981; 
+  font-size: 0.75rem; 
+  border-bottom: 1px solid rgba(16, 185, 129, 0.2); 
 }
 
-.custom-input:focus {
-  border-color: #10b981;
+td { 
+  padding: 20px 18px; 
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03); 
+  background: rgba(15, 23, 42, 0.2); 
 }
 
-.select-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(15, 23, 42, 0.6);
-  padding: 5px 15px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.sensor-tag { 
+  background: rgba(16, 185, 129, 0.1); 
+  color: #10b981; 
+  padding: 6px 12px; 
+  border-radius: 8px; 
+  font-size: 0.85rem; 
+  border: 1px solid rgba(16, 185, 129, 0.2); 
 }
 
-.icon-filter { color: #3b82f6; }
-
-.custom-select {
-  background: transparent;
-  border: none;
-  color: white;
-  outline: none;
-  cursor: pointer;
+.badge-status { 
+  padding: 6px 14px; 
+  border-radius: 30px; 
+  font-size: 0.7rem; 
+  font-weight: 800; 
+  color: #f87171; 
+  border: 1px solid rgba(239, 68, 68, 0.2); 
 }
 
-.custom-select option {
-  background: #1e293b;
-  color: white;
+.badge-status.active { 
+  color: #10b981; 
+  border-color: rgba(16, 185, 129, 0.2); 
 }
 
-/* ... mantén tu código anterior y añade/reemplaza esto ... */
-
-.sensor-item-card {
-  padding: 12px;
-  background: rgba(30, 41, 59, 0.6);
-  border-radius: 10px;
-  cursor: pointer;
-  text-align: center;
-  border: 2px solid transparent;
-  transition: 0.3s all;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  color: #94a3b8;
+/* --- MODAL --- */
+.modal-overlay { 
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%; 
+  background: rgba(0, 0, 0, 0.8); 
+  backdrop-filter: blur(10px); 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  z-index: 1000; 
 }
 
-.sensor-item-card i { font-size: 1.2rem; }
-
-.sensor-item-card.selected {
-  border-color: #10b981;
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-  transform: scale(1.02);
+.glass-modal { 
+  background: rgba(10, 15, 25, 0.98); 
+  border: 1px solid rgba(16, 185, 129, 0.4); 
+  border-radius: 28px; 
+  width: 500px; 
+  padding: 35px; 
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
+  animation: modalIn 0.4s; 
 }
 
-.badge-status {
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  background: rgba(239, 44, 44, 0.1);
-  color: #ef4444;
+@keyframes fadeIn { 
+  from { opacity: 0; transform: translateY(10px); } 
+  to { opacity: 1; transform: translateY(0); } 
 }
 
-.badge-status.active {
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 20px;
-}
-
-.btn-pri {
-  background: #10b981;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.btn-pri:disabled {
-  background: #334155;
-  cursor: not-allowed;
-  opacity: 0.5;
+@keyframes modalIn { 
+  from { opacity: 0; transform: scale(0.9); } 
+  to { opacity: 1; transform: scale(1); } 
 }

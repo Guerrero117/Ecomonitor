@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { LecturasService } from '../../core/services/lecturas.service';
 import { AuthService } from '../../core/services/auth';
+import { WeatherService } from '../../core/services/weather.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -14,97 +15,91 @@ import { AuthService } from '../../core/services/auth';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   
-  pantallaActual: 'dashboard' | 'grupos' | 'alertas' | 'config' | 'sensores' | 'entrada-manual' | 'clima' | 'admin-users' = 'dashboard';
+  pantallaActual: 'dashboard' | 'grupos' | 'alertas' | 'config' | 'sensores' | 'entrada-manual' | 'clima' | 'admin-users' | 'admin-logs' = 'dashboard';
   timestamp: Date = new Date();
-  idGrupoActual: string = "65f8a1b2c3d4e5f67890abcd"; 
   
-  lecturasSensores: any[] = [];
-  recomendacionActual: string = "Iniciando sistema de monitoreo...";
+  datosObregon: any = {
+    temp: 0,
+    hum: 0,
+    sensation: 0,
+    presion: 0,
+    viento: 0,
+    nubes: 0,
+    descripcion: 'Sincronizando...',
+    ciudad: 'Ciudad Obregón'
+  };
+
+  recomendacionActual: string = "Obteniendo datos de la estación meteorológica...";
 
   datosEducativos = [
-    "El sensor FC-22 detecta gases inflamables y calidad del aire en tiempo real.",
-    "La humedad ideal para prevenir virus en interiores es del 40% al 60%.",
-    "El fotoreceptor permite medir la eficiencia lumínica del entorno (Lux).",
-    "Un nivel de CO2 superior a 1000ppm puede reducir la concentración en un 15%."
+    "Ciudad Obregón tiene un clima desértico; la hidratación de tus plantas es clave.",
+    "La presión atmosférica influye en la precisión de los sensores de gas.",
+    "Vientos superiores a 5m/s pueden afectar las lecturas de humedad exterior.",
+    "La sensación térmica en Sonora puede variar significativamente respecto a la temperatura real."
   ];
 
   imagenesEducativas = [
-    "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=500",
-    "https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?q=80&w=500",
     "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=500",
-    "https://images.unsplash.com/photo-1502082553048-f009c37129b9?q=80&w=500"
+    "https://images.unsplash.com/photo-1502082553048-f009c37129b9?q=80&w=500",
+    "https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?q=80&w=500",
+    "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=500"
   ];
 
   datoActual = this.datosEducativos[0];
   imagenActual = this.imagenesEducativas[0];
   indiceCuriosidad = 0;
 
-  private timerLecturas: any;
+  private timerApi: any;
   private timerCiclo: any;
   private timerReloj: any;
 
   constructor(
-    private lecturasService: LecturasService,
+    private weatherService: WeatherService,
     public auth: AuthService, 
     private cdr: ChangeDetectorRef, 
     private router: Router
   ) {}
 
   ngOnInit() {
-    this.obtenerLecturasDeMongo();
-    this.timerLecturas = setInterval(() => {
-      if (this.pantallaActual === 'dashboard') this.obtenerLecturasDeMongo();
-    }, 10000);
+    this.cargarDatosExternos();
+    
+    // REDUCIDO: Actualizar datos de la API cada 30 segundos para "Tiempo Real"
+    this.timerApi = setInterval(() => {
+      this.cargarDatosExternos();
+    }, 30000); 
 
     this.iniciarCicloEducativo();
     this.timerReloj = setInterval(() => { this.timestamp = new Date(); }, 1000);
   }
 
-  obtenerLecturasDeMongo() {
-    this.lecturasService.getLecturasPorGrupo(this.idGrupoActual).subscribe({
-      next: (data) => {
-        this.lecturasSensores = data.map(lectura => ({
-          nombre: `NODO_${lectura.sensorId.slice(-4).toUpperCase()}`,
-          tipo: this.mapearTipo(lectura.unidad),
-          valor: lectura.valor,
-          unidad: lectura.unidad,
-          estado: this.definirEstado(lectura.valor, lectura.unidad),
-          icon: this.mapearIcono(lectura.unidad)
-        }));
-        this.procesarAlertas();
+  cargarDatosExternos() {
+    this.weatherService.getClimaExterior().subscribe({
+      next: (res) => {
+        // Mapeo de datos recibidos
+        this.datosObregon = {
+          temp: Math.round(res.main.temp),
+          hum: res.main.humidity,
+          sensation: Math.round(res.main.feels_like),
+          presion: res.main.pressure,
+          viento: res.wind.speed,
+          nubes: res.clouds.all,
+          descripcion: res.weather[0].description.toUpperCase(),
+          ciudad: res.name
+        };
+
+        this.recomendacionActual = `Clima en Obregón: ${this.datosObregon.descripcion} ✅`;
+        
+        // Esto fuerza a Angular a pintar los nuevos datos inmediatamente
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error("Error backend:", err);
-        this.recomendacionActual = "⚠️ Error: No se pudo conectar con el servidor.";
+        console.error("Error API Externo:", err);
+        this.recomendacionActual = "⚠️ Error: No se pudo conectar con el servidor de clima.";
       }
     });
   }
 
-  private mapearTipo(u: string): string {
-    if (u === 'ppm') return 'Calidad Aire (Gas)';
-    if (u === 'lux') return 'Luminosidad';
-    if (u === '°C') return 'Temperatura';
-    return 'Sensor IoT';
-  }
-
-  private mapearIcono(u: string): string {
-    const iconos: any = { 'ppm': '🍃', 'lux': '☀️', '°C': '🌡️', '%': '💧' };
-    return iconos[u] || '📊';
-  }
-
-  private definirEstado(v: number, u: string): string {
-    if (u === 'ppm' && v > 800) return 'Advertencia';
-    if (u === 'lux' && v < 200) return 'Baja Luz';
-    return 'Óptimo';
-  }
-
-  private procesarAlertas() {
-    const gas = this.lecturasSensores.find(s => s.unidad === 'ppm');
-    this.recomendacionActual = (gas && gas.valor > 800) 
-      ? "⚠️ Niveles de gas elevados detectados. Ventilar área." 
-      : "✅ Todos los sistemas operando normalmente.";
-  }
+  // ... (tus funciones navegarA, logout e iniciarCicloEducativo quedan igual) ...
 
   navegarA(pantalla: any) {
     this.pantallaActual = pantalla; 
@@ -115,7 +110,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       'clima': '/dashboard/clima-comparativo',
       'grupos': '/dashboard/grupos',
       'alertas': '/dashboard/alertas',
-      'admin-users': '/dashboard/admin-users'
+      'admin-users': '/dashboard/admin-users',
+      'admin-logs': '/dashboard/admin-logs'
     };
     if (rutas[pantalla]) this.router.navigate([rutas[pantalla]]);
   }
@@ -132,7 +128,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.timerLecturas) clearInterval(this.timerLecturas);
+    if (this.timerApi) clearInterval(this.timerApi);
     if (this.timerCiclo) clearInterval(this.timerCiclo);
     if (this.timerReloj) clearInterval(this.timerReloj);
   }

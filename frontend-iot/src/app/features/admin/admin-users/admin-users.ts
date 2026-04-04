@@ -8,8 +8,8 @@ interface UsuarioDetalle {
   nombre: string;
   email: string;
   rol: string;
-  // CAMBIO: Estos nombres deben coincidir EXACTAMENTE con el JSON del backend
-  registro: Date; 
+  // Se cambia a string porque el Backend ya envía el formato "dd/MM/yyyy"
+  registro: string; 
   totalGrupos: number;
   totalSensores: number; 
 }
@@ -38,6 +38,7 @@ export class AdminUsersComponent implements OnInit {
 
     this.http.get<UsuarioDetalle[]>(`${environment.apiUrl}/admin/usuarios-detallados`).subscribe({
       next: (data) => {
+        console.log('Datos de usuarios cargados:', data);
         this.usuarios = data;
         this.loading = false;
       },

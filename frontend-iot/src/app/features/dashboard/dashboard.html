@@ -1,68 +1,115 @@
 <div class="dashboard-wrapper">
   
-  <aside class="sidebar">
-    <div class="logo">🌿 EcoMonitor</div>
-    <div class="device-tag">PI3_STATION: ONLINE</div>
-    
-    <nav class="menu">
-      <button class="menu-item" [class.active]="pantallaActual === 'dashboard'" (click)="navegarA('dashboard')">🏠 Inicio</button>
-      <button class="menu-item" [class.active]="pantallaActual === 'entrada-manual'" (click)="navegarA('entrada-manual')">📥 Entrada Manual</button>
-      <button class="menu-item" [class.active]="pantallaActual === 'clima'" (click)="navegarA('clima')">🌍 Clima Exterior</button>
-      
-      <div class="menu-divider"></div>
-      
-      <button class="menu-item" [class.active]="pantallaActual === 'grupos'" (click)="navegarA('grupos')">📂 Grupos</button>
-      <button class="menu-item" [class.active]="pantallaActual === 'alertas'" (click)="navegarA('alertas')">⚠️ Alertas</button>
-      <button class="menu-item" [class.active]="pantallaActual === 'sensores'" (click)="navegarA('sensores')">🔌 Dispositivos</button>
-      
-      <button *ngIf="auth.getRol() === 'admin'" 
-              class="menu-item admin-btn" 
-              [class.active]="pantallaActual === 'admin-users'" 
-              (click)="navegarA('admin-users')">
-        👤 Gestión Usuarios
-      </button>
+  <header class="main-navbar animate-fade-down">
+    <div class="nav-left">
+      <div class="logo">🌿 EcoMonitor</div>
+      <div class="device-tag">ESTACIÓN: <span class="status-dot"></span> {{ datosObregon.ciudad }}</div>
+    </div>
 
-      <div class="menu-spacer"></div>
-
-      <button class="menu-item logout-btn" (click)="logout()">🚪 Cerrar Sesión</button>
+    <nav class="horizontal-menu">
+      <button class="nav-btn" [class.active]="pantallaActual === 'dashboard'" (click)="navegarA('dashboard')">🏠 Inicio</button>
+      <button class="nav-btn" [class.active]="pantallaActual === 'entrada-manual'" (click)="navegarA('entrada-manual')">📥 Manual</button>
+      <button class="nav-btn" [class.active]="pantallaActual === 'clima'" (click)="navegarA('clima')">🌍 Clima</button>
+      <button class="nav-btn" [class.active]="pantallaActual === 'grupos'" (click)="navegarA('grupos')">📂 Grupos</button>
+      <button class="nav-btn" [class.active]="pantallaActual === 'sensores'" (click)="navegarA('sensores')">🔌 Nodos</button>
+      
+      <div class="admin-section" *ngIf="auth.getRol() === 'admin'">
+        <button class="nav-btn" [class.active]="pantallaActual === 'admin-users'" (click)="navegarA('admin-users')">👤 Users</button>
+        <button class="nav-btn" [class.active]="pantallaActual === 'admin-logs'" (click)="navegarA('admin-logs')">🛡️ Logs</button>
+      </div>
     </nav>
-  </aside>
+
+    <div class="nav-right">
+      <button class="logout-icon" (click)="logout()">🚪</button>
+    </div>
+  </header>
 
   <main class="main-content">
     
-    <section class="science-board-top" *ngIf="pantallaActual === 'dashboard'">
-      <div class="board-header">
-        <span class="board-tag">DATOS CIENTÍFICOS</span>
-        <span class="clock">{{ timestamp | date:'HH:mm:ss' }}</span>
-      </div>
-      <div class="board-content">
-        <div class="image-container">
-          <img [src]="imagenActual" alt="Dato EcoMonitor" class="fade-in">
-        </div>
-        <p class="fade-text">{{ datoActual }}</p>
-      </div>
-    </section>
+    <div class="dashboard-home-view" *ngIf="pantallaActual === 'dashboard'">
+      
+      <div class="top-row animate-slide-up-1">
+        <section class="science-board-top glass-card">
+          <div class="board-header">
+            <span class="stat-label">TELEMETRÍA SATELITAL</span>
+            <span style="float: right; font-size: 0.7rem; color: #10b981;">{{ timestamp | date:'HH:mm:ss' }}</span>
+          </div>
+          <div class="board-content">
+            <div class="image-container scan-effect">
+              <img [src]="imagenActual" alt="Dato">
+            </div>
+            <div class="text-info">
+              <p class="terminal-prefix">{{ datosObregon.ciudad }}</p>
+              <p class="data-text">{{ datoActual }}</p>
+            </div>
+          </div>
+        </section>
 
-    <div class="alerta-container" *ngIf="recomendacionActual && pantallaActual === 'dashboard'">
-      <span class="alert-icon">ℹ️</span>
-      <p>{{ recomendacionActual }}</p>
+        <section class="alerts-monitor glass-card">
+          <div class="board-header">
+            <span class="stat-label">SISTEMA</span>
+          </div>
+          <div class="alert-info-block">
+            <strong [style.color]="recomendacionActual.includes('✅') ? '#10b981' : '#ef4444'">
+              {{ recomendacionActual.includes('✅') ? 'CONECTADO' : 'ERROR API' }}
+            </strong>
+            <p class="rec-text">{{ recomendacionActual }}</p>
+          </div>
+        </section>
+      </div>
+
+      <div class="section-title animate-slide-up-2">
+        <h3><i class="fas fa-satellite"></i> Reporte Meteorológico Completo: {{ datosObregon.ciudad }}</h3>
+      </div>
+
+      <div class="dashboard-grid animate-slide-up-3">
+        
+        <div class="analytics-card glass-card">
+          <span class="stat-label">🌡️ Temperatura</span>
+          <div class="card-body">
+            <h2 class="cyber-value">{{ datosObregon.temp }}<span class="unit">°C</span></h2>
+          </div>
+        </div>
+
+        <div class="analytics-card glass-card">
+          <span class="stat-label">🧊 Sensación</span>
+          <div class="card-body">
+            <h2 class="cyber-value">{{ datosObregon.sensation }}<span class="unit">°C</span></h2>
+          </div>
+        </div>
+
+        <div class="analytics-card glass-card">
+          <span class="stat-label">💧 Humedad</span>
+          <div class="card-body">
+            <h2 class="cyber-value">{{ datosObregon.hum }}<span class="unit">%</span></h2>
+          </div>
+        </div>
+
+        <div class="analytics-card glass-card">
+          <span class="stat-label">🌬️ Viento</span>
+          <div class="card-body">
+            <h2 class="cyber-value">{{ datosObregon.viento }}<span class="unit">m/s</span></h2>
+          </div>
+        </div>
+
+        <div class="analytics-card glass-card">
+          <span class="stat-label">⏲️ Presión</span>
+          <div class="card-body">
+            <h2 class="cyber-value">{{ datosObregon.presion }}<span class="unit">hPa</span></h2>
+          </div>
+        </div>
+
+        <div class="analytics-card glass-card">
+          <span class="stat-label">☁️ Nubosidad</span>
+          <div class="card-body">
+            <h2 class="cyber-value">{{ datosObregon.nubes }}<span class="unit">%</span></h2>
+          </div>
+        </div>
+
+      </div>
     </div>
 
-    <div class="dashboard-grid" *ngIf="pantallaActual === 'dashboard'">
-      <div class="glass-card" *ngFor="let sensor of lecturasSensores">
-        <div class="sensor-header">
-          <span class="sensor-icon">{{ sensor.icon }}</span>
-          <span class="sensor-status" [style.color]="sensor.estado === 'Normal' || sensor.estado === 'Óptimo' ? '#10b981' : '#f59e0b'">
-            {{ sensor.estado }}
-          </span>
-        </div>
-        <h3>{{ sensor.valor }}<span class="unit">{{ sensor.unidad }}</span></h3>
-        <p class="sensor-type">{{ sensor.tipo }}</p>
-        <p class="sensor-name-sub">{{ sensor.nombre }}</p>
-      </div>
-    </div>
-
-    <div class="view-container">
+    <div class="view-container" *ngIf="pantallaActual !== 'dashboard'">
       <router-outlet></router-outlet>
     </div>
     
