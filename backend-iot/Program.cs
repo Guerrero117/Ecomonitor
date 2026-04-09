@@ -68,13 +68,18 @@ builder.Services.AddScoped<IMongoDatabase>(sp => {
 builder.Services.AddSingleton<MongoService>(); 
 builder.Services.AddScoped<IAuthService, AuthService>(); 
 
-// --- 3. CORS (OWASP A01:2021) ---
+// --- 3. CORS DINÁMICO (OWASP A01:2021) ---
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAll", policy => {
-        // Se agregaron las IPs permitidas para que la Raspberry y tu Laptop se comuniquen
-        policy.WithOrigins("http://localhost:4200", "http://192.168.1.11:4200") 
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy.SetIsOriginAllowed(origin => 
+        {
+            var host = new Uri(origin).Host;
+            // Acepta localhost o cualquier IP de red local automáticamente
+            return host == "localhost" || host.StartsWith("192.168.");
+        })
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials(); 
     });
 });
 
@@ -86,9 +91,7 @@ if (app.Environment.IsDevelopment()) {
 }
 
 app.UseCors("AllowAll");
-
 app.UseAuthentication(); 
 app.UseAuthorization();
-
 app.MapControllers();
 app.Run();
