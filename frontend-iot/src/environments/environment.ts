@@ -1,4 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:5126/api' // Asegúrate que sea el puerto de tu Backend
+  // Cambiado de localhost a la IP de la Raspberry para que el login funcione
+  apiUrl: 'http://192.168.1.11:5126/api' 
 };

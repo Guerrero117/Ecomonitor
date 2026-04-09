@@ -1,23 +1,55 @@
 /* --- ESTILOS DE LA CARD QUE ENVUELVE TODO --- */
-.manual-input-card {
-  margin-top: -20px; /* Sube un poco para integrarse con el header */
-  background: rgba(20, 20, 20, 0.7) !important; /* Fondo oscuro sólido tipo Glass */
-  backdrop-filter: blur(15px); /* Efecto desenfoque */
-  border: 1px solid rgba(255, 255, 255, 0.08); /* Borde sutil */
+.manual-input-card, .group-filter-card {
+  margin-top: -10px;
+  background: rgba(20, 20, 20, 0.7) !important;
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
-  padding: 30px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); /* Sombra profunda */
+  padding: 25px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
 }
 
-/* --- LAYOUT HORIZONTAL ORIGINAL --- */
+/* --- SECCIÓN DE CHIPS --- */
+.chip-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.sensor-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 20px;
+  color: #888;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.sensor-chip:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.sensor-chip.active {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+  color: #10b981;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+}
+
+/* --- LAYOUT HORIZONTAL --- */
 .manual-form-horizontal {
   display: flex;
-  align-items: flex-end; /* Alinea etiquetas arriba e inputs abajo */
+  align-items: flex-end;
   gap: 25px;
-  flex-wrap: wrap; /* Se ajusta si la pantalla es pequeña */
+  flex-wrap: wrap;
 }
 
-/* --- GRUPOS DE FORMULARIO --- */
 .form-group {
   flex: 1;
   min-width: 200px;
@@ -26,10 +58,9 @@
   gap: 10px;
 }
 
-/* Etiquetas elegantes en mayúsculas */
 .form-group label {
   font-size: 0.7rem;
-  color: #888; /* Gris medio para no saturar */
+  color: #888;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.5px;
@@ -38,11 +69,11 @@
   gap: 8px;
 }
 
-/* --- INPUTS Y SELECTS (CORRECCIÓN DE VISIBILIDAD) --- */
+/* --- INPUTS Y SELECTS --- */
 input, select {
-  background: rgba(255, 255, 255, 0.03) !important; /* Fondo casi negro */
-  border: 1px solid rgba(255, 255, 255, 0.1) !important; /* Borde sutil */
-  color: #fff !important; /* Texto blanco puro forzado */
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
   padding: 14px;
   border-radius: 10px;
   outline: none;
@@ -51,21 +82,17 @@ input, select {
   transition: all 0.3s ease;
 }
 
-/* Foco en verde esmeralda */
 input:focus, select:focus {
   border-color: #10b981 !important;
-  background: rgba(16, 185, 129, 0.05) !important;
   box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
 }
 
-/* CORRECCIÓN CRÍTICA: Asegurar que las opciones del select sean legibles */
 select option {
-  background-color: #1a1a1a !important; /* Fondo oscuro para el menú desplegable */
-  color: #fff !important; /* Texto blanco para el menú desplegable */
-  padding: 10px;
+  background-color: #1a1a1a !important;
+  color: #fff !important;
 }
 
-/* --- BADGE DE UNIDAD INTEGRADA --- */
+/* --- BADGE DE UNIDAD --- */
 .input-with-unit {
   position: relative;
   display: flex;
@@ -82,18 +109,12 @@ select option {
   border-radius: 6px;
   font-weight: bold;
   border: 1px solid rgba(16, 185, 129, 0.3);
-  pointer-events: none;
 }
 
-/* --- BOTÓN REGISTRAR PRO --- */
-.button-group {
-  flex: 0.6; /* Botón un poco más estrecho */
-  min-width: 160px;
-}
-
+/* --- BOTÓN REGISTRAR --- */
 .btn-submit-pro {
   background: #10b981 !important;
-  color: #000 !important; /* Texto negro para contraste */
+  color: #000 !important;
   border: none;
   padding: 14px;
   border-radius: 10px;
@@ -105,7 +126,7 @@ select option {
   justify-content: center;
   gap: 10px;
   width: 100%;
-  height: 48px; /* Misma altura que inputs */
+  height: 48px;
 }
 
 .btn-submit-pro:hover:not(:disabled) {
@@ -118,20 +139,27 @@ select option {
   background: #374151 !important;
   color: #9ca3af !important;
   cursor: not-allowed;
-  opacity: 0.7;
 }
 
-/* --- HISTORIAL Y ANIMACIONES (Se mantienen igual) --- */
+/* --- HISTORIAL Y ANIMACIONES --- */
 .history-section { margin-top: 35px; }
-.section-title { color: #f4f4f5; font-size: 1rem; margin-bottom: 15px; font-weight: 500; }
+.section-title { color: #f4f4f5; font-size: 1rem; margin-bottom: 15px; }
 .history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
-.history-mini-card { background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05); border-left: 4px solid #10b981; transition: transform 0.2s; }
-.mini-card-val { font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 4px; }
+
+.history-mini-card {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 15px;
+  border-radius: 12px;
+  border-left: 4px solid #10b981;
+}
+
+.mini-card-val { font-size: 1.3rem; font-weight: 800; color: #fff; }
 .mini-card-val small { font-size: 0.8rem; color: #10b981; margin-left: 4px; }
-.mini-card-date { font-size: 0.75rem; color: #71717a; }
-.mini-card-tag { font-size: 0.65rem; background: rgba(16, 185, 129, 0.1); color: #34d399; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 10px; text-transform: uppercase; font-weight: bold; }
+.mini-card-tag { font-size: 0.65rem; background: rgba(16, 185, 129, 0.1); color: #34d399; padding: 2px 8px; border-radius: 4px; margin-top: 10px; display: inline-block; font-weight: bold; }
+
 .fade-in { animation: fadeIn 0.5s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
 .live-indicator { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: #10b981; font-weight: bold; }
-.dot { height: 8px; width: 8px; background-color: #10b981; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
-@keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+.dot { height: 8px; width: 8px; background-color: #10b981; border-radius: 50%; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0% { transform: scale(0.95); } 70% { transform: scale(1.1); } 100% { transform: scale(0.95); } }

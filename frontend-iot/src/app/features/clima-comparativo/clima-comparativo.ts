@@ -15,23 +15,20 @@ import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
   styleUrls: ['./clima-comparativo.css']
 })
 export class ClimaComparativoComponent implements OnInit {
-  // Datos Clima Exterior
   tempExterior: number = 0;
   humedadExterior: number = 0;
   tempMax: number = 0;
   tempMin: number = 0;
 
-  // Datos Interior
   tempInterior: number = 0;
   diferencia: number = 0;
   
-  // Gestión de Grupos y Filtro
   listaGrupos: any[] = [];
   grupoSeleccionadoId: string = '';
   cargando: boolean = true;
   filtroBusqueda: string = ''; 
 
-  // Configuración de Gráfica
+  // Cambiado a line para ver la evolución en el tiempo
   public barChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
@@ -44,12 +41,26 @@ export class ClimaComparativoComponent implements OnInit {
     }
   };
 
-  public barChartType: ChartType = 'bar';
-  public barChartData: ChartData<'bar'> = {
-    labels: ['Temperatura (°C)'],
+  public barChartType: ChartType = 'line'; // Cambio de 'bar' a 'line'
+  public barChartData: ChartData<'line'> = {
+    labels: [],
     datasets: [
-      { data: [0], label: 'Exterior (WeatherAPI)', backgroundColor: '#3b82f6', borderRadius: 8 },
-      { data: [0], label: 'Interior (Tus Sensores)', backgroundColor: '#10b981', borderRadius: 8 }
+      { 
+        data: [], 
+        label: 'Exterior (Obregón)', 
+        borderColor: '#3b82f6', 
+        backgroundColor: 'rgba(59, 130, 246, 0.1)', 
+        fill: true,
+        tension: 0.4
+      },
+      { 
+        data: [], 
+        label: 'Interior (Sensores)', 
+        borderColor: '#10b981', 
+        backgroundColor: 'rgba(16, 185, 129, 0.1)', 
+        fill: true,
+        tension: 0.4
+      }
     ]
   };
 
@@ -64,7 +75,6 @@ export class ClimaComparativoComponent implements OnInit {
     this.cargarGrupos();
   }
 
-  // Lógica del Buscador/Filtro
   get gruposFiltrados() {
     return this.listaGrupos.filter(g => 
       g.nombre.toLowerCase().includes(this.filtroBusqueda.toLowerCase())
@@ -76,6 +86,7 @@ export class ClimaComparativoComponent implements OnInit {
       next: (data) => {
         this.tempExterior = data.main.temp;
         this.humedadExterior = data.main.humidity;
+        // Estos valores de la API sirven como base inicial
         this.tempMax = data.main.temp_max;
         this.tempMin = data.main.temp_min;
         this.actualizarGrafica();
@@ -84,7 +95,6 @@ export class ClimaComparativoComponent implements OnInit {
   }
 
   cargarGrupos() {
-    // Ya no enviamos userId, el Interceptor pone el Token automáticamente
     this.gruposService.getGrupos().subscribe({
       next: (grupos) => {
         this.listaGrupos = grupos;
@@ -106,8 +116,34 @@ export class ClimaComparativoComponent implements OnInit {
     
     this.lecturasService.getLecturasPorGrupo(this.grupoSeleccionadoId).subscribe((lecturas: any[]) => {
       if (lecturas && lecturas.length > 0) {
-        const suma = lecturas.reduce((acc, curr) => acc + curr.valor, 0);
-        this.tempInterior = suma / lecturas.length;
+        // Filtrar y ordenar por fecha para la gráfica de evolución
+        const lecturasTermicas = lecturas
+          .filter(l => 
+            (l.tipoDato && l.tipoDato.toLowerCase().includes('temp')) || 
+            (l.unidad && l.unidad.includes('°C'))
+          )
+          .sort((a, b) => new Date(a.fechaHora).getTime() - new Date(b.fechaHora).getTime());
+
+        if (lecturasTermicas.length > 0) {
+          // Promedio actual (últimas mediciones)
+          const suma = lecturasTermicas.reduce((acc, curr) => acc + curr.valor, 0);
+          this.tempInterior = suma / lecturasTermicas.length;
+
+          // CÁLCULO DE MÁX/MÍN DEL DÍA (Basado en historial guardado)
+          const valores = lecturasTermicas.map(l => l.valor);
+          this.tempMax = Math.max(...valores);
+          this.tempMin = Math.min(...valores);
+
+          // ACTUALIZAR GRÁFICA EVOLUTIVA
+          this.barChartData.labels = lecturasTermicas.map(l => {
+            const d = new Date(l.fechaHora);
+            return `${d.getHours()}:${d.getMinutes().toString().padStart(2, '0')}`;
+          });
+          this.barChartData.datasets[1].data = lecturasTermicas.map(l => l.valor);
+          this.barChartData.datasets[0].data = lecturasTermicas.map(() => this.tempExterior);
+        } else {
+          this.tempInterior = 0;
+        }
       } else {
         this.tempInterior = 0;
       }
@@ -117,9 +153,6 @@ export class ClimaComparativoComponent implements OnInit {
 
   actualizarGrafica() {
     this.diferencia = Math.abs(this.tempExterior - this.tempInterior);
-    this.barChartData.datasets[0].data = [this.tempExterior];
-    this.barChartData.datasets[1].data = [this.tempInterior];
-    // Notificamos a la gráfica el cambio de datos
     this.barChartData = { ...this.barChartData };
   }
 }

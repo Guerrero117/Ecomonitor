@@ -6,21 +6,29 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class LecturasService {
-  private apiUrl = 'http://localhost:5126/api/lecturas'; 
+  // Cambiado de localhost a la IP de la Raspberry
+  private apiUrl = 'http://192.168.1.11:5126/api/lecturas'; 
 
   constructor(private http: HttpClient) { }
 
   enviarLecturaManual(lectura: any): Observable<any> {
-    return this.http.post(this.apiUrl, lectura);
+    const payload = {
+      ...lectura,
+      esManual: true,
+      origen: "Manual"
+    };
+    return this.http.post(this.apiUrl, payload);
   }
 
-  getLecturasPorSensor(sensorId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${sensorId}`);
+  getLecturasPorSensor(sensorId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/sensor/${sensorId}`);
   }
-
 
   getLecturasPorGrupo(grupoId: string): Observable<any[]> {
-  // Asegúrate de que la ruta coincida con tu controlador de .NET
-  return this.http.get<any[]>(`http://localhost:5126/api/lecturas/grupo/${grupoId}`);
-}
+    return this.http.get<any[]>(`${this.apiUrl}/grupo/${grupoId}`);
+  }
+
+  enviarBulk(lecturas: any[]): Observable<any> {
+    return this.http.post(`${this.apiUrl}/bulk`, lecturas);
+  }
 }

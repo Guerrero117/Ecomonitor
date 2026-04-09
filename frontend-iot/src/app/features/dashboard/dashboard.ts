@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
 import { RouterModule, Router } from '@angular/router';
-import { LecturasService } from '../../core/services/lecturas.service';
 import { AuthService } from '../../core/services/auth';
 import { WeatherService } from '../../core/services/weather.service';
 
@@ -19,17 +18,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
   timestamp: Date = new Date();
   
   datosObregon: any = {
-    temp: 0,
-    hum: 0,
-    sensation: 0,
-    presion: 0,
-    viento: 0,
-    nubes: 0,
-    descripcion: 'Sincronizando...',
-    ciudad: 'Ciudad Obregón'
+    temp: 0, hum: 0, sensation: 0, presion: 0, viento: 0, nubes: 0,
+    descripcion: 'Sincronizando...', ciudad: 'Ciudad Obregón'
   };
 
+  historialClima: any[] = []; 
+  datosFiltradosModal: any[] = []; 
+
   recomendacionActual: string = "Obteniendo datos de la estación meteorológica...";
+  datoActual = "";
+  imagenActual = "";
+  indiceCuriosidad = 0;
 
   datosEducativos = [
     "Ciudad Obregón tiene un clima desértico; la hidratación de tus plantas es clave.",
@@ -45,9 +44,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=500"
   ];
 
-  datoActual = this.datosEducativos[0];
-  imagenActual = this.imagenesEducativas[0];
-  indiceCuriosidad = 0;
+  mostrarModal: boolean = false;
+  tituloModal: string = '';
+  unidadModal: string = '';
+  campoActualModal: string = ''; 
 
   private timerApi: any;
   private timerCiclo: any;
@@ -58,16 +58,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public auth: AuthService, 
     private cdr: ChangeDetectorRef, 
     private router: Router
-  ) {}
+  ) {
+    this.datoActual = this.datosEducativos[0];
+    this.imagenActual = this.imagenesEducativas[0];
+  }
 
   ngOnInit() {
     this.cargarDatosExternos();
-    
-    // REDUCIDO: Actualizar datos de la API cada 30 segundos para "Tiempo Real"
-    this.timerApi = setInterval(() => {
-      this.cargarDatosExternos();
-    }, 30000); 
-
+    this.timerApi = setInterval(() => { this.cargarDatosExternos(); }, 30000); 
     this.iniciarCicloEducativo();
     this.timerReloj = setInterval(() => { this.timestamp = new Date(); }, 1000);
   }
@@ -75,8 +73,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   cargarDatosExternos() {
     this.weatherService.getClimaExterior().subscribe({
       next: (res) => {
-        // Mapeo de datos recibidos
-        this.datosObregon = {
+        const ahora = new Date();
+        const nuevaData = {
           temp: Math.round(res.main.temp),
           hum: res.main.humidity,
           sensation: Math.round(res.main.feels_like),
@@ -84,35 +82,41 @@ export class DashboardComponent implements OnInit, OnDestroy {
           viento: res.wind.speed,
           nubes: res.clouds.all,
           descripcion: res.weather[0].description.toUpperCase(),
-          ciudad: res.name
+          ciudad: res.name,
+          hora: `${ahora.getHours()}:${ahora.getMinutes().toString().padStart(2, '0')}`,
+          fechaCompleta: ahora
         };
 
-        this.recomendacionActual = `Clima en Obregón: ${this.datosObregon.descripcion} ✅`;
-        
-        // Esto fuerza a Angular a pintar los nuevos datos inmediatamente
+        this.datosObregon = nuevaData;
+        this.historialClima.push(nuevaData);
+        if (this.historialClima.length > 50) this.historialClima.shift(); 
+
+        this.recomendacionActual = `API OpenWeather: Conexión estable ✅`;
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error("Error API Externo:", err);
+      error: () => {
         this.recomendacionActual = "⚠️ Error: No se pudo conectar con el servidor de clima.";
       }
     });
   }
 
-  // ... (tus funciones navegarA, logout e iniciarCicloEducativo quedan igual) ...
+  abrirHistorico(campo: string, titulo: string, unidad: string) {
+    this.tituloModal = titulo;
+    this.unidadModal = unidad;
+    this.campoActualModal = campo;
+
+    if (this.historialClima.length > 0) {
+      this.datosFiltradosModal = [...this.historialClima].reverse();
+      this.mostrarModal = true;
+    } else {
+      alert("Recopilando datos iniciales de la API...");
+    }
+    this.cdr.detectChanges();
+  }
 
   navegarA(pantalla: any) {
     this.pantallaActual = pantalla; 
-    const rutas: any = {
-      'dashboard': '/dashboard',
-      'sensores': '/dashboard/devices',
-      'entrada-manual': '/dashboard/entrada-manual',
-      'clima': '/dashboard/clima-comparativo',
-      'grupos': '/dashboard/grupos',
-      'alertas': '/dashboard/alertas',
-      'admin-users': '/dashboard/admin-users',
-      'admin-logs': '/dashboard/admin-logs'
-    };
+    const rutas: any = { 'dashboard': '/dashboard', 'sensores': '/dashboard/devices', 'entrada-manual': '/dashboard/entrada-manual', 'clima': '/dashboard/clima-comparativo', 'grupos': '/dashboard/grupos', 'admin-users': '/dashboard/admin-users', 'admin-logs': '/dashboard/admin-logs' };
     if (rutas[pantalla]) this.router.navigate([rutas[pantalla]]);
   }
 

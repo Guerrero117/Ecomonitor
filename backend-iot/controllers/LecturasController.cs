@@ -23,18 +23,23 @@ public class LecturasController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Post(Lectura nuevaLectura)
     {
+        // SEGURIDAD: Validar formato hexadecimal de 24 caracteres antes de buscar
+        if (!MongoDB.Bson.ObjectId.TryParse(nuevaLectura.SensorId, out _))
+        {
+            return BadRequest("Error: El ID del sensor no tiene un formato hexadecimal válido.");
+        }
+
         var sensor = await _sensores.Find(s => s.Id == nuevaLectura.SensorId).FirstOrDefaultAsync();
-        
         if (sensor == null) return NotFound("Error: El sensor especificado no existe.");
 
-        // VALIDACIÓN DE UNIDADES PARA TUS SENSORES REALES (FC-22 y Fotoreceptor)
+        // VALIDACIÓN ORIGINAL (FC-22, Fotoreceptor, etc)
         bool esValido = sensor.Tipo.ToLower() switch
         {
             "temperatura"  => nuevaLectura.Unidad == "°C",
             "humedad"      => nuevaLectura.Unidad == "%",
             "co2"          => nuevaLectura.Unidad == "ppm",
-            "calidad aire" => nuevaLectura.Unidad == "ppm", // Sensor FC-22
-            "luminosidad"  => nuevaLectura.Unidad == "lux", // Fotoreceptor
+            "calidad aire" => nuevaLectura.Unidad == "ppm", 
+            "luminosidad"  => nuevaLectura.Unidad == "lux",
             _ => true 
         };
 
@@ -46,9 +51,27 @@ public class LecturasController : ControllerBase
         return Ok(new { message = "Lectura científica registrada", id = nuevaLectura.Id });
     }
 
+    [HttpPost("bulk")]
+    public async Task<IActionResult> PostBulk([FromBody] List<Lectura> lecturas)
+    {
+        if (lecturas == null || lecturas.Count == 0) return BadRequest("Lista vacía.");
+
+        foreach (var l in lecturas)
+        {
+            l.FechaHora = DateTime.Now;
+            l.EsManual = true;
+            l.Origen = "Manual_Batch";
+        }
+
+        await _lecturas.InsertManyAsync(lecturas);
+        return Ok(new { message = "Registros múltiples persistidos" });
+    }
+
     [HttpGet("sensor/{sensorId}")]
     public async Task<List<Lectura>> GetBySensor(string sensorId)
     {
+        if (!MongoDB.Bson.ObjectId.TryParse(sensorId, out _)) return new List<Lectura>();
+
         return await _lecturas.Find(l => l.SensorId == sensorId)
                              .SortByDescending(l => l.FechaHora)
                              .Limit(20)
@@ -58,6 +81,12 @@ public class LecturasController : ControllerBase
     [HttpGet("grupo/{grupoId}")]
     public async Task<IActionResult> GetByGrupo(string grupoId)
     {
+        // SEGURIDAD: Evitar excepción FormatException
+        if (!MongoDB.Bson.ObjectId.TryParse(grupoId, out _))
+        {
+            return BadRequest("El ID del grupo proporcionado no es un ObjectId válido.");
+        }
+
         var grupo = await _grupos.Find(g => g.Id == grupoId).FirstOrDefaultAsync();
         if (grupo == null) return NotFound("Grupo no encontrado.");
 

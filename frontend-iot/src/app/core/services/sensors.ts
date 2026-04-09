@@ -6,11 +6,11 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class SensorsService {
-  private apiUrl = 'http://localhost:5126/api/sensors'; 
+  // Cambiado de localhost a la IP de la Raspberry
+  private apiUrl = 'http://192.168.1.11:5126/api/sensors'; 
 
   constructor(private http: HttpClient) { }
 
-  // Obtiene solo los sensores que pertenecen al usuario del Token
   getSensors(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
   }
@@ -19,7 +19,6 @@ export class SensorsService {
     return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
 
-  // El objeto 'sensor' ya viene validado desde el componente
   createSensor(sensor: any): Observable<any> {
     return this.http.post(this.apiUrl, sensor);
   }

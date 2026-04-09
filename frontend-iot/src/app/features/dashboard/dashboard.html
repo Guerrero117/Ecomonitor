@@ -25,9 +25,7 @@
   </header>
 
   <main class="main-content">
-    
     <div class="dashboard-home-view" *ngIf="pantallaActual === 'dashboard'">
-      
       <div class="top-row animate-slide-up-1">
         <section class="science-board-top glass-card">
           <div class="board-header">
@@ -59,59 +57,101 @@
       </div>
 
       <div class="section-title animate-slide-up-2">
-        <h3><i class="fas fa-satellite"></i> Reporte Meteorológico Completo: {{ datosObregon.ciudad }}</h3>
+        <h3><i class="fas fa-satellite"></i> Reporte Meteorológico: {{ datosObregon.ciudad }}</h3>
       </div>
 
       <div class="dashboard-grid animate-slide-up-3">
-        
-        <div class="analytics-card glass-card">
+        <div class="analytics-card glass-card" (click)="abrirHistorico('temp', 'Temperatura', '°C')">
           <span class="stat-label">🌡️ Temperatura</span>
           <div class="card-body">
             <h2 class="cyber-value">{{ datosObregon.temp }}<span class="unit">°C</span></h2>
           </div>
         </div>
 
-        <div class="analytics-card glass-card">
+        <div class="analytics-card glass-card" (click)="abrirHistorico('sensation', 'Sensación', '°C')">
           <span class="stat-label">🧊 Sensación</span>
           <div class="card-body">
             <h2 class="cyber-value">{{ datosObregon.sensation }}<span class="unit">°C</span></h2>
           </div>
         </div>
 
-        <div class="analytics-card glass-card">
+        <div class="analytics-card glass-card" (click)="abrirHistorico('hum', 'Humedad', '%')">
           <span class="stat-label">💧 Humedad</span>
           <div class="card-body">
             <h2 class="cyber-value">{{ datosObregon.hum }}<span class="unit">%</span></h2>
           </div>
         </div>
 
-        <div class="analytics-card glass-card">
+        <div class="analytics-card glass-card" (click)="abrirHistorico('viento', 'Viento', 'm/s')">
           <span class="stat-label">🌬️ Viento</span>
           <div class="card-body">
             <h2 class="cyber-value">{{ datosObregon.viento }}<span class="unit">m/s</span></h2>
           </div>
         </div>
 
-        <div class="analytics-card glass-card">
+        <div class="analytics-card glass-card" (click)="abrirHistorico('presion', 'Presión', 'hPa')">
           <span class="stat-label">⏲️ Presión</span>
           <div class="card-body">
             <h2 class="cyber-value">{{ datosObregon.presion }}<span class="unit">hPa</span></h2>
           </div>
         </div>
 
-        <div class="analytics-card glass-card">
+        <div class="analytics-card glass-card" (click)="abrirHistorico('nubes', 'Nubosidad', '%')">
           <span class="stat-label">☁️ Nubosidad</span>
           <div class="card-body">
             <h2 class="cyber-value">{{ datosObregon.nubes }}<span class="unit">%</span></h2>
           </div>
         </div>
-
       </div>
     </div>
 
     <div class="view-container" *ngIf="pantallaActual !== 'dashboard'">
       <router-outlet></router-outlet>
     </div>
-    
   </main>
+
+  <div class="modal-overlay" *ngIf="mostrarModal" (click)="mostrarModal = false">
+    <div class="glass-modal-container" (click)="$event.stopPropagation()">
+      
+      <div class="modal-header-glass">
+        <div class="title-wrap">
+          <i class="fas fa-history icon-green"></i>
+          <div class="title-content">
+            <h3>REGISTROS DE LA ESTACIÓN</h3>
+            <p>Historial de {{ tituloModal }} (OpenWeather)</p>
+          </div>
+        </div>
+        <button class="close-glass-btn" (click)="mostrarModal = false">&times;</button>
+      </div>
+
+      <div class="modal-body-glass custom-scroll-glass">
+        <div class="glass-list">
+          <div class="glass-list-item" *ngFor="let registro of datosFiltradosModal; let i = index">
+            
+            <div class="glass-item-id">{{ i + 1 }}</div>
+            
+            <div class="glass-item-info">
+              <span class="glass-date"><i class="far fa-calendar"></i> {{ registro.fechaCompleta | date:'dd/MM/yyyy' }}</span>
+              <span class="glass-time"><i class="far fa-clock"></i> {{ registro.hora }}</span>
+            </div>
+
+            <div class="glass-item-value">
+              <span class="val-num">{{ registro[campoActualModal] }}</span>
+              <span class="val-unit">{{ unidadModal }}</span>
+            </div>
+
+            <div class="glass-status">
+              <span class="badge-online">API</span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer-glass">
+        <p>CIUDAD OBREGÓN, SONORA • ACTUALIZACIÓN EN TIEMPO REAL</p>
+      </div>
+    </div>
+  </div>
+
 </div>

@@ -11,7 +11,7 @@
         <label class="selector-label"><i class="fas fa-satellite"></i> Seleccionar Zona</label>
         <div class="select-wrapper">
           <select class="custom-select-dark" [(ngModel)]="grupoSeleccionadoId" (change)="onGrupoChange()">
-            <option *ngFor="let g of listaGrupos" [value]="g.id">{{ g.nombre }}</option>
+            <option *ngFor="let g of listaGrupos" [value]="g.id || g._id">{{ g.nombre }}</option>
           </select>
           <i class="fas fa-chevron-down select-arrow"></i>
         </div>
@@ -42,14 +42,14 @@
         <h3 class="temp-value emerald-gradient">{{ tempInterior.toFixed(1) }}°<span class="unit">C</span></h3>
       </div>
       <div class="sensor-footer">
-        <i class="fas fa-sync-alt fa-spin-hover"></i> Sincronizado hace 1s
+        <i class="fas fa-sync-alt fa-spin-hover"></i> Sincronizado ahora
       </div>
     </div>
 
     <div class="glass-card sensor-card extremes stagger-item" style="animation-delay: 0.3s">
       <div class="sensor-header">
         <span class="icon-circle gray"><i class="fas fa-chart-area"></i></span>
-        <span class="sensor-label">Límites Hoy</span>
+        <span class="sensor-label">Límites del Día (Local)</span>
       </div>
       <div class="extremes-container">
         <div class="ext-item min">
@@ -62,11 +62,11 @@
           <strong class="val">{{ tempMax }}°</strong>
         </div>
       </div>
-      <div class="sensor-footer">Rango operativo histórico</div>
+      <div class="sensor-footer">Historial de las últimas 24h</div>
     </div>
 
     <div class="glass-card sensor-card status-card stagger-item" 
-         [class.warning]="diferencia > 5" style="animation-delay: 0.4s">
+          [class.warning]="diferencia > 5" style="animation-delay: 0.4s">
       <div class="sensor-header">
         <span class="icon-circle" [ngClass]="diferencia > 5 ? 'yellow' : 'emerald'">
           <i class="fas" [ngClass]="diferencia > 5 ? 'fa-exclamation-triangle' : 'fa-check-circle'"></i>
@@ -87,8 +87,8 @@
   <div class="glass-card chart-container-pro stagger-item" style="animation-delay: 0.5s">
     <div class="chart-header">
       <div class="chart-info">
-        <div class="chart-title"><i class="fas fa-chart-bar"></i> Distribución de Carga por Nodo</div>
-        <p class="chart-subtitle">Análisis comparativo de voltajes y temperatura</p>
+        <div class="chart-title"><i class="fas fa-chart-line"></i> Evolución de Temperatura</div>
+        <p class="chart-subtitle">Análisis de los últimos registros guardados</p>
       </div>
       <div class="live-tag"><span class="dot"></span> LIVE DATA</div>
     </div>

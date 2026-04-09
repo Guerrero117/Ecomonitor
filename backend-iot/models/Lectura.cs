@@ -16,10 +16,20 @@ namespace backend_iot.Models
         [BsonElement("Valor")]
         public double Valor { get; set; }
 
-        [BsonElement("Unidad")] // "ppm" para FC-22, "lux" para Fotoreceptor
+        [BsonElement("Unidad")] 
         public string Unidad { get; set; } = string.Empty;
 
         [BsonElement("FechaHora")]
         public DateTime FechaHora { get; set; } = DateTime.Now;
+
+        // --- AGREGADO PARA AUDITORÍA ---
+        [BsonElement("EsManual")]
+        public bool EsManual { get; set; } = false;
+
+        [BsonElement("Origen")] 
+        public string Origen { get; set; } = "Hardware";
+
+        [BsonElement("FrecuenciaMinutos")]
+        public int FrecuenciaMinutos { get; set; } = 0; 
     }
 }
