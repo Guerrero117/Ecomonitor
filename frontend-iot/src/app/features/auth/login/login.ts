@@ -43,4 +43,7 @@ export class LoginComponent {
   goRegister() {
     this.router.navigate(['/register']);
   }
+  irARecuperar() {
+  this.router.navigate(['/r-password']);
+  }
 }

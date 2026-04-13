@@ -82,3 +82,29 @@ input {
   font-weight:bold;
   cursor:pointer;
 }
+
+/* diseño del boton de recuperar contraseña */
+
+.btn-forgot {
+  width: 100%;
+  height: 48px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #024736, #035c45);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.btn-forgot:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.btn-forgot:active {
+  transform: translateY(0);
+}

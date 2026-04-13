@@ -1,0 +1,60 @@
+.code-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0f172a;
+}
+
+.code-card {
+  background: #1e293b;
+  padding: 35px;
+  border-radius: 14px;
+  width: 380px;
+  color: white;
+  box-shadow: 0 0 25px rgba(0,0,0,0.45);
+}
+
+.code-card h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: #10b981;
+  margin-bottom: 15px;
+}
+
+.code-card p {
+  text-align: center;
+  color: #94a3b8;
+  margin-bottom: 20px;
+}
+
+.code-card input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: white;
+  margin-bottom: 20px;
+}
+
+.btn-next,
+.btn-back {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.btn-next {
+  background: #10b981;
+  color: white;
+  border: none;
+}
+
+.btn-back {
+  background: transparent;
+  border: 1px solid #38bdf8;
+  color: #38bdf8;
+}
