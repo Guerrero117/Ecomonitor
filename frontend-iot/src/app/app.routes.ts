@@ -9,6 +9,10 @@ import { EntradaManualComponent } from './features/entrada-manual/entrada-manual
 import { ClimaComparativoComponent } from './features/clima-comparativo/clima-comparativo';
 import { AdminUsersComponent } from './features/admin/admin-users/admin-users';
 import { AdminLogsComponent } from './features/admin/admin-logs/admin-logs'; // <-- IMPORTANTE
+import { RPasswordComponent } from './features/r-password/r-password'; 
+import { VerifyCodeComponent } from './features/verify-code/verify-code';
+import { NewPasswordComponent } from './features/new-password/new-password';
+
 
 // --- GUARDS ---
 import { authGuard } from './core/guards/auth-guard';
@@ -25,6 +29,9 @@ const adminGuard = () => {
 export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'r-password', component: RPasswordComponent },
+  { path: 'verify-code', component: VerifyCodeComponent },
+  { path: 'new-password', component: NewPasswordComponent },
   
   { 
     path: 'dashboard', 
@@ -45,5 +52,19 @@ export const routes: Routes = [
     ]
   },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: '**', redirectTo: 'login' } 
+  { path: '**', redirectTo: 'login' },
+
+  //CONECCION DEL LOGIN AL R-PASSWORD
+   {
+  path: 'login',
+  loadComponent: () =>
+    import('./features/auth/login/login')
+      .then(m => m.LoginComponent)
+  },
+  {
+    path: 'r-password',
+    component: RPasswordComponent
+  },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '**', redirectTo: 'login' }
 ];
