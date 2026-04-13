@@ -30,35 +30,29 @@
       <i class="fas fa-filter icon-filter"></i>
       <select [(ngModel)]="filters.status" class="custom-select">
         <option value="">🌐 Todos los Grupos</option>
-        
         <optgroup label="── Estado Operativo ──">
           <option value="active">✅ Solo Activos</option>
           <option value="inactive">⚠️ En Mantenimiento</option>
         </optgroup>
-
         <optgroup label="── Densidad de Nodos ──">
           <option value="large">🏗️ Alta Densidad (3+ nodos)</option>
           <option value="small">📦 Baja Densidad (1-2 nodos)</option>
           <option value="empty">🚫 Sin Dispositivos</option>
         </optgroup>
-
-        <optgroup label="── Prioridad de Monitoreo ──">
-          <option value="critical">🚨 Alerta Crítica</option>
-          <option value="stable">🟢 Operación Estable</option>
-        </optgroup>
       </select>
     </div>
+    
+    <button class="btn-nuevo-area-header" (click)="abrirModal()">
+      <i class="fas fa-plus-square"></i> Nueva Área
+    </button>
   </div>
 
-  <header class="header-seccion">
-    <div class="header-info">
+  <div class="header-gestion">
+    <div class="titulo-seccion">
       <h1 class="neon-title">📂 Gestión de Áreas</h1>
       <p class="subtitle">Organización lógica y agrupamiento de telemetría EcoMonitor</p>
     </div>
-    <button class="btn-nuevo-grupo" (click)="abrirModal()">
-      <i class="fas fa-plus-square"></i> Nueva Área
-    </button>
-  </header>
+  </div>
 
   <div class="table-container glass-card">
     <table class="grupos-table">
@@ -72,7 +66,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let grupo of misGruposFiltrados">
+        <tr *ngFor="let grupo of misGruposFiltrados" (click)="verDetalles(grupo)" class="row-interactiva">
           <td class="id-cell">#{{ grupo.id?.slice(-6) || grupo._id?.slice(-6) }}</td>
           <td><span class="area-name">{{ grupo.nombre }}</span></td>
           <td>
@@ -89,7 +83,7 @@
             </span>
           </td>
           <td class="center">
-            <button class="action-btn-edit">
+            <button class="action-btn-edit" (click)="$event.stopPropagation();">
               <i class="fas fa-pen"></i>
             </button>
           </td>
@@ -102,19 +96,51 @@
     <div class="glass-modal">
       <h2 class="neon-title">Nuevo Grupo</h2>
       <div class="modal-body">
-        <input type="text" [(ngModel)]="nuevoGrupoNombre" placeholder="Nombre del grupo..." class="glass-input mb-3">
-        
-        <p class="small-label">Seleccionar Dispositivos:</p>
-        <div class="device-selector">
-          <div *ngFor="let dispositivo of dispositivosDisponibles" class="device-option">
-            <input type="checkbox" [(ngModel)]="dispositivo.seleccionado">
-            <span>{{ dispositivo.nombre }}</span>
+        <div class="input-container-centered">
+          <input type="text" [(ngModel)]="nuevoGrupoNombre" placeholder="Nombre del grupo..." class="glass-input mb-3">
+        </div>
+
+        <div class="dispositivos-section">
+          <p class="small-label">Seleccionar Dispositivos:</p>
+          <div class="device-list-container">
+            <div *ngFor="let dispositivo of dispositivosDisponibles" class="device-item-row">
+              <label class="checkbox-container">
+                <input type="checkbox" [(ngModel)]="dispositivo.seleccionado">
+                <span class="checkmark"></span>
+                <span class="device-name"><i class="fas fa-microchip"></i> {{ dispositivo.nombre }}</span>
+              </label>
+            </div>
           </div>
         </div>
 
         <div class="modal-actions">
-          <button class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
-          <button class="btn-nuevo-grupo" (click)="guardarGrupo()">Guardar Grupo</button>
+          <button class="btn-modal btn-cancelar" (click)="cerrarModal()">Cancelar</button>
+          <button class="btn-modal btn-guardar-modal" (click)="guardarGrupo()">Guardar Grupo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="mostrarModalDetalles">
+    <div class="glass-modal">
+      <h2 class="neon-title"><i class="fas fa-info-circle"></i> Detalle del Área</h2>
+      <div class="modal-body" *ngIf="grupoSeleccionado">
+        <div class="detalle-info">
+          <div class="detalle-item">
+            <label class="small-label">Nombre del Grupo:</label>
+            <p class="valor-texto">{{ grupoSeleccionado.nombre }}</p>
+          </div>
+          <div class="detalle-item">
+            <label class="small-label">Nodos Vinculados:</label>
+            <div class="device-list-static">
+              <div *ngFor="let sId of grupoSeleccionado.sensoresIds" class="static-device-tag">
+                <i class="fas fa-microchip"></i> ID: {{ sId }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-modal btn-cancelar" style="width: 100%" (click)="cerrarModalDetalles()">Cerrar</button>
         </div>
       </div>
     </div>

@@ -5,17 +5,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // Verificamos si la URL es para el clima (vía proxy o directa)
   const esClima = req.url.includes('api.openweathermap.org') || req.url.includes('/weather-api');
 
-  if (esClima) {
-    // Si es clima, clonamos la petición LIMPIA (sin tu token de EcoMonitor)
-    // OpenWeather no aceptaría tu Bearer Token, por eso lo quitamos
-    const climaReq = req.clone({
-      setHeaders: {
-        'Accept': 'application/json' 
-      }
-    });
-    // Enviamos la petición sin que pase por la lógica de login de abajo
-    return next(climaReq);
-  }
+ if (esClima) {
+  // Clonamos la petición eliminando el header Authorization por completo
+  const climaReq = req.clone({
+    headers: req.headers.delete('Authorization').set('Accept', 'application/json')
+  });
+  return next(climaReq);
+}
 
   // 2. SEGURIDAD DE TU PROPIA APP (ECO MONITOR)
   const isBrowser = typeof window !== 'undefined';

@@ -15,10 +15,11 @@ import Swal from 'sweetalert2';
 })
 export class GruposComponent implements OnInit {
   misGrupos: any[] = [];
-  dispositivosDisponibles: any[] = []; 
+  dispositivosDisponibles: any[] = [];
   mostrarModal = false;
+  mostrarModalDetalles = false;
   nuevoGrupoNombre = '';
-  // Filtros inicializados
+  grupoSeleccionado: any = null;
   filters = { name: '', status: '' };
 
   constructor(
@@ -27,82 +28,38 @@ export class GruposComponent implements OnInit {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
-  // Lógica de filtrado combinada (Tu original + Filtros extra)
   get misGruposFiltrados() {
     return this.misGrupos.filter(g => {
       const matchName = g.nombre.toLowerCase().includes(this.filters.name.toLowerCase());
-      const sensorCount = g.sensoresIds?.length || 0;
-
-      // Aplicar filtros del Select
-      switch (this.filters.status) {
-        case 'active': return matchName && g.estado === 'Activo';
-        case 'inactive': return matchName && g.estado !== 'Activo';
-        case 'large': return matchName && sensorCount >= 3;
-        case 'small': return matchName && sensorCount > 0 && sensorCount < 3;
-        case 'empty': return matchName && sensorCount === 0;
-        default: return matchName;
-      }
+      return matchName;
     });
   }
 
-  ngOnInit() { 
-    if (isPlatformBrowser(this.platformId)) { this.cargarDatos(); }
-  }
+  ngOnInit() { if (isPlatformBrowser(this.platformId)) { this.cargarDatos(); } }
 
   cargarDatos() {
-    this.gruposService.getGrupos().subscribe({
-      next: (data: any[]) => this.misGrupos = data,
-      error: (err) => console.error("Error al cargar grupos", err)
-    });
-
-    this.sensorsService.getSensors().subscribe({
-      next: (data: any[]) => {
-        this.dispositivosDisponibles = data.map((s: any) => ({
-          ...s,
-          seleccionado: false
-        }));
-      }
-    });
-  }
-
-  guardarGrupo() {
-    if (!this.nuevoGrupoNombre.trim()) {
-      Swal.fire('Error', 'El nombre del grupo es obligatorio', 'error');
-      return;
-    }
-
-    const seleccionados = this.dispositivosDisponibles
-      .filter(d => d.seleccionado)
-      .map(d => d.id || d._id);
-
-    const nuevoGrupo = {
-      nombre: this.nuevoGrupoNombre,
-      sensoresIds: seleccionados, 
-      estado: 'Activo'
-    };
-
-    this.gruposService.crearGrupo(nuevoGrupo).subscribe({
-      next: (res) => {
-        Swal.fire('¡Éxito!', 'Grupo creado correctamente', 'success');
-        this.cargarDatos();
-        this.cerrarModal();
-      },
-      error: (err) => {
-        console.error('Error al guardar:', err);
-        Swal.fire('Error', 'El servidor rechazó la creación del grupo', 'error');
-      }
+    this.gruposService.getGrupos().subscribe(data => this.misGrupos = data);
+    this.sensorsService.getSensors().subscribe(data => {
+      this.dispositivosDisponibles = data.map((s: any) => ({ ...s, seleccionado: false }));
     });
   }
 
   abrirModal() { this.mostrarModal = true; }
-  
-  cerrarModal() { 
-    this.mostrarModal = false; 
-    this.nuevoGrupoNombre = ''; 
-    this.dispositivosDisponibles.forEach(d => d.seleccionado = false);
+  cerrarModal() { this.mostrarModal = false; this.nuevoGrupoNombre = ''; }
+
+  verDetalles(grupo: any) {
+    this.grupoSeleccionado = { ...grupo };
+    this.mostrarModalDetalles = true;
   }
 
-  haySensoresSeleccionados(): boolean {
-    return this.dispositivosDisponibles.some(d => d.seleccionado);
+  cerrarModalDetalles() { this.mostrarModalDetalles = false; this.grupoSeleccionado = null; }
+
+  guardarGrupo() {
+    if (!this.nuevoGrupoNombre.trim()) return;
+    const seleccionados = this.dispositivosDisponibles.filter(d => d.seleccionado).map(d => d.id || d._id);
+    this.gruposService.crearGrupo({ nombre: this.nuevoGrupoNombre, sensoresIds: seleccionados, estado: 'Activo' }).subscribe(() => {
+      this.cargarDatos();
+      this.cerrarModal();
+    });
   }
 }

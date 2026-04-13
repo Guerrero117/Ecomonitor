@@ -63,7 +63,7 @@
   border-radius: 12px; padding: 12px 15px; color: #f8fafc; cursor: pointer; outline: none; 
 }
 
-/* --- ENCABEZADO Y BOTÓN "NUEVO SENSOR" (DISEÑO UNIFICADO) --- */
+/* --- ENCABEZADO Y BOTÓN "NUEVO SENSOR" --- */
 .page-header { 
   display: flex; justify-content: space-between; align-items: center; 
   margin-bottom: 25px; 
@@ -87,8 +87,6 @@
   box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4); 
 }
 
-.btn-add-sensor:active { transform: scale(0.98); }
-
 /* --- TABLA --- */
 .table-container-glass { 
   background: rgba(30, 41, 59, 0.3); border-radius: 16px; 
@@ -99,33 +97,49 @@
 th { background: rgba(16, 185, 129, 0.1); padding: 15px; color: #10b981; font-size: 0.8rem; text-align: left; }
 td { padding: 18px 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
 
-/* --- MODAL ESTÉTICO --- */
+/* --- MODAL AJUSTADO (FONDO OSCURO EN SELECTS) --- */
 .modal-overlay {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+  background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
   display: flex; justify-content: center; align-items: center; z-index: 1000;
 }
 
 .glass-modal {
-  background: rgba(10, 15, 25, 0.98); border: 1px solid rgba(16, 185, 129, 0.4);
+  background: #0f172a; /* Fondo oscuro sólido para el modal */
+  border: 1px solid rgba(16, 185, 129, 0.4);
   border-radius: 28px; padding: 35px; width: 480px; 
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
   animation: modalSlide 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .input-group-modal { margin-bottom: 20px; }
 
+/* Cajas de texto y Selects con fondo oscuro */
 .glass-input-modal {
-  width: 100%; background: rgba(255, 255, 255, 0.03); 
+  width: 100%; 
+  box-sizing: border-box;
+  background-color: #05070a !important; /* Negro profundo para el fondo */
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px; padding: 14px; color: #fff; margin-top: 8px; outline: none;
   transition: 0.3s;
 }
 
+/* Estilo para las opciones del menú desplegable */
+select.glass-input-modal option {
+  background-color: #0f172a; /* Fondo oscuro para las opciones */
+  color: #fff;
+}
+
 .glass-input-modal:focus { 
   border-color: #10b981; 
-  background: rgba(16, 185, 129, 0.05);
+  background: #0a0e14 !important;
   box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
+}
+
+.row-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
 }
 
 .modal-actions { display: flex; gap: 15px; margin-top: 30px; }
@@ -136,17 +150,13 @@ td { padding: 18px 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
   font-weight: 800; cursor: pointer; transition: 0.3s;
 }
 
-.btn-save:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3); }
-
 .btn-cancel { 
   flex: 1; background: rgba(255, 255, 255, 0.05); color: #fff; 
   border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; 
   cursor: pointer; transition: 0.3s;
 }
 
-.btn-cancel:hover { background: rgba(255, 255, 255, 0.1); }
-
-.readonly { opacity: 0.5; cursor: not-allowed; background: rgba(0,0,0,0.2); }
+.readonly { opacity: 0.5; cursor: not-allowed; background: #020305 !important; }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes modalSlide { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }

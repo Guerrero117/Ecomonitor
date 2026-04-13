@@ -9,7 +9,6 @@
     </div>
 
     <div class="summary-item glass-card">
-      <div class="card-icon-circle"><i class="fas fa-signal"></i></div>
       <div class="card-info">
         <p class="small-label">En Línea</p>
         <h3 class="neon-value">{{ getOnlineCount() }}</h3>
@@ -100,8 +99,7 @@
     <div class="glass-modal">
       <div class="modal-header">
         <h2 class="neon-title"><i class="fas fa-microchip"></i> Registrar Hardware</h2>
-        <button class="btn-close" (click)="cerrarModal()">&times;</button>
-      </div>
+        </div>
       
       <div class="modal-body">
         <div class="input-group-modal">
@@ -119,7 +117,7 @@
           </select>
         </div>
 
-        <div class="row-modal">
+        <div class="row-modal-grid">
           <div class="input-group-modal">
             <label class="small-label">Frecuencia (seg)</label>
             <input type="number" [(ngModel)]="nuevoSensor.Frecuencia" class="glass-input-modal">
