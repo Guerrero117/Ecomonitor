@@ -27,12 +27,14 @@ export class SensorListComponent implements OnInit {
   filterName: string = ''; 
   filterOption: string = 'todos'; 
 
+  // Modificado: Se agrega Pin y Modelo
   nuevoSensor = {
     Nombre: '', 
     Modelo: '', 
     Tipo: '', 
     Unidad: '',
-    Frecuencia: 10
+    Frecuencia: 10,
+    Pin: 0 
   };
 
   constructor(
@@ -85,10 +87,11 @@ export class SensorListComponent implements OnInit {
   }
 
   guardarSensor() {
-    if (!this.nuevoSensor.Nombre || !this.nuevoSensor.Modelo) {
+    // Validación de Pin incluida
+    if (!this.nuevoSensor.Nombre || !this.nuevoSensor.Modelo || this.nuevoSensor.Pin <= 0) {
        Swal.fire({
          title: 'Atención',
-         text: 'Completa el nombre y selecciona un modelo.',
+         text: 'Completa el nombre, modelo y asigna un Pin válido.',
          icon: 'warning',
          background: '#1e293b',
          color: '#fff'
@@ -151,7 +154,7 @@ export class SensorListComponent implements OnInit {
   abrirModal() { this.mostrarModal = true; }
   cerrarModal() { 
     this.mostrarModal = false; 
-    this.nuevoSensor = { Nombre: '', Modelo: '', Tipo: '', Unidad: '', Frecuencia: 10 }; 
+    this.nuevoSensor = { Nombre: '', Modelo: '', Tipo: '', Unidad: '', Frecuencia: 10, Pin: 0 }; 
   }
 
   getOnlineCount() {

@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace backend_iot.Controllers
 {
-    [Authorize] // Seguridad OWASP: Solo usuarios con JWT válido
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class SensorsController : ControllerBase
@@ -22,7 +22,6 @@ namespace backend_iot.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Sensor>>> Get()
         {
-            // Extraemos el ID del usuario del Token de forma segura
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null) return Unauthorized();
             
@@ -32,21 +31,22 @@ namespace backend_iot.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Sensor nuevoSensor)
         {
-            // 1. Verificación de identidad
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
-            // 2. Validación estricta de hardware (Lista blanca OWASP)
+            // Lista blanca extendida
             var tiposValidos = new List<string> { "Temperatura", "Humedad", "Calidad Aire", "Luminosidad" };
             if (!tiposValidos.Contains(nuevoSensor.Tipo))
-                return BadRequest(new { mensaje = "Intento de registro de hardware no autorizado o no soportado." });
+                return BadRequest(new { mensaje = "Tipo de hardware no autorizado." });
 
-            // 3. Forzamos que el dueño del sensor sea quien envía la petición
+            // Validación de Pin ocupado (Opcional pero recomendado)
+            // Aquí podrías consultar si el Pin ya está en uso por otro sensor del mismo usuario
+
             nuevoSensor.UsuarioId = userId;
             nuevoSensor.FechaRegistro = DateTime.Now;
 
             await _mongoService.CreateSensorAsync(nuevoSensor);
-            return Ok(new { mensaje = "Sensor IoT registrado con éxito en el ecosistema" });
+            return Ok(new { mensaje = "Sensor IoT mapeado al Pin " + nuevoSensor.Pin + " con éxito." });
         }
 
         [HttpDelete("{id}")]
@@ -56,8 +56,6 @@ namespace backend_iot.Controllers
             var sensor = await _mongoService.GetSensorByIdAsync(id);
             
             if (sensor == null) return NotFound();
-            
-            // Seguridad OWASP: Impedir que un usuario borre sensores de otros
             if (sensor.UsuarioId != userId) return Forbid();
 
             await _mongoService.DeleteSensorAsync(id);
