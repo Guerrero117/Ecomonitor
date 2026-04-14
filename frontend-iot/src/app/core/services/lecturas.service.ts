@@ -6,16 +6,18 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class LecturasService {
-  // Cambiado de localhost a la IP de la Raspberry
+  // IP de la Raspberry Pi 4 configurada
   private apiUrl = 'http://192.168.1.11:5126/api/lecturas'; 
 
   constructor(private http: HttpClient) { }
 
   enviarLecturaManual(lectura: any): Observable<any> {
     const payload = {
-      ...lectura,
-      esManual: true,
-      origen: "Manual"
+      SensorId: lectura.sensorId,
+      Valor: lectura.valor,
+      Unidad: lectura.unidad,
+      EsManual: true,
+      Origen: "Manual"
     };
     return this.http.post(this.apiUrl, payload);
   }
@@ -29,6 +31,7 @@ export class LecturasService {
   }
 
   enviarBulk(lecturas: any[]): Observable<any> {
+    // Mantenemos el método bulk para cargas masivas
     return this.http.post(`${this.apiUrl}/bulk`, lecturas);
   }
 }
