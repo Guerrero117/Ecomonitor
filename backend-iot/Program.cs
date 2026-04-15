@@ -1,3 +1,4 @@
+using System.Threading.RateLimiting;
 using backend_iot.Services;
 using backend_iot.Models;
 using backend_iot; 
@@ -8,16 +9,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.Extensions.Options;
-// IMPORTANTE: Asegúrate de tener instalada la librería de Rate Limiting (nativa en .NET 7/8+)
-using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // --- 1. CONFIGURACIÓN DE SEGURIDAD (JWT) ---
-var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? builder.Configuration["Jwt:Key"];
-if (string.IsNullOrEmpty(jwtKey) || jwtKey.Length < 32) {
-    throw new Exception("Seguridad Crítica: La JWT_KEY no está configurada o es muy corta.");
-}
+var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? builder.Configuration["Jwt:Key"] ?? "ClaveTemporalEcoMonitor2026_ParaPruebas";
 var key = Encoding.ASCII.GetBytes(jwtKey); 
 
 builder.Services.AddAuthentication(x =>
@@ -39,22 +35,26 @@ builder.Services.AddAuthentication(x =>
     };
 });
 
-// --- NUEVO: CONFIGURACIÓN DE RATE LIMITING (OWASP A04:2021) ---
+// --- 2. CONFIGURACIÓN DE RATE LIMITING ---
+;// --- NUEVO: CONFIGURACIÓN DE RATE LIMITING (Sintaxis Directa) ---
 builder.Services.AddRateLimiter(options =>
 {
-    // Definimos la política para el Login
-    options.AddFixedWindowLimiter(policyName: "LoginPolicy", fixedOptions =>
-    {
-        fixedOptions.PermitLimit = 15;            // Máximo 15 peticiones
-        fixedOptions.Window = TimeSpan.FromSeconds(30); // En un lapso de 30 segundos
-        fixedOptions.QueueLimit = 0;             // Rechazo inmediato si se pasa del límite
-    });
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-    // Respuesta personalizada cuando el usuario es bloqueado (Error 429)
+    // Esta forma evita el error CS1061 porque no depende del método de extensión problemático
+    options.AddPolicy("LoginPolicy", context => 
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.User.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString(),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 15,
+                Window = TimeSpan.FromSeconds(30),
+                QueueLimit = 0
+            }));
+
     options.OnRejected = async (context, token) =>
     {
-        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-        await context.HttpContext.Response.WriteAsync("Demasiadas peticiones. Bloqueo temporal por seguridad (30s).", token);
+        await context.HttpContext.Response.WriteAsync("Demasiadas peticiones. Bloqueo temporal (30s).", token);
     };
 });
 
@@ -77,7 +77,7 @@ builder.Services.AddSwaggerGen(c => {
     });
 });
 
-// --- 2. MONGODB ---
+// --- 3. MONGODB ---
 builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDbSettings"));
 var mongoSettings = builder.Configuration.GetSection("MongoDbSettings");
 builder.Services.AddSingleton<IMongoClient>(sp => new MongoClient(mongoSettings["ConnectionString"]));
@@ -89,17 +89,12 @@ builder.Services.AddScoped<IMongoDatabase>(sp => {
 builder.Services.AddSingleton<MongoService>(); 
 builder.Services.AddScoped<IAuthService, AuthService>(); 
 
-// --- 3. CORS DINÁMICO ---
+// --- 4. CORS PARA HOSTING ---
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAll", policy => {
-        policy.SetIsOriginAllowed(origin => 
-        {
-            var host = new Uri(origin).Host;
-            return host == "localhost" || host.StartsWith("192.168.");
-        })
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowCredentials(); 
+        policy.AllowAnyOrigin() 
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 
@@ -110,12 +105,8 @@ if (app.Environment.IsDevelopment()) {
     app.UseSwaggerUI();
 }
 
-// --- ORDEN DE MIDDLEWARES ---
 app.UseCors("AllowAll");
-
-// Activar el Rate Limiter antes de la autenticación para ahorrar recursos
-app.UseRateLimiter(); 
-
+app.UseRateLimiter(); // Importante que esté aquí
 app.UseAuthentication(); 
 app.UseAuthorization();
 app.MapControllers();

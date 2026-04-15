@@ -13,21 +13,22 @@ import Swal from 'sweetalert2';
 })
 export class SensorListComponent implements OnInit {
   
-  dispositivosSoportados = [
-    { modelo: 'MQ-135 / FC-22', tipo: 'Calidad Aire', unidad: 'ppm' },
-    { modelo: 'LDR / Fotocelda', tipo: 'Luminosidad', unidad: 'lux' },
-    { modelo: 'DHT-11', tipo: 'Humedad', unidad: '%' },
-    { modelo: 'LM35', tipo: 'Temperatura', unidad: '°C' }
+  // Lista de hardware con el nombre que pide tu HTML
+  hardwareDisponible = [
+    { pin: 18, modelo: 'MQ-135 / FC-22', tipo: 'Calidad Aire', unidad: 'ppm' },
+    { pin: 27, modelo: 'LDR / Fotocelda', tipo: 'Luminosidad', unidad: 'lux' },
+    { pin: 4,  modelo: 'DHT-11', tipo: 'Humedad', unidad: '%' },
+    { pin: 17, modelo: 'LM35', tipo: 'Temperatura', unidad: '°C' }
   ];
 
   sensors: any[] = [];
   mostrarModal = false;
   cargando = false;
+  sensorSeleccionado: any = null; // Variable crucial para el [(ngModel)] del select
 
   filterName: string = ''; 
   filterOption: string = 'todos'; 
 
-  // Modificado: Se agrega Pin y Modelo
   nuevoSensor = {
     Nombre: '', 
     Modelo: '', 
@@ -42,6 +43,12 @@ export class SensorListComponent implements OnInit {
     @Inject(PLATFORM_ID) private platformId: Object 
   ) {}
 
+  ngOnInit() {
+    if (isPlatformBrowser(this.platformId)) { 
+      this.cargarSensores(); 
+    }
+  }
+
   get sensorsFiltrados() {
     let filtrados = this.sensors;
     if (this.filterName) {
@@ -53,22 +60,12 @@ export class SensorListComponent implements OnInit {
     }
     if (this.filterOption !== 'todos') {
       filtrados = filtrados.filter(s => {
-        switch (this.filterOption) {
-          case 'online': return s.estado === true;
-          case 'offline': return s.estado === false;
-          case 'temp': return s.tipo.toLowerCase().includes('temperatura');
-          case 'hum': return s.tipo.toLowerCase().includes('humedad');
-          case 'aire': return s.tipo.toLowerCase().includes('aire');
-          case 'fast': return s.frecuencia <= 5;
-          default: return true;
-        }
+        if (this.filterOption === 'online') return s.estado === true;
+        if (this.filterOption === 'offline') return s.estado === false;
+        return true;
       });
     }
     return filtrados;
-  }
-
-  ngOnInit() {
-    if (isPlatformBrowser(this.platformId)) { this.cargarSensores(); }
   }
 
   cargarSensores() {
@@ -78,24 +75,19 @@ export class SensorListComponent implements OnInit {
     });
   }
 
-  actualizarDatosDesdeCatalogo() {
-    const encontrado = this.dispositivosSoportados.find(d => d.modelo === this.nuevoSensor.Modelo);
-    if (encontrado) {
-      this.nuevoSensor.Tipo = encontrado.tipo;
-      this.nuevoSensor.Unidad = encontrado.unidad;
+  // Función que el HTML llama con (change)
+  vincularHardware() {
+    if (this.sensorSeleccionado) {
+      this.nuevoSensor.Modelo = this.sensorSeleccionado.modelo;
+      this.nuevoSensor.Tipo = this.sensorSeleccionado.tipo;
+      this.nuevoSensor.Unidad = this.sensorSeleccionado.unidad;
+      this.nuevoSensor.Pin = this.sensorSeleccionado.pin;
     }
   }
 
   guardarSensor() {
-    // Validación de Pin incluida
-    if (!this.nuevoSensor.Nombre || !this.nuevoSensor.Modelo || this.nuevoSensor.Pin <= 0) {
-       Swal.fire({
-         title: 'Atención',
-         text: 'Completa el nombre, modelo y asigna un Pin válido.',
-         icon: 'warning',
-         background: '#1e293b',
-         color: '#fff'
-       });
+    if (!this.nuevoSensor.Nombre || !this.sensorSeleccionado) {
+       this.notificar('Atención', 'Selecciona el hardware y ponle un nombre.', 'warning');
        return;
     }
     this.cargando = true;
@@ -104,41 +96,17 @@ export class SensorListComponent implements OnInit {
         this.cargarSensores();
         this.cerrarModal();
         this.cargando = false;
-        Swal.fire({
-          title: '¡Éxito!',
-          text: 'Hardware registrado y asegurado.',
-          icon: 'success',
-          background: '#1e293b',
-          color: '#fff',
-          confirmButtonColor: '#10b981'
-        });
+        this.notificar('¡Éxito!', 'Hardware registrado correctamente.', 'success');
       },
       error: (err) => {
         this.cargando = false;
-        const msg = err.error?.mensaje || 'Error de comunicación con el servidor.';
-        Swal.fire('Error', msg, 'error');
+        this.notificar('Error', 'No se pudo guardar el dispositivo.', 'error');
       }
     });
   }
 
   borrarSensor(id: string) {
-    Swal.fire({
-      title: '¿Eliminar dispositivo?',
-      text: "Se revocará el acceso al flujo de datos.",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#ef4444',
-      confirmButtonText: 'Sí, borrar',
-      background: '#1e293b',
-      color: '#fff'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.sensorsService.deleteSensor(id).subscribe(() => {
-          this.cargarSensores();
-          Swal.fire('Eliminado', 'Dispositivo desconectado.', 'success');
-        });
-      }
-    });
+    this.sensorsService.deleteSensor(id).subscribe(() => this.cargarSensores());
   }
 
   getIcon(tipo: string) {
@@ -152,12 +120,18 @@ export class SensorListComponent implements OnInit {
   }
 
   abrirModal() { this.mostrarModal = true; }
+  
   cerrarModal() { 
     this.mostrarModal = false; 
+    this.sensorSeleccionado = null;
     this.nuevoSensor = { Nombre: '', Modelo: '', Tipo: '', Unidad: '', Frecuencia: 10, Pin: 0 }; 
   }
 
   getOnlineCount() {
     return this.sensors.filter(s => s.estado).length;
+  }
+
+  private notificar(title: string, text: string, icon: any) {
+    Swal.fire({ title, text, icon, background: '#1e293b', color: '#fff', confirmButtonColor: '#10b981' });
   }
 }
