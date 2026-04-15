@@ -16,6 +16,7 @@
       <div class="admin-section" *ngIf="auth.getRol() === 'admin'">
         <button class="nav-btn" [class.active]="pantallaActual === 'admin-users'" (click)="navegarA('admin-users')">👤 Users</button>
         <button class="nav-btn" [class.active]="pantallaActual === 'admin-logs'" (click)="navegarA('admin-logs')">🛡️ Logs</button>
+        <button class="nav-btn" [class.active]="pantallaActual === 'admin-logs-iot'" (click)="navegarA('admin-logs-iot')">🛡️ IoT Logs</button>
       </div>
     </nav>
 
@@ -112,7 +113,6 @@
 
   <div class="modal-overlay" *ngIf="mostrarModal" (click)="mostrarModal = false">
     <div class="glass-modal-container" (click)="$event.stopPropagation()">
-      
       <div class="modal-header-glass">
         <div class="title-wrap">
           <i class="fas fa-history icon-green"></i>
@@ -127,23 +127,18 @@
       <div class="modal-body-glass custom-scroll-glass">
         <div class="glass-list">
           <div class="glass-list-item" *ngFor="let registro of datosFiltradosModal; let i = index">
-            
             <div class="glass-item-id">{{ i + 1 }}</div>
-            
             <div class="glass-item-info">
               <span class="glass-date"><i class="far fa-calendar"></i> {{ registro.fechaCompleta | date:'dd/MM/yyyy' }}</span>
               <span class="glass-time"><i class="far fa-clock"></i> {{ registro.hora }}</span>
             </div>
-
             <div class="glass-item-value">
               <span class="val-num">{{ registro[campoActualModal] }}</span>
               <span class="val-unit">{{ unidadModal }}</span>
             </div>
-
             <div class="glass-status">
               <span class="badge-online">API</span>
             </div>
-
           </div>
         </div>
       </div>

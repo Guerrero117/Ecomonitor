@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AdminLogs } from './admin-logs';
+import { LogsIot } from './logs-iot';
 
-describe('AdminLogs', () => {
-  let component: AdminLogs;
-  let fixture: ComponentFixture<AdminLogs>;
+describe('LogsIot', () => {
+  let component: LogsIot;
+  let fixture: ComponentFixture<LogsIot>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AdminLogs],
+      imports: [LogsIot],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AdminLogs);
+    fixture = TestBed.createComponent(LogsIot);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

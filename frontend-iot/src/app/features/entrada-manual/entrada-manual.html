@@ -5,84 +5,144 @@
       <span class="live-indicator"><span class="dot"></span> Gestión Activa</span>
     </div>
     <div class="board-content">
-      <p>Gestión técnica de dispositivos y captura manual de métricas ambientales.</p>
+      <p>Gestión técnica de dispositivos y captura de métricas normalizadas.</p>
     </div>
   </section>
 
   <div class="glass-card group-filter-card">
     <div class="form-group">
-      <label>FILTRAR POR GRUPO / ÁREA</label>
+      <label>UBICACIÓN DE MONITOREO</label>
       <select [(ngModel)]="grupoId" class="custom-select-pro" (change)="onGrupoChange()">
-        <option value="">-- Ver todos los sensores --</option>
+        <option value="">-- Selecciona un grupo --</option>
         <option *ngFor="let g of listaGrupos" [value]="g.id || g._id">{{ g.nombre }}</option>
       </select>
     </div>
+
+    <div class="group-info-inline" *ngIf="grupoSeleccionado" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+      <p style="color: #94a3b8; font-size: 0.85rem;">
+        Área: <span style="color: #10b981; font-weight: bold;">{{ grupoSeleccionado.nombre }}</span> | 
+        Sensores: <span style="color: #fff; font-weight: bold;">{{ sensoresFiltrados.length }}</span>
+      </p>
+    </div>
   </div>
 
-  <div class="glass-card manual-input-card" style="margin-top: 20px;">
-    <h4 class="section-title-neon">Registrar Hardware</h4>
-    <form (ngSubmit)="registrarNuevoSensor()" class="manual-form-horizontal">
-      
-      <div class="form-group">
-        <label>IDENTIFICADOR DEL NODO</label>
-        <input type="text" [(ngModel)]="nuevoSensor.nombre" name="nombreNodo" placeholder="Ej: Sensor Patio Trasero" required>
-      </div>
-
-      <div class="form-group">
-        <label>MODELO DE HARDWARE</label>
-        <select [(ngModel)]="nuevoSensor.tipo" name="modeloHardware" class="custom-select-pro" (change)="actualizarUnidadNuevoSensor()" required>
-          <option value="" disabled selected>Selecciona un modelo...</option>
-          <option value="MQ-135 / FC-22 (Calidad Aire)">MQ-135 / FC-22 (Calidad Aire)</option>
-          <option value="LDR / Fotocelda (Luminosidad)">LDR / Fotocelda (Luminosidad)</option>
-          <option value="DHT-11 (Humedad)">DHT-11 (Humedad)</option>
-          <option value="LM35 (Temperatura)">LM35 (Temperatura)</option>
-        </select>
-      </div>
-
-      <div class="form-group" style="flex: 0.4;">
-        <label>FRECUENCIA (SEG)</label>
-        <input type="number" [(ngModel)]="nuevoSensor.frecuencia" name="frecuencia" placeholder="10">
-      </div>
-
-      <div class="form-group" style="flex: 0.4;">
-        <label>UNIDAD</label>
-        <input type="text" [value]="nuevoSensor.unidad" disabled class="disabled-input">
-      </div>
-
-      <div class="form-group button-group">
-        <button type="submit" class="btn-confirmar-neon" [disabled]="!nuevoSensor.nombre || !nuevoSensor.tipo">
-          CONFIRMAR REGISTRO
-        </button>
-      </div>
-    </form>
-  </div>
-
-  <div class="glass-card manual-input-card" style="margin-top: 25px;">
-    <h4 class="section-title-neon">Capturar Valor Manual</h4>
-    <form (ngSubmit)="guardarDato()" class="manual-form-horizontal">
-      <div class="form-group" style="flex: 1.5;">
-        <label>SELECCIONAR DISPOSITIVO</label>
-        <select [(ngModel)]="lectura.sensorId" name="sensorId" class="custom-select-pro" (change)="onSensorChange()">
-          <option value="" disabled selected>Elegir dispositivo...</option>
-          <option *ngFor="let s of sensoresFiltrados" [value]="s.id || s._id">
-            {{ s.nombre }} — {{ s.tipo }}
-          </option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>VALOR ACTUAL</label>
-        <div class="input-with-unit">
-          <input type="number" [(ngModel)]="lectura.valor" name="valor" placeholder="0.00">
-          <span class="unit-badge">{{ lectura.unidad || '--' }}</span>
+  <ng-container *ngIf="grupoSeleccionado">
+    
+    <div class="glass-card manual-input-card animate-slide-up" style="margin-top: 20px; border-left: 4px solid #ef4444;">
+      <h4 class="section-title-neon">Capturar Temperatura</h4>
+      <div class="manual-form-horizontal">
+        <div class="form-group" style="flex: 1.5;">
+          <label>NODO LM35</label>
+          <select [(ngModel)]="capturaTemp.sensorId" class="custom-select-pro">
+            <option value="" disabled selected>Seleccionar...</option>
+            <option *ngFor="let s of filtrarPorTipo('temp')" [value]="s.id || s._id">{{ s.nombre }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>GRADOS CELSIUS</label>
+          <div class="input-with-unit">
+            <input type="number" [(ngModel)]="capturaTemp.valor" placeholder="Ej: 24.5">
+            <span class="unit-badge">°C</span>
+          </div>
+        </div>
+        <div class="form-group button-group" style="flex: 0.5;">
+          <button (click)="guardarDato('temp')" class="btn-confirmar-neon" [disabled]="!capturaTemp.sensorId || capturaTemp.valor === null">GUARDAR</button>
         </div>
       </div>
+    </div>
 
-      <div class="form-group button-group">
-        <button type="submit" class="btn-confirmar-neon" [disabled]="!lectura.sensorId || lectura.valor === null">
-          GUARDAR REGISTRO
-        </button>
+    <div class="glass-card manual-input-card animate-slide-up" style="margin-top: 20px; border-left: 4px solid #3b82f6;">
+      <h4 class="section-title-neon">Capturar Humedad</h4>
+      <div class="manual-form-horizontal">
+        <div class="form-group" style="flex: 1.5;">
+          <label>NODO DHT-11</label>
+          <select [(ngModel)]="capturaHum.sensorId" class="custom-select-pro">
+            <option value="" disabled selected>Seleccionar...</option>
+            <option *ngFor="let s of filtrarPorTipo('hum')" [value]="s.id || s._id">{{ s.nombre }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>PORCENTAJE RELATIVO</label>
+          <div class="input-with-unit">
+            <input type="number" [(ngModel)]="capturaHum.valor" placeholder="0-100">
+            <span class="unit-badge">%</span>
+          </div>
+        </div>
+        <div class="form-group button-group" style="flex: 0.5;">
+          <button (click)="guardarDato('hum')" class="btn-confirmar-neon" [disabled]="!capturaHum.sensorId || capturaHum.valor === null">GUARDAR</button>
+        </div>
       </div>
-    </form>
-  </div>
+    </div>
+
+    <div class="glass-card manual-input-card animate-slide-up" style="margin-top: 20px; border-left: 4px solid #10b981;">
+      <h4 class="section-title-neon">Capturar Calidad de Aire</h4>
+      <div class="manual-form-horizontal">
+        <div class="form-group" style="flex: 1.5;">
+          <label>NODO MQ-135</label>
+          <select [(ngModel)]="capturaGas.sensorId" class="custom-select-pro">
+            <option value="" disabled selected>Seleccionar...</option>
+            <option *ngFor="let s of filtrarPorTipo('aire')" [value]="s.id || s._id">{{ s.nombre }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>ESTADO DEL AIRE</label>
+          <select [(ngModel)]="capturaGas.valor" class="custom-select-pro">
+            <option value="" disabled selected>Estado...</option>
+            <option value="Buena">Buena</option>
+            <option value="Mala">Mala</option>
+          </select>
+        </div>
+        <div class="form-group button-group" style="flex: 0.5;">
+          <button (click)="guardarDato('aire')" class="btn-confirmar-neon" [disabled]="!capturaGas.sensorId || !capturaGas.valor">GUARDAR</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card manual-input-card animate-slide-up" style="margin-top: 20px; border-left: 4px solid #f59e0b;">
+      <h4 class="section-title-neon">Capturar Luminosidad</h4>
+      <div class="manual-form-horizontal">
+        <div class="form-group" style="flex: 1.5;">
+          <label>NODO LDR</label>
+          <select [(ngModel)]="capturaLux.sensorId" class="custom-select-pro">
+            <option value="" disabled selected>Seleccionar...</option>
+            <option *ngFor="let s of filtrarPorTipo('lux')" [value]="s.id || s._id">{{ s.nombre }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>CANTIDAD DE LUZ</label>
+          <div class="input-with-unit">
+            <input type="number" [(ngModel)]="capturaLux.valor" placeholder="lm">
+            <span class="unit-badge">LM</span>
+          </div>
+        </div>
+        <div class="form-group button-group" style="flex: 0.5;">
+          <button (click)="guardarDato('lux')" class="btn-confirmar-neon" [disabled]="!capturaLux.sensorId || capturaLux.valor === null">GUARDAR</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card manual-input-card animate-slide-up" style="margin-top: 20px; border-left: 4px solid #a855f7;">
+      <h4 class="section-title-neon">Capturar Lluvia</h4>
+      <div class="manual-form-horizontal">
+        <div class="form-group" style="flex: 1.5;">
+          <label>NODO YI-80</label>
+          <select [(ngModel)]="capturaLluvia.sensorId" class="custom-select-pro">
+            <option value="" disabled selected>Seleccionar...</option>
+            <option *ngFor="let s of filtrarPorTipo('lluvia')" [value]="s.id || s._id">{{ s.nombre }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>¿ESTÁ LLOVIENDO?</label>
+          <select [(ngModel)]="capturaLluvia.valor" class="custom-select-pro">
+            <option value="" disabled selected>Detectado...</option>
+            <option value="Si">Sí</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div class="form-group button-group" style="flex: 0.5;">
+          <button (click)="guardarDato('lluvia')" class="btn-confirmar-neon" [disabled]="!capturaLluvia.sensorId || !capturaLluvia.valor">GUARDAR</button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
 </div>

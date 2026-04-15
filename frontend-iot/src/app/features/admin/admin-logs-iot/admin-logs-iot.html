@@ -1,0 +1,47 @@
+<div class="admin-logs-container fade-in">
+  
+  <div class="header-section">
+    <h1 class="header-title">🛡️ Auditoría de Componentes</h1>
+    <p class="header-subtitle">Historial de accesos por usuario • Sistema de Monitoreo IoT</p>
+  </div>
+
+  <div class="table-container custom-scroll">
+    
+    <div *ngIf="isLoading" class="loading-overlay">
+      <p>Consultando base de datos...</p>
+    </div>
+
+    <table class="logs-table" *ngIf="!isLoading">
+      <thead>
+        <tr>
+          <th>FECHA Y HORA</th>
+          <th>NOMBRE COMPONENTE</th>
+          <th>ID COMPONENTE</th>
+          <th>NOMBRE DEL USUARIO</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="logs.length === 0">
+          <td colspan="4" style="text-align: center; color: #64748b;">No se encontraron registros de auditoría.</td>
+        </tr>
+
+        <tr *ngFor="let log of logs" class="animate-row">
+          <td class="col-fecha">
+            <i class="far fa-clock" style="margin-right: 8px; color: #10b981;"></i>
+            {{ log.fechaHora }}
+          </td>
+          
+          <td class="col-componente">
+            <span class="component-badge">{{ log.nombreComponente }}</span>
+          </td>
+          
+          <td class="col-id">{{ log.idComponente }}</td>
+          
+          <td class="col-usuario">
+            <span class="italic-text">Ingreso de {{ log.nombreUsuario }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

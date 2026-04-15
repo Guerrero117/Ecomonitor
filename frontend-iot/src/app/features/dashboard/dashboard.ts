@@ -14,7 +14,19 @@ import { WeatherService } from '../../core/services/weather.service';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   
-  pantallaActual: 'dashboard' | 'grupos' | 'alertas' | 'config' | 'sensores' | 'entrada-manual' | 'clima' | 'admin-users' | 'admin-logs' = 'dashboard';
+  // Se agregó 'admin-logs-iot' al tipo de unión para evitar el error TS2367
+  pantallaActual: 
+    | 'dashboard' 
+    | 'grupos' 
+    | 'alertas' 
+    | 'config' 
+    | 'sensores' 
+    | 'entrada-manual' 
+    | 'clima' 
+    | 'admin-users' 
+    | 'admin-logs' 
+    | 'admin-logs-iot' = 'dashboard';
+    
   timestamp: Date = new Date();
   
   datosObregon: any = {
@@ -116,7 +128,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   navegarA(pantalla: any) {
     this.pantallaActual = pantalla; 
-    const rutas: any = { 'dashboard': '/dashboard', 'sensores': '/dashboard/devices', 'entrada-manual': '/dashboard/entrada-manual', 'clima': '/dashboard/clima-comparativo', 'grupos': '/dashboard/grupos', 'admin-users': '/dashboard/admin-users', 'admin-logs': '/dashboard/admin-logs' };
+    const rutas: any = { 
+      'dashboard': '/dashboard', 
+      'sensores': '/dashboard/devices', 
+      'entrada-manual': '/dashboard/entrada-manual', 
+      'clima': '/dashboard/clima-comparativo', 
+      'grupos': '/dashboard/grupos', 
+      'admin-users': '/dashboard/admin-users', 
+      'admin-logs': '/dashboard/admin-logs',
+      'admin-logs-iot': '/dashboard/admin-logs-iot' // Se agregó la ruta para el nuevo botón
+    };
     if (rutas[pantalla]) this.router.navigate([rutas[pantalla]]);
   }
 

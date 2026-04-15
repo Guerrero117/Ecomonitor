@@ -20,10 +20,16 @@
 .logo { font-size: 1.1rem; font-weight: 800; color: #10b981; }
 .device-tag { font-size: 0.7rem; color: #94a3b8; font-family: 'JetBrains Mono'; display: flex; align-items: center; gap: 8px; }
 .status-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; }
+
 .horizontal-menu { display: flex; gap: 8px; background: rgba(255, 255, 255, 0.03); padding: 5px; border-radius: 40px; }
-.nav-btn { background: transparent; border: none; color: #94a3b8; padding: 8px 18px; border-radius: 30px; cursor: pointer; transition: 0.3s; font-size: 0.8rem; font-weight: 600; }
+.admin-section { display: flex; gap: 8px; } /* Mantiene los botones admin alineados */
+
+.nav-btn { background: transparent; border: none; color: #94a3b8; padding: 8px 18px; border-radius: 30px; cursor: pointer; transition: 0.3s; font-size: 0.8rem; font-weight: 600; outline: none; }
+.nav-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
 .nav-btn.active { background: rgba(16, 185, 129, 0.12); color: #10b981; }
+
 .logout-icon { background: rgba(239, 68, 68, 0.1); border: none; color: #ef4444; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; transition: 0.3s; }
+.logout-icon:hover { background: rgba(239, 68, 68, 0.2); transform: scale(1.05); }
 
 /* CONTENIDO */
 .main-content { flex-grow: 1; padding: 10px 35px; overflow-y: auto; }
@@ -43,16 +49,14 @@
 .image-container img { width: 100%; height: 100%; object-fit: cover; }
 .section-title h3 { font-size: 1.1rem; color: #f8fafc; border-left: 4px solid #10b981; padding-left: 15px; margin: 10px 0; }
 
-/* ========================================= */
-/* --- MODAL GLASSMORPHISM (TRANSPARENTE) --- */
-/* ========================================= */
+/* MODAL GLASSMORPHISM */
 .modal-overlay {
   position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 5000;
 }
 
 .glass-modal-container {
-  background: rgba(15, 23, 42, 0.7); /* Transparente igual que tus cards */
+  background: rgba(15, 23, 42, 0.7);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 30px; width: 92%; max-width: 500px;

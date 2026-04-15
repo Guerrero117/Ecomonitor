@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.Extensions.Options;
+// IMPORTANTE: Asegúrate de tener instalada la librería de Rate Limiting (nativa en .NET 7/8+)
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +36,25 @@ builder.Services.AddAuthentication(x =>
         ValidateIssuer = false, 
         ValidateAudience = false,
         ClockSkew = TimeSpan.Zero 
+    };
+});
+
+// --- NUEVO: CONFIGURACIÓN DE RATE LIMITING (OWASP A04:2021) ---
+builder.Services.AddRateLimiter(options =>
+{
+    // Definimos la política para el Login
+    options.AddFixedWindowLimiter(policyName: "LoginPolicy", fixedOptions =>
+    {
+        fixedOptions.PermitLimit = 15;            // Máximo 15 peticiones
+        fixedOptions.Window = TimeSpan.FromSeconds(30); // En un lapso de 30 segundos
+        fixedOptions.QueueLimit = 0;             // Rechazo inmediato si se pasa del límite
+    });
+
+    // Respuesta personalizada cuando el usuario es bloqueado (Error 429)
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        await context.HttpContext.Response.WriteAsync("Demasiadas peticiones. Bloqueo temporal por seguridad (30s).", token);
     };
 });
 
@@ -68,13 +89,12 @@ builder.Services.AddScoped<IMongoDatabase>(sp => {
 builder.Services.AddSingleton<MongoService>(); 
 builder.Services.AddScoped<IAuthService, AuthService>(); 
 
-// --- 3. CORS DINÁMICO (OWASP A01:2021) ---
+// --- 3. CORS DINÁMICO ---
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAll", policy => {
         policy.SetIsOriginAllowed(origin => 
         {
             var host = new Uri(origin).Host;
-            // Acepta localhost o cualquier IP de red local automáticamente
             return host == "localhost" || host.StartsWith("192.168.");
         })
         .AllowAnyHeader()
@@ -90,8 +110,14 @@ if (app.Environment.IsDevelopment()) {
     app.UseSwaggerUI();
 }
 
+// --- ORDEN DE MIDDLEWARES ---
 app.UseCors("AllowAll");
+
+// Activar el Rate Limiter antes de la autenticación para ahorrar recursos
+app.UseRateLimiter(); 
+
 app.UseAuthentication(); 
 app.UseAuthorization();
 app.MapControllers();
+
 app.Run();

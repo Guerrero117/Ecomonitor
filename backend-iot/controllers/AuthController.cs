@@ -5,6 +5,8 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
+// IMPORTANTE: Necesario para el atributo de Rate Limiting
+using Microsoft.AspNetCore.RateLimiting; 
 
 namespace backend_iot.Controllers
 {
@@ -24,6 +26,8 @@ namespace backend_iot.Controllers
         }
 
         [HttpPost("login")]
+        // Aplicamos la política de 15 intentos / 30 segundos definida en Program.cs
+        [EnableRateLimiting("LoginPolicy")] 
         public async Task<IActionResult> Login([FromBody] LoginDto request)
         {
             var user = _authService.Login(request.Email, request.Password);
