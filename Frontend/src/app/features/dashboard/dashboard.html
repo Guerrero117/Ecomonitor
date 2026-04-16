@@ -11,7 +11,6 @@
       <button class="nav-btn" [class.active]="pantallaActual === 'entrada-manual'" (click)="navegarA('entrada-manual')">📥 Manual</button>
       <button class="nav-btn" [class.active]="pantallaActual === 'clima'" (click)="navegarA('clima')">🌍 Clima</button>
       <button class="nav-btn" [class.active]="pantallaActual === 'grupos'" (click)="navegarA('grupos')">📂 Grupos</button>
-      <button class="nav-btn" [class.active]="pantallaActual === 'sensores'" (click)="navegarA('sensores')">🔌 Nodos</button>
       
       <div class="admin-section" *ngIf="auth.getRol() === 'admin'">
         <button class="nav-btn" [class.active]="pantallaActual === 'admin-users'" (click)="navegarA('admin-users')">👤 Users</button>

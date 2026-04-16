@@ -1,17 +1,20 @@
-<div class="grupos-wrapper fade-in">
+<div class="grupos-wrapper">
   <div class="summary-row">
     <div class="summary-item glass-card">
       <div class="card-icon-circle"><i class="fas fa-layer-group"></i></div>
       <div class="card-info">
-        <p class="small-label">Total Áreas</p>
+        <p style="margin:0; font-size: 0.8rem; color: #94a3b8;">Total Áreas</p>
         <h3 class="neon-value">{{ misGrupos.length }}</h3>
       </div>
     </div>
     <div class="summary-item glass-card">
-      <div class="card-icon-circle sync"><i class="fas fa-check-circle"></i></div>
+      <div class="card-icon-circle sync"><i class="fas fa-broadcast-tower"></i></div>
       <div class="card-info">
-        <p class="small-label">Estado Sistema</p>
-        <p class="sync-text">OPERATIVO</p>
+        <p style="margin:0; font-size: 0.8rem; color: #94a3b8;">Estado Sistema</p>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="pulse-live"></div>
+          <p class="sync-text" style="margin:0;">ONLINE</p>
+        </div>
       </div>
     </div>
   </div>
@@ -19,7 +22,7 @@
   <div class="filters-container glass-card">
     <div class="search-input-group">
       <i class="fas fa-search search-icon"></i>
-      <input type="text" placeholder="Buscar área..." [(ngModel)]="filters.name" class="glass-input">
+      <input type="text" placeholder="Filtrar por nombre de área..." [(ngModel)]="filters.name" class="glass-input">
     </div>
     <div class="select-group">
       <i class="fas fa-filter icon-filter"></i>
@@ -31,14 +34,12 @@
     </div>
   </div>
 
-  <header class="header-seccion">
-    <div class="header-info">
-      <h1 class="neon-title">📂 Gestión de Áreas</h1>
-      <button class="btn-nuevo-grupo" (click)="abrirModal()">
-        <i class="fas fa-plus-square"></i> Nueva Área
-      </button>
-    </div>
-  </header>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h1 class="neon-title" style="margin:0;">📂 Gestión de Áreas</h1>
+    <button class="btn-nuevo-grupo" (click)="abrirModal()">
+      <i class="fas fa-plus-circle"></i> Nueva Área
+    </button>
+  </div>
 
   <div class="table-container glass-card">
     <table class="grupos-table">
@@ -48,23 +49,31 @@
           <th>Nombre del Área</th>
           <th>Nodos Vinculados</th>
           <th>Estado</th>
-          <th class="center">Ver Datos</th>
+          <th style="text-align: center;">Monitor</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let grupo of misGruposFiltrados" (click)="verDetalle(grupo)" class="clickable-row">
-          <td class="id-cell">#{{ (grupo.id || grupo._id).slice(-6) }}</td>
-          <td><span class="area-name">{{ grupo.nombre }}</span></td>
+        <tr *ngFor="let grupo of misGruposFiltrados" class="clickable-row">
+          <td style="color: #64748b; font-family: 'JetBrains Mono'; font-size: 0.8rem;">
+            #{{ (grupo.id || grupo._id).slice(-6) }}
+          </td>
+          <td style="font-weight: 700;">{{ grupo.nombre }}</td>
           <td>
-            <div class="sensor-tags-container">
+            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
               <span class="sensor-tag" *ngFor="let sId of grupo.sensoresIds">
-                <i class="fas fa-microchip"></i> {{ sId }}
+                <i class="fas fa-microchip" style="font-size: 0.7rem;"></i> {{ sId }}
               </span>
             </div>
           </td>
-          <td><span class="badge-status" [class.active]="grupo.estado === 'Activo'">{{ grupo.estado }}</span></td>
-          <td class="center">
-            <button class="action-btn-edit"><i class="fas fa-chart-line"></i></button>
+          <td>
+            <span class="badge-status" [class.active]="grupo.estado === 'Activo'">
+              {{ grupo.estado }}
+            </span>
+          </td>
+          <td style="text-align: center;">
+            <button class="btn-nuevo-grupo" style="padding: 8px 12px;" (click)="verDetalle(grupo)">
+              <i class="fas fa-eye"></i>
+            </button>
           </td>
         </tr>
       </tbody>
@@ -73,23 +82,23 @@
 
   <div class="modal-overlay" *ngIf="mostrarModal">
     <div class="glass-modal">
-      <h2 class="neon-title">Registrar Nueva Área</h2>
+      <h2 class="neon-title" style="font-size: 1.5rem; margin-bottom: 20px;">Registrar Área</h2>
       <div class="modal-body">
-        <input type="text" [(ngModel)]="nuevoGrupoNombre" placeholder="Nombre (ej. Invernadero)" class="glass-input mb-3">
-        <p class="small-label">Dispositivos detectados en red:</p>
-        <div class="device-selector glass-card p-3">
-          <div *ngFor="let dispositivo of dispositivosDisponibles" class="device-option">
-            <label class="checkbox-container">
-              <input type="checkbox" [(ngModel)]="dispositivo.seleccionado">
-              <span class="checkmark"></span>
-              <span class="device-id">{{ dispositivo.id }}</span>
-            </label>
+        <label style="display:block; margin-bottom: 8px; color: #94a3b8; font-size: 0.8rem;">Nombre del Invernadero/Área</label>
+        <input type="text" [(ngModel)]="nuevoGrupoNombre" placeholder="Ej. Zona Norte - Tomates" class="glass-input" style="padding-left: 20px; margin-bottom: 20px;">
+        
+        <p style="margin-bottom: 10px; font-weight: 600; color: #10b981;">Dispositivos en red:</p>
+        <div style="max-height: 200px; overflow-y: auto; padding-right: 5px;">
+          <div *ngFor="let dispositivo of dispositivosDisponibles" 
+               style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; margin-bottom: 8px; border: 1px solid rgba(16, 185, 129, 0.2);">
+            <span style="font-family: 'JetBrains Mono';">{{ dispositivo.id }}</span>
+            <input type="checkbox" [(ngModel)]="dispositivo.seleccionado" style="width: 20px; height: 20px; accent-color: #10b981;">
           </div>
-          <p *ngIf="dispositivosDisponibles.length === 0" class="no-sensors">Buscando dispositivos...</p>
         </div>
-        <div class="modal-actions mt-4">
-          <button class="btn-cancelar" (click)="cerrarModal()">Cerrar</button>
-          <button class="btn-nuevo-grupo" (click)="guardarGrupo()">Vincular Área</button>
+
+        <div style="display: flex; gap: 12px; margin-top: 30px;">
+          <button class="btn-cancelar" style="flex:1" (click)="cerrarModal()">Cancelar</button>
+          <button class="btn-nuevo-grupo" style="flex:2" (click)="guardarGrupo()">Vincular Área</button>
         </div>
       </div>
     </div>
@@ -97,24 +106,40 @@
 
   <div class="modal-overlay" *ngIf="mostrarDetalle">
     <div class="glass-modal detail-modal">
-      <h2 class="neon-title">{{ grupoSeleccionado?.nombre }}</h2>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 class="neon-title" style="margin:0;">{{ grupoSeleccionado?.nombre }}</h2>
+        <div class="badge-status active" style="display: flex; align-items: center; gap: 8px;">
+          <div class="pulse-live"></div> REAL-TIME
+        </div>
+      </div>
+
       <div class="sensor-data-grid">
         <div *ngFor="let sensor of lecturasVivas" class="sensor-card glass-card">
           <div class="sensor-header">
-            <i class="fas fa-microchip neon-icon"></i>
-            <span>{{ sensor.dispositivoId }}</span>
+            <span><i class="fas fa-hdd"></i> NODE: {{ sensor.dispositivoId }}</span>
+            <span style="color: #94a3b8;">{{ sensor.fecha | date:'HH:mm:ss' }}</span>
           </div>
           <div class="data-values">
             <div class="val"><i class="fas fa-thermometer-half"></i> {{ sensor.temperatura }}°C</div>
             <div class="val"><i class="fas fa-tint"></i> {{ sensor.humedad }}%</div>
-            <div class="val"><i class="fas fa-cloud-showers-heavy"></i> {{ sensor.hayLluvia ? 'SI' : 'NO' }}</div>
-            <div class="val"><i class="fas fa-radiation"></i> {{ sensor.voltajeGas }} PPM</div>
-            <div class="val"><i class="fas fa-sun"></i> {{ sensor.voltajeLuz }} Lux</div>
+            <div class="val"><i class="fas fa-cloud-sun"></i> {{ sensor.voltajeLuz }} Lux</div>
+            <div class="val"><i class="fas fa-smog"></i> {{ sensor.voltajeGas }} PPM</div>
+            <div class="val" style="grid-column: span 2; text-align: center;">
+              <i class="fas fa-cloud-showers-heavy"></i> LLUVIA: 
+              <span [style.color]="sensor.hayLluvia ? '#10b981' : '#f87171'">{{ sensor.hayLluvia ? 'DETECTADA' : 'NO' }}</span>
+            </div>
           </div>
-          <div class="sensor-footer">Actualizado: {{ sensor.fecha | date:'HH:mm:ss' }}</div>
+        </div>
+        
+        <div *ngIf="lecturasVivas.length === 0" style="grid-column: span 2; text-align: center; padding: 40px;">
+          <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #10b981; margin-bottom: 15px;"></i>
+          <p>Sincronizando con los nodos de la zona...</p>
         </div>
       </div>
-      <button class="btn-cancelar mt-4 w-100" (click)="cerrarModal()">Cerrar Monitor</button>
+
+      <button class="btn-cancelar" style="width: 100%; margin-top: 30px; font-weight: 800;" (click)="cerrarModal()">
+        CERRAR MONITOR
+      </button>
     </div>
   </div>
 </div>

@@ -1,12 +1,7 @@
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-
-public class LogEntry {
-  [BsonId]
-  public ObjectId Id { get; set; }
-
-   public string Level { get; set; }
-   public string Message { get; set; }
-   public string Source { get; set; }
-   public DateTime Timestamp { get; set; }
+export interface Log {
+  id?: string;        // En Angular usamos string para el ID de Mongo
+  level: string;
+  message: string;
+  source: string;
+  timestamp: Date;    // En lugar de DateTime usamos Date
 }
