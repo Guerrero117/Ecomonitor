@@ -1,0 +1,265 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono&display=swap');
+
+.grupos-wrapper {
+  padding: 30px;
+  min-height: 100vh;
+  animation: fadeIn 0.5s ease;
+  color: #f8fafc;
+}
+
+/* --- TUS GLASS CARDS REFINADOS --- */
+.glass-card {
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.summary-row { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+  gap: 25px; 
+  margin-bottom: 40px; 
+}
+
+.summary-item { 
+  padding: 25px; 
+  display: flex; 
+  align-items: center; 
+  gap: 20px; 
+  position: relative; 
+  overflow: hidden; 
+}
+
+.summary-item::after { 
+  content: ''; 
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  width: 4px; 
+  height: 100%; 
+  background: #10b981; 
+  opacity: 0.5; 
+}
+
+/* --- ICONOS Y VALORES --- */
+.card-icon-circle { 
+  width: 55px; 
+  height: 55px; 
+  background: rgba(16, 185, 129, 0.1); 
+  border: 1px solid rgba(16, 185, 129, 0.2); 
+  border-radius: 16px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  font-size: 1.5rem; 
+  color: #10b981; 
+}
+
+.card-icon-circle.sync { 
+  background: rgba(59, 130, 246, 0.1); 
+  border-color: rgba(59, 130, 246, 0.2); 
+  color: #3b82f6; 
+}
+
+.neon-value { 
+  color: #fff; 
+  font-size: 2rem; 
+  font-weight: 800; 
+  font-family: 'JetBrains Mono', monospace; 
+  margin: 0; 
+}
+
+.sync-text { 
+  color: #3b82f6; 
+  font-size: 1.1rem; 
+  font-weight: 700; 
+  text-shadow: 0 0 12px rgba(59, 130, 246, 0.4); 
+}
+
+/* --- BARRA DE FILTROS --- */
+.filters-container {
+  display: flex; 
+  align-items: center; 
+  gap: 20px; 
+  padding: 15px 25px; 
+  margin-bottom: 30px;
+}
+
+.search-input-group { 
+  position: relative; 
+  flex: 1; 
+  display: flex; 
+  align-items: center; 
+}
+
+.search-icon { 
+  position: absolute; 
+  left: 18px; 
+  color: #10b981; 
+  z-index: 2; 
+}
+
+.glass-input {
+  width: 100%; 
+  background: rgba(10, 15, 25, 0.6) !important; 
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px; 
+  padding: 14px 20px 14px 50px; 
+  color: white; 
+  outline: none; 
+  transition: 0.3s ease;
+}
+
+.glass-input:focus { 
+  border-color: #10b981; 
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); 
+  transform: scale(1.01); 
+}
+
+.select-group { 
+  display: flex; 
+  align-items: center; 
+  background: rgba(10, 15, 25, 0.6); 
+  border: 1px solid rgba(255, 255, 255, 0.1); 
+  border-radius: 14px; 
+  padding: 0 15px; 
+  min-width: 220px; 
+  transition: 0.3s;
+}
+
+.select-group:hover { 
+  transform: scale(1.03); 
+  border-color: #3b82f6; 
+}
+
+.icon-filter { 
+  color: #3b82f6; 
+  margin-right: 10px; 
+}
+
+/* ESTILO REFINADO PARA EL SELECT (ESTILO REFERENCIA) */
+.custom-select { 
+  background: transparent; 
+  border: none; 
+  color: #fff; 
+  padding: 14px 5px; 
+  width: 100%; 
+  outline: none; 
+  cursor: pointer; 
+  font-weight: 600; 
+  appearance: none;
+}
+
+.custom-select option { 
+  background: #1a2233; /* Fondo oscuro para las opciones */
+  color: #fff; 
+  padding: 10px;
+}
+
+.custom-select optgroup {
+  background: #333c4d; /* Banda grisácea para encabezados de grupo */
+  color: #fff; 
+  font-weight: 800;
+  font-style: normal;
+}
+
+/* --- TABLA Y BOTONES --- */
+.neon-title { 
+  color: #10b981; 
+  font-size: 2rem; 
+  font-weight: 800; 
+  text-shadow: 0 0 20px rgba(16, 185, 129, 0.2); 
+}
+
+.btn-nuevo-grupo { 
+  background: linear-gradient(135deg, #10b981, #059669); 
+  color: #000; 
+  border: none; 
+  padding: 14px 28px; 
+  border-radius: 14px; 
+  font-weight: 800; 
+  cursor: pointer; 
+  transition: 0.3s;
+}
+
+.grupos-table { 
+  width: 100%; 
+  border-collapse: separate; 
+  border-spacing: 0; 
+}
+
+th { 
+  background: rgba(15, 23, 42, 0.8); 
+  padding: 18px; 
+  text-align: left; 
+  color: #10b981; 
+  font-size: 0.75rem; 
+  border-bottom: 1px solid rgba(16, 185, 129, 0.2); 
+}
+
+td { 
+  padding: 20px 18px; 
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03); 
+  background: rgba(15, 23, 42, 0.2); 
+}
+
+.sensor-tag { 
+  background: rgba(16, 185, 129, 0.1); 
+  color: #10b981; 
+  padding: 6px 12px; 
+  border-radius: 8px; 
+  font-size: 0.85rem; 
+  border: 1px solid rgba(16, 185, 129, 0.2); 
+}
+
+.badge-status { 
+  padding: 6px 14px; 
+  border-radius: 30px; 
+  font-size: 0.7rem; 
+  font-weight: 800; 
+  color: #f87171; 
+  border: 1px solid rgba(239, 68, 68, 0.2); 
+}
+
+.badge-status.active { 
+  color: #10b981; 
+  border-color: rgba(16, 185, 129, 0.2); 
+}
+
+/* --- MODAL --- */
+.modal-overlay { 
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%; 
+  background: rgba(0, 0, 0, 0.8); 
+  backdrop-filter: blur(10px); 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  z-index: 1000; 
+}
+
+.glass-modal { 
+  background: rgba(10, 15, 25, 0.98); 
+  border: 1px solid rgba(16, 185, 129, 0.4); 
+  border-radius: 28px; 
+  width: 500px; 
+  padding: 35px; 
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
+  animation: modalIn 0.4s; 
+}
+
+@keyframes fadeIn { 
+  from { opacity: 0; transform: translateY(10px); } 
+  to { opacity: 1; transform: translateY(0); } 
+}
+
+@keyframes modalIn { 
+  from { opacity: 0; transform: scale(0.9); } 
+  to { opacity: 1; transform: scale(1); } 
+}

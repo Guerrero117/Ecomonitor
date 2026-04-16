@@ -1,0 +1,36 @@
+<div class="register-container">
+
+  <div class="register-card">
+
+    <div class="header">
+      <h1>🌱EcoMonitor</h1>
+      <p>Crear una cuenta</p>
+    </div>
+
+     <form [formGroup]="registerForm" (ngSubmit)="register()">
+
+      <label>Nombre</label>
+      <input type="text" formControlName="nombre" placeholder="Tu nombre">
+
+      <label>Correo electrónico</label>
+      <input type="email" formControlName="email" placeholder="usuario@correo.com">
+
+      <label>Contraseña</label>
+      <input type="password" formControlName="password" placeholder="********">
+
+      <label>Confirmar contraseña</label>
+      <input type="password" formControlName="confirmPassword" placeholder="********">
+
+      <button class="btn-enter" type="submit">
+        Registrarse
+      </button>
+
+      <button class="btn-login" type="button" (click)="goLogin()">
+        regresar al login
+      </button>
+
+    </form>
+
+  </div>
+
+</div>

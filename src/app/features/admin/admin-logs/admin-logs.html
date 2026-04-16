@@ -1,0 +1,29 @@
+<div class="admin-panel fade-in">
+  <div class="panel-header">
+    <h2 class="neon-title">🛡️ Auditoría de Seguridad</h2>
+    <p class="subtitle">Monitoreo de eventos - Estándar OWASP A09:2021</p>
+  </div>
+  
+  <div class="table-container glass">
+    <table class="logs-table">
+      <thead>
+        <tr>
+          <th>Fecha y Hora</th>
+          <th>Acción</th>
+          <th>ID de Usuario</th>
+          <th>Descripción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let log of logs">
+          <td class="date-cell">{{log.fecha}}</td>
+          <td>
+            <span class="action-badge" [ngClass]="log.accion">{{log.accion}}</span>
+          </td>
+          <td class="id-cell">{{log.usuarioId}}</td>
+          <td class="detail-cell">{{log.detalle}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
