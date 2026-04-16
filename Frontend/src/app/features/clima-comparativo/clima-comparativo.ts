@@ -28,7 +28,6 @@ export class ClimaComparativoComponent implements OnInit {
   cargando: boolean = true;
   filtroBusqueda: string = ''; 
 
-  // Cambiado a line para ver la evolución en el tiempo
   public barChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
@@ -41,7 +40,7 @@ export class ClimaComparativoComponent implements OnInit {
     }
   };
 
-  public barChartType: ChartType = 'line'; // Cambio de 'bar' a 'line'
+  public barChartType: ChartType = 'line';
   public barChartData: ChartData<'line'> = {
     labels: [],
     datasets: [
@@ -86,9 +85,6 @@ export class ClimaComparativoComponent implements OnInit {
       next: (data) => {
         this.tempExterior = data.main.temp;
         this.humedadExterior = data.main.humidity;
-        // Estos valores de la API sirven como base inicial
-        this.tempMax = data.main.temp_max;
-        this.tempMin = data.main.temp_min;
         this.actualizarGrafica();
       }
     });
@@ -114,41 +110,59 @@ export class ClimaComparativoComponent implements OnInit {
   onGrupoChange() {
     if (!this.grupoSeleccionadoId) return;
     
-    this.lecturasService.getLecturasPorGrupo(this.grupoSeleccionadoId).subscribe((lecturas: any[]) => {
-      if (lecturas && lecturas.length > 0) {
-        // Filtrar y ordenar por fecha para la gráfica de evolución
-        const lecturasTermicas = lecturas
-          .filter(l => 
-            (l.tipoDato && l.tipoDato.toLowerCase().includes('temp')) || 
-            (l.unidad && l.unidad.includes('°C'))
-          )
-          .sort((a, b) => new Date(a.fechaHora).getTime() - new Date(b.fechaHora).getTime());
+    // aqui usamos el servicio de grupos que si jalo en el otro componente
+    this.gruposService.getLecturasGrupo(this.grupoSeleccionadoId).subscribe({
+      next: (lecturas: any[]) => {
+        if (lecturas && lecturas.length > 0) {
+          
+          // filtramos para sacar nomas la pura temperatura
+          const lecturasNormalizadas = lecturas.map(l => ({
+            valorTemp: l.temperatura !== undefined ? l.temperatura : l.Temperatura,
+            fechaRelativa: l.fecha || l.Fecha || new Date()
+          })).filter(l => l.valorTemp !== undefined && l.valorTemp !== null);
 
-        if (lecturasTermicas.length > 0) {
-          // Promedio actual (últimas mediciones)
-          const suma = lecturasTermicas.reduce((acc, curr) => acc + curr.valor, 0);
-          this.tempInterior = suma / lecturasTermicas.length;
+          if (lecturasNormalizadas.length > 0) {
+            // acomodamos por fecha
+            lecturasNormalizadas.sort((a, b) => new Date(a.fechaRelativa).getTime() - new Date(b.fechaRelativa).getTime());
 
-          // CÁLCULO DE MÁX/MÍN DEL DÍA (Basado en historial guardado)
-          const valores = lecturasTermicas.map(l => l.valor);
-          this.tempMax = Math.max(...valores);
-          this.tempMin = Math.min(...valores);
+            // promedio de los nodos
+            const suma = lecturasNormalizadas.reduce((acc, curr) => acc + curr.valorTemp, 0);
+            this.tempInterior = suma / lecturasNormalizadas.length;
 
-          // ACTUALIZAR GRÁFICA EVOLUTIVA
-          this.barChartData.labels = lecturasTermicas.map(l => {
-            const d = new Date(l.fechaHora);
-            return `${d.getHours()}:${d.getMinutes().toString().padStart(2, '0')}`;
-          });
-          this.barChartData.datasets[1].data = lecturasTermicas.map(l => l.valor);
-          this.barChartData.datasets[0].data = lecturasTermicas.map(() => this.tempExterior);
+            // maximas y minimas
+            const valores = lecturasNormalizadas.map(l => l.valorTemp);
+            this.tempMax = Math.max(...valores);
+            this.tempMin = Math.min(...valores);
+
+            // llenamos la grafica
+            this.barChartData.labels = lecturasNormalizadas.map(l => {
+              const d = new Date(l.fechaRelativa);
+              return `${d.getHours()}:${d.getMinutes().toString().padStart(2, '0')}`;
+            });
+
+            this.barChartData.datasets[1].data = valores;
+            this.barChartData.datasets[0].data = lecturasNormalizadas.map(() => this.tempExterior);
+          } else {
+            this.limpiarVista();
+          }
         } else {
-          this.tempInterior = 0;
+          this.limpiarVista();
         }
-      } else {
-        this.tempInterior = 0;
+        this.actualizarGrafica();
+      },
+      error: () => {
+        this.limpiarVista();
+        this.actualizarGrafica();
       }
-      this.actualizarGrafica();
     });
+  }
+
+  limpiarVista() {
+    this.tempInterior = 0;
+    this.tempMax = 0;
+    this.tempMin = 0;
+    this.barChartData.labels = [];
+    this.barChartData.datasets[1].data = [];
   }
 
   actualizarGrafica() {
