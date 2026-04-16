@@ -1,0 +1,63 @@
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+  padding: 20px;
+}
+
+.alerts-log-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.alert-item {
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 5px solid #444;
+  padding: 15px 20px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: transform 0.2s;
+}
+
+.alert-item:hover {
+  transform: translateX(10px);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Colores por nivel de alerta EcoMonitor */
+.alert-item[data-level="Crítico"] { border-left-color: #ef4444; }
+.alert-item[data-level="Medio"] { border-left-color: #f59e0b; }
+.alert-item[data-level="Bajo"] { border-left-color: #10b981; }
+
+.alert-time {
+  font-size: 0.85rem;
+  color: #888;
+  min-width: 140px;
+}
+
+.alert-info strong {
+  display: block;
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+.alert-info span {
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

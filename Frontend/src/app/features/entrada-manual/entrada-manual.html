@@ -1,0 +1,93 @@
+<div class="main-content fade-in">
+  <section class="science-board-top">
+    <div class="board-header">
+      <span class="board-tag">SISTEMA ECO-MONITOR</span>
+      <span class="live-indicator"><span class="dot"></span> Validación de Rangos Activa</span>
+    </div>
+    <div class="board-content">
+      <p>Selecciona un grupo para filtrar sensores o elige uno individualmente para realizar el registro manual.</p>
+    </div>
+  </section>
+
+  <div class="glass-card group-filter-card" style="margin-bottom: 20px;">
+    <div class="form-group">
+      <label><i class="fas fa-layer-group"></i> Filtrar por Grupo / Área</label>
+      <select [(ngModel)]="grupoId" (change)="onGrupoChange()">
+        <option value="">-- Ver todos los sensores --</option>
+        <option *ngFor="let g of listaGrupos" [value]="g.id || g._id">{{ g.nombre }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="glass-card manual-input-card">
+    <form (ngSubmit)="guardarDato()" class="manual-form-horizontal">
+      
+      <div class="form-group">
+        <label><i class="fas fa-microchip"></i> Seleccionar Sensor</label>
+        <div class="select-wrapper">
+          <select [(ngModel)]="lectura.sensorId" name="sensorId" (change)="onSensorChange()" required>
+            <option value="" disabled selected>Elegir dispositivo...</option>
+            <option *ngFor="let s of (grupoId ? sensoresFiltrados : listaSensores)" [value]="s.id || s._id">
+              {{ s.nombre }} ({{s.tipo}})
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group fade-in" *ngIf="esMultivariable">
+        <label><i class="fas fa-flask"></i> Magnitud a Medir</label>
+        <div class="select-wrapper">
+          <select (change)="onMagnitudChange($event)" name="tipoDato" required>
+            <option value="" disabled selected>Elegir parámetro...</option>
+            <option *ngFor="let opt of opcionesMultivariable" [value]="opt.clave">
+              {{ opt.nombre }} ({{ opt.unidad }})
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <i class="fas fa-chart-line"></i> Valor Manual
+          <small *ngIf="lectura.sensorId" style="color: #10b981; margin-left: 5px;">
+            (Límite: {{rangoActual.min}} a {{rangoActual.max}})
+          </small>
+        </label>
+        <div class="input-with-unit">
+          <input type="number" 
+                 [(ngModel)]="lectura.valor" 
+                 name="valor" 
+                 placeholder="0.00" 
+                 step="0.1" 
+                 [min]="rangoActual.min" 
+                 [max]="rangoActual.max"
+                 required>
+          <span class="unit-badge">{{ lectura.unidad || '--' }}</span>
+        </div>
+      </div>
+
+      <div class="form-group button-group">
+        <button type="submit" class="btn-submit-pro" 
+                [disabled]="!lectura.sensorId || lectura.valor === null">
+          <i class="fas fa-save"></i> Guardar Registro
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="history-section" *ngIf="lectura.sensorId">
+    <h4 class="section-title">Últimos registros del sensor</h4>
+    <div class="history-grid">
+      <div class="history-mini-card fade-in" *ngFor="let item of ultimasLecturas">
+        <div class="mini-card-val">{{ item.valor }} <small>{{ item.unidad }}</small></div>
+        <div class="mini-card-date">{{ item.fechaHora | date:'dd MMM, HH:mm' }}</div>
+        <div class="mini-card-tag" [class.tag-manual]="item.esManual">
+          {{ item.esManual ? 'Manual' : 'Sensor' }}
+        </div>
+      </div>
+      <div *ngIf="ultimasLecturas.length === 0" style="color: #555; font-size: 0.8rem;">
+        No hay registros recientes para este dispositivo.
+      </div>
+    </div>
+  </div>
+</div>

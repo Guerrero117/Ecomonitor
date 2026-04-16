@@ -1,0 +1,120 @@
+<div class="grupos-wrapper fade-in">
+  <div class="summary-row">
+    <div class="summary-item glass-card">
+      <div class="card-icon-circle"><i class="fas fa-layer-group"></i></div>
+      <div class="card-info">
+        <p class="small-label">Total Áreas</p>
+        <h3 class="neon-value">{{ misGrupos.length }}</h3>
+      </div>
+    </div>
+    <div class="summary-item glass-card">
+      <div class="card-icon-circle sync"><i class="fas fa-check-circle"></i></div>
+      <div class="card-info">
+        <p class="small-label">Estado Sistema</p>
+        <p class="sync-text">OPERATIVO</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="filters-container glass-card">
+    <div class="search-input-group">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" placeholder="Buscar área..." [(ngModel)]="filters.name" class="glass-input">
+    </div>
+    <div class="select-group">
+      <i class="fas fa-filter icon-filter"></i>
+      <select [(ngModel)]="filters.status" class="custom-select">
+        <option value="">🌐 Todos los Grupos</option>
+        <option value="active">✅ Solo Activos</option>
+        <option value="empty">🚫 Sin Dispositivos</option>
+      </select>
+    </div>
+  </div>
+
+  <header class="header-seccion">
+    <div class="header-info">
+      <h1 class="neon-title">📂 Gestión de Áreas</h1>
+      <button class="btn-nuevo-grupo" (click)="abrirModal()">
+        <i class="fas fa-plus-square"></i> Nueva Área
+      </button>
+    </div>
+  </header>
+
+  <div class="table-container glass-card">
+    <table class="grupos-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre del Área</th>
+          <th>Nodos Vinculados</th>
+          <th>Estado</th>
+          <th class="center">Ver Datos</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let grupo of misGruposFiltrados" (click)="verDetalle(grupo)" class="clickable-row">
+          <td class="id-cell">#{{ (grupo.id || grupo._id).slice(-6) }}</td>
+          <td><span class="area-name">{{ grupo.nombre }}</span></td>
+          <td>
+            <div class="sensor-tags-container">
+              <span class="sensor-tag" *ngFor="let sId of grupo.sensoresIds">
+                <i class="fas fa-microchip"></i> {{ sId }}
+              </span>
+            </div>
+          </td>
+          <td><span class="badge-status" [class.active]="grupo.estado === 'Activo'">{{ grupo.estado }}</span></td>
+          <td class="center">
+            <button class="action-btn-edit"><i class="fas fa-chart-line"></i></button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="modal-overlay" *ngIf="mostrarModal">
+    <div class="glass-modal">
+      <h2 class="neon-title">Registrar Nueva Área</h2>
+      <div class="modal-body">
+        <input type="text" [(ngModel)]="nuevoGrupoNombre" placeholder="Nombre (ej. Invernadero)" class="glass-input mb-3">
+        <p class="small-label">Dispositivos detectados en red:</p>
+        <div class="device-selector glass-card p-3">
+          <div *ngFor="let dispositivo of dispositivosDisponibles" class="device-option">
+            <label class="checkbox-container">
+              <input type="checkbox" [(ngModel)]="dispositivo.seleccionado">
+              <span class="checkmark"></span>
+              <span class="device-id">{{ dispositivo.id }}</span>
+            </label>
+          </div>
+          <p *ngIf="dispositivosDisponibles.length === 0" class="no-sensors">Buscando dispositivos...</p>
+        </div>
+        <div class="modal-actions mt-4">
+          <button class="btn-cancelar" (click)="cerrarModal()">Cerrar</button>
+          <button class="btn-nuevo-grupo" (click)="guardarGrupo()">Vincular Área</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="mostrarDetalle">
+    <div class="glass-modal detail-modal">
+      <h2 class="neon-title">{{ grupoSeleccionado?.nombre }}</h2>
+      <div class="sensor-data-grid">
+        <div *ngFor="let sensor of lecturasVivas" class="sensor-card glass-card">
+          <div class="sensor-header">
+            <i class="fas fa-microchip neon-icon"></i>
+            <span>{{ sensor.dispositivoId }}</span>
+          </div>
+          <div class="data-values">
+            <div class="val"><i class="fas fa-thermometer-half"></i> {{ sensor.temperatura }}°C</div>
+            <div class="val"><i class="fas fa-tint"></i> {{ sensor.humedad }}%</div>
+            <div class="val"><i class="fas fa-cloud-showers-heavy"></i> {{ sensor.hayLluvia ? 'SI' : 'NO' }}</div>
+            <div class="val"><i class="fas fa-radiation"></i> {{ sensor.voltajeGas }} PPM</div>
+            <div class="val"><i class="fas fa-sun"></i> {{ sensor.voltajeLuz }} Lux</div>
+          </div>
+          <div class="sensor-footer">Actualizado: {{ sensor.fecha | date:'HH:mm:ss' }}</div>
+        </div>
+      </div>
+      <button class="btn-cancelar mt-4 w-100" (click)="cerrarModal()">Cerrar Monitor</button>
+    </div>
+  </div>
+</div>

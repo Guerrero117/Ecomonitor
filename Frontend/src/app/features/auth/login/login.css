@@ -1,0 +1,84 @@
+/* Contenedor que centra todo en pantalla */
+.login-screen {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #0f172a; /* Azul oscuro profesional */
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Caja blanca del formulario */
+.login-card {
+  background: #1e293b;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  width: 100%;
+  max-width: 350px;
+  color: white;
+}
+
+.header h1 {
+  color: #10b981; /* Verde esmeralda para el toque Eco */
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+.header p {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* Estilo de las etiquetas y cajas de texto */
+.input-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+  color: #cbd5e1;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: white;
+  box-sizing: border-box; /* Evita que el input se salga del cuadro */
+}
+
+/* Botón llamativo */
+.btn-enter {
+  width: 100%;
+  padding: 14px;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-enter:hover {
+  background-color: #059669;
+}
+
+.btn-register{
+  width:100%;
+  padding:14px;
+  margin-top:10px;
+  background:transparent;
+  border:2px solid #10b981;
+  color:#10b981;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+}
