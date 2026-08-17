@@ -4,7 +4,7 @@ import { Observable, tap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class WeatherService {
-  private apiKey = '4c5e44357f485e8d91406438b0b2dc4b'; 
+  private apiKey = '209fecc39e49d76bf40e38b915ad1793'; 
   private city = 'Ciudad Obregon,MX';
   private backendApi = 'http://localhost:5126/api/lecturas'; 
 
